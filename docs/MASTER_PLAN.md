@@ -343,3 +343,15 @@ Every step in this plan complies strictly with [`AGENTS.md`](file:///Users/mamdo
 **Verification:** TDD observed 20 expected missing-feature failures and one legacy pass, then 23 focused module tests passed. The complete Python suite passed all 206 tests on 2026-10-31. Source was included in `uv build` wheel; a clean no-project wheel installation executed the CLI from another directory. Example `examples/marketing_lead_response.fnl` yielded `revenue=100.0` for seed 1 and `0.0` for seed 2 with identical input assumptions.
 
 **Next gates:** Module versioning/signatures, documented constraints and economic refinement types, multi-agent population orchestration, calibrated behaviors with held-out data and integration adapters, CI and early preview packaging. No claim of population-scale market prediction or Live execution arises from one reusable lead unit.
+
+---
+
+## Developer Experience Milestone: Experimental Git-Source Preview Candidate (2026-10-31)
+
+**Research gate:** `funnelscript-research/spec/developer-preview-v0.md` defines H-P1 to H-P4, non-overwrite and source/version invariants, and explicit distribution limits. Decision: DEC-033.
+
+**Implementation:** The Python package candidate is `0.2.0a1`; `uv.lock` is updated. The installed `funnelscript init-world TARGET.fnl` command creates a minimal source-defined Marketing World using exclusive file creation, rejects unsafe targets, and preserves existing files. `docs/EXPERIMENTAL_PREVIEW.md` contains a versioned Git `uvx` tutorial and custom local-module walkthrough. `.github/workflows/preview-ci.yml` uses pinned Actions to test the locked Python suite, wheel installation outside checkout, Bun tests and build, and distribution artifact upload.
+
+**TDD and local verification:** Corrected false-green negative-path checks produced six authentic RED failures for the absent command, then six GREEN. A separate package-version CLI test was observed RED and then GREEN using standard `importlib.metadata`; the focused suite then passed eight tests including the documented local-module authoring path. The first complete suite (before the version flag): 212 Python tests passed; one Bun test passed, frontend built, Python wheel/sdist built, and an isolated installed-wheel starter/check/run scenario processed two events. A stdout formatting escape issue was observed and corrected with a new assertion. Final local verification: **214 Python tests passed**, Bun install/test/build passed, the Python wheel/sdist rebuilt, and the isolated installed-wheel `--version`/`init-world`/`check`/`run-world` flow passed. Remote CI and any source tag still require independent external verification.
+
+**Release boundary:** Do not claim remote CI, tag availability, GitHub Release or PyPI distribution until separately verified at the exact candidate SHA. Versioned source publication is intentionally experimental and grants no market forecasting validity or Live execution capability.

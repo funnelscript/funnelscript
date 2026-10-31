@@ -439,3 +439,19 @@ Define future source-level library signatures which describe exported owner type
 ### Boundaries
 
 Not implemented under DEC-032. The current import system exports only one declaration per module and has no registry, semver, signature system, static money refinements, calibration integrations or proof of real-market predictive performance.
+
+---
+
+## 27. User-Verifiable Model Scenario Capsules (OOTB-027)
+
+### Research idea
+
+Future research previews could optionally package a World source hash, module dependency hashes, explicit stochastic seed, typed events, interpreter version and observed result into a portable scenario capsule. The aim would be independent replay and provenance, not a certificate of real-world market accuracy.
+
+### Future falsifiable hypothesis
+
+**H-O27:** On a preregistered cross-machine scenario corpus, verified source/dependency hashes and explicit input events detect accidental model drift and reduce nondiagnosable replay mismatches relative to prose-only tutorial examples. Falsified if mismatches remain undetected, the capsule introduces incompatible semantics, or the verification cost dominates reproducibility gains.
+
+### Boundary
+
+Not implemented in v0.2.0a1. The current preview uses explicit Git source revisions, documented CLI inputs, and existing deterministic seeds. No provenance attestation, cross-architecture bitwise floating-point guarantee, causal model validation or real-world forecast certification is claimed.

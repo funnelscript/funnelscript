@@ -29,6 +29,21 @@ cd funnelscript
 uv sync
 ```
 
+### Install and try the versioned Experimental Preview
+
+The `v0.2.0a1` preview is installable straight from its Git tag with `uvx`; it is **not** published to PyPI. Once the tag is available, you can run this outside a repository checkout:
+
+```bash
+uvx --from "git+https://github.com/funnelscript/funnelscript@v0.2.0a1" funnelscript --version
+uvx --from "git+https://github.com/funnelscript/funnelscript@v0.2.0a1" funnelscript init-world first.fnl
+uvx --from "git+https://github.com/funnelscript/funnelscript@v0.2.0a1" funnelscript check first.fnl
+uvx --from "git+https://github.com/funnelscript/funnelscript@v0.2.0a1" funnelscript run-world first.fnl \
+  --event '{"name":"Prospect.Impression","time":0,"payload":{"cpc":2.0,"conversion_probability":0.7,"order_value":100.0}}' \
+  --seed 1
+```
+
+The generated World imports the bundled `std:marketing/lead_response.fnl` module and runs a reproducible **assumption-driven** single-lead journey. See the [complete 5-minute developer preview guide](docs/EXPERIMENTAL_PREVIEW.md) to extend it with a custom World module. This is not empirically validated market prediction or a Live execution mode.
+
 ---
 
 ## Quick Start
@@ -271,6 +286,7 @@ This single-lead journey spends a scenario-defined 2.0, samples a conversion, an
 
 ## Documentation & Community
 
+* **[Experimental Developer Preview Guide](docs/EXPERIMENTAL_PREVIEW.md):** Versioned Git install, first World, custom local module and failure boundaries.
 * **[Public Research Preview Readiness](docs/PUBLIC_PREVIEW_READINESS.md):** Evidence-based announcement gates and current limitations.
 * **[Contributing Guide](CONTRIBUTING.md):** Setup, testing standards, and good-first-issue taxonomy.
 * **[Open-Source Growth Playbook](docs/OPEN_SOURCE_GROWTH_PLAYBOOK.md):** Strategy for community scaling and contributor lifecycle.

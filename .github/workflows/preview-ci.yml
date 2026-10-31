@@ -1,0 +1,65 @@
+name: Experimental Preview CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    name: Python tests and installed wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.13.6"
+      - name: Install Python 3.12
+        run: uv python install 3.12
+      - name: Sync locked environment
+        run: uv sync --locked --dev
+      - name: Run Python regression suite
+        run: uv run pytest -v
+      - name: Build source and wheel distributions
+        run: uv build
+      - name: Smoke test isolated wheel
+        shell: bash
+        run: |
+          wheel=( "$GITHUB_WORKSPACE"/dist/*.whl )
+          test "${#wheel[@]}" -eq 1
+          test -f "${wheel[0]}"
+          cd "$(mktemp -d)"
+          uv run --no-project --python 3.12 --with "${wheel[0]}" funnelscript --version
+          uv run --no-project --python 3.12 --with "${wheel[0]}" funnelscript init-world preview.fnl
+          uv run --no-project --python 3.12 --with "${wheel[0]}" funnelscript check preview.fnl
+          result=$(uv run --no-project --python 3.12 --with "${wheel[0]}" funnelscript run-world preview.fnl \
+            --event '{"name":"Prospect.Impression","time":0,"payload":{"cpc":2.0,"conversion_probability":0.7,"order_value":100.0}}' --seed 1)
+          python3 -c 'import json,sys; d=json.loads(sys.argv[1]); assert d["processed_events"] == 2 and d["state"]["Prospect"]["revenue"] == 100.0' "$result"
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: funnelscript-preview-distributions
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+
+  frontend:
+    name: Bun frontend tests and build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: "1.4.3"
+      - run: bun install --frozen-lockfile
+      - run: bun test
+      - run: bun run build

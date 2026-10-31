@@ -7,7 +7,7 @@ Assessment date: 2026-10-31. This is a subjective engineering decision aid, **no
 - A distinct `world/entity/agent/state` grammar and exact primitive type checker.
 - Language-defined rules, pre-event snapshot transitions, typed guards, typed local event records, event emission, finite event scheduling, and two seeded stochastic transition operators.
 - `run-world` CLI accepts source files, repeatable external events, typed JSON records, seeds and processing limits; `import` compiles local and packaged one-owner World modules. The first Marketing Standard Library source ships at `std:marketing/lead_response.fnl`.
-- TDD: 25 stochastic and 23 module-import regression tests; the complete Python suite passed 206 tests. Wheel/sdist build and isolated no-project wheel execution succeeded. The Bun UI test and TypeScript/Vite production build both passed in this verification run.
+- TDD: 25 stochastic, 23 World module and 8 experimental-preview regression tests; the complete Python suite passed 214 tests. The v0.2.0a1 wheel/sdist built; a clean-directory wheel install executed `--version`, `init-world`, `check` and `run-world`. Bun lockfile install, frontend test and production build passed. The pinned CI workflow is authored but its remote run is a separate release gate.
 - Research specifications, hypotheses, decisions, falsification plans, and explicit scientific limitations are maintained in the sibling repository.
 
 ## Heuristic early-announcement readiness rubric
@@ -16,18 +16,18 @@ Assessment date: 2026-10-31. This is a subjective engineering decision aid, **no
 |---|---:|---:|---|
 | Domain-neutral language core and formal semantics | 25 | 25 | Implemented parser, AST, checker, rules and grammar |
 | Executable event-driven and stochastic substrate | 20 | 20 | Stable calendar, typed payloads, Bernoulli/Uniform seeded replay |
-| Regression verification, packaging, release automation | 20 | 17 | 206 Python tests and successful isolated wheel smoke; no repository CI workflow/tagged research preview confirmed |
+| Regression verification, packaging, release automation | 20 | 18 | 214 Python tests and isolated wheel smoke; pinned CI added, but remote run and public source tag are not verified yet |
 | Marketing standard-library and extension story | 20 | 9 | A reusable source-imported lead-response library exists; multi-owner module signatures, broader marketing abstractions and population orchestration do not |
-| Clear documentation and onboarding | 15 | 11 | README, runnable World and module example, specs and working wheel exist; a focused tutorial and outside contributor feedback remain missing |
-| **Total** | **100** | **82** | Indicative **~80–85%** towards an honest experimental announcement |
+| Clear documentation and onboarding | 15 | 14 | Installed CLI scaffolds a World, reports its version, and the preview tutorial's local-module extension is tested; independent contributor feedback remains missing |
+| **Total** | **100** | **86** | Provisional **~85–90%** toward an honest experimental announcement, pending external CI/tag proof |
 
 The scores are intentionally coarse and policy-dependent. A different release definition can materially change them. Production and predictive-validity readiness are **not** measured by this score.
 
 ## Shortest credible announcement gate
 
-1. **Publish and teach the now executable lead-response example**, with its typed Impression, Bernoulli result, delayed Checkout and both seed outcomes. Make the one-exposure and missing economic-bound checks prominent.
-2. **Stabilize the import and library contributor story** with a small how-to covering the current one-export restriction, plus a roadmap for signatures, distributions and typed economic constraints.
-3. **Add repeatable CI and a versioned preview artifact**, then test the Quick Start with independent contributors and invite concrete issues.
+1. **Keep the tested lead-response tutorial public and honest**, including typed Impression, seeded Bernoulli conversion, delayed Checkout, one-exposure scope and unvalidated financial bounds.
+2. **Use the verified first-run and local-module workflow** as the contributor contract, while leaving signatures, economic refinements and registry packaging for later research.
+3. **Independently verify the new GitHub CI on the exact candidate SHA**, publish and verify the candidate Git tag only after relevant checks pass, and invite outside contributors to test clean installation.
 4. **Publish as an experimental research preview** with prominent disclaimers: no causal market validity, no PyMC/OmniTwin calibration integration, no real data, no Live/Shadow capability authorization.
 
 ## User-supplied concerns re-evaluated
@@ -38,4 +38,4 @@ The scores are intentionally coarse and policy-dependent. A different release de
 
 ## Next decision
 
-A research-announcement blog post can truthfully introduce FunnelScript today if labeled experimental. A **repeatable open-source developer preview** should wait for CI, a tagged artifact, an import-writing tutorial and outside installation feedback. Forecasting claims should wait for independent held-out empirical validation and explicit uncertainty calibration.
+A research-announcement blog post can truthfully introduce FunnelScript today if labeled experimental. The developer-preview implementation now has tested onboarding and local wheel installation. A **public tagged source preview** still requires remote CI proof, tag verification and independent Git install smoke. Feedback from outside contributors remains a subsequent adoption gate. Forecasting claims must wait for held-out empirical validation and explicit uncertainty calibration.

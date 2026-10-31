@@ -23,6 +23,8 @@ This index categorizes all engineering failures, debugging breakthroughs, and re
 | **FL-013** | [Forward AST Union Declaration](testing-and-verification.md#13-forward-ast-type-alias-referencing-a-later-runtime-class) | Testing & Verification | **Resolved** | Module-level union evaluated before new class binding |
 | **FL-014** | [Bun Missing from Shell PATH](testing-and-verification.md#14-bun-installed-but-missing-from-noninteractive-shell-path) | DevOps & Tooling | **Resolved** | Installed Bun binary not included in noninteractive zsh PATH |
 | **FL-015** | [World Import Grammar Feature-Absence RED](testing-and-verification.md#15-world-import-grammar-rejected-source-modules-before-resolver-tests) | Testing & Verification | **Resolved** | Parser previously accepted only entity and agent declarations in World blocks |
+| **FL-016** | [Unknown CLI Command False-Green TDD](testing-and-verification.md#16-invalid-negative-path-tdd-checks-counted-an-unknown-command-as-success) | Testing & Verification | **Resolved** | Nonzero exit code alone did not prove intended target validation |
+| **FL-017** | [Double-Escaped Starter CLI Newline](testing-and-verification.md#17-double-escaped-newline-in-remotely-authored-cli-output) | DevOps & Tooling | **Resolved** | Nested editing transport escaped user-facing newline twice |
 
 ---
 

@@ -992,3 +992,15 @@ A critical trap in ambitious software projects is delaying release until a massi
 * **Trade-offs:** One exported declaration per file avoids premature module signatures, import scoping and qualification. Restricted paths prevent traversal, but the system has no registry, version lockfile, package namespace ownership or distribution trust chain.
 * **Economic caveat:** Source-typed float values are not proof of nonnegative CPC or order value. The single-journey demonstration is research code, not a truthful ROAS forecaster or full agent economy.
 * **Falsification:** H-M1 to H-M4 cover alias-equivalent execution, wheel portability, import graph/path safety and deterministic single-journey events. No empirical market claims follow.
+
+---
+
+## Debate 22: Native World Quickstart vs Full Project Generator and Registry Release
+
+**Problem:** Is an early public developer preview credible before a package registry and a rich multi-file project generator exist?
+
+* **Option A, publish a full project scaffolder and PyPI package now:** Promises more stability and domain semantics than the single-lead interpreter has demonstrated. Rejected.
+* **Option B, hand-written sample source only:** Minimal implementation work, but leaves first-run install and safe authoring unverified from an outside working directory. Insufficient for an independent preview.
+* **Option C, one-file `init-world` and versioned Git source (accepted):** Reuse the packaged Marketing module and native `pathlib.open("x")` semantics. CI tests the wheel from outside the repository. Author-facing steps are versioned and explicit, without extra package manager code.
+* **Trade-offs:** The user needs uv and Git, the generated World still requires explicit typed events, and GitHub Actions artifacts are time-limited. Preview install success on one platform does not establish population-scale execution or external predictive validity.
+* **Falsification:** H-P1 to H-P4 require an observable installed-CLI journey, non-overwrite behavior, wheel inspection and proof that the announced tag/commit and public CI evidence agree.

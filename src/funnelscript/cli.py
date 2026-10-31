@@ -4,6 +4,7 @@ Commands:
   funnelscript check <file>       Static semantic verification and invariant checks
   funnelscript simulate <file>    Vectorized Monte Carlo simulation and stress-testing
   funnelscript init <name>        Scaffold a new validated FunnelScript strategy
+  funnelscript init-world <file>  Create a source-level World starter
   funnelscript schema             Output or export JSON Schema specification
 """
 
@@ -12,6 +13,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from importlib.metadata import version as distribution_version
 from pathlib import Path
 from rich.console import Console
 from rich.panel import Panel
@@ -32,6 +34,11 @@ from funnelscript.runtime.exporters import (
 )
 
 console = Console()
+
+WORLD_STARTER = """world MarketingPreview {
+  import "std:marketing/lead_response.fnl" as Prospect;
+}
+"""
 
 
 def check_command(file_path: str, quiet: bool = False) -> int:
@@ -407,6 +414,28 @@ def init_command(name: str, output_path: str | None = None) -> int:
     return 0
 
 
+def init_world_command(file_path: str) -> int:
+    """Create a runnable World without overwriting existing user files."""
+    target = Path(file_path)
+    if target.suffix != ".fnl":
+        print("World starter target must use a .fnl extension", file=sys.stderr)
+        return 2
+    if not target.parent.is_dir():
+        print(f"World starter parent directory does not exist: {target.parent}", file=sys.stderr)
+        return 2
+    try:
+        with target.open("x", encoding="utf-8") as handle:
+            handle.write(WORLD_STARTER)
+    except FileExistsError:
+        print(f"World starter target already exists: {target}", file=sys.stderr)
+        return 2
+    except OSError as exc:
+        print(f"Cannot create World starter: {exc}", file=sys.stderr)
+        return 2
+    print(f"World starter created: {target}\nRun: funnelscript check {target}")
+    return 0
+
+
 def schema_command(output_path: str | None = None) -> int:
     """Generates and exports the JSON Schema specification."""
     schema_json = export_json_schema(output_path)
@@ -421,6 +450,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         prog="funnelscript",
         description="FunnelScript: A Programming Language for Marketing Systems Powered by Simulated Market Worlds",
+    )
+    parser.add_argument(
+        "--version", action="version",
+        version=f"%(prog)s {distribution_version('funnelscript')}",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -455,6 +488,10 @@ def main() -> None:
     init_p.add_argument("name", help="Campaign strategy name")
     init_p.add_argument("--output", "-o", help="Target output file path")
 
+    # init-world
+    world_init_p = subparsers.add_parser("init-world", help="Create a safe World starter")
+    world_init_p.add_argument("file", help="New .fnl file path")
+
     # schema
     schema_p = subparsers.add_parser("schema", help="Generate official JSON Schema")
     schema_p.add_argument("--output", "-o", help="Target output file path")
@@ -482,6 +519,8 @@ def main() -> None:
         )
     elif args.command == "init":
         exit_code = init_command(args.name, args.output)
+    elif args.command == "init-world":
+        exit_code = init_world_command(args.file)
     elif args.command == "schema":
         exit_code = schema_command(args.output)
 

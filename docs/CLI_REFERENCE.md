@@ -18,8 +18,17 @@ funnelscript [--help] <command> [options]
 | `compile <file>` | Alias for `check` | `0`, `1`, `2` |
 | `run-world <file>` | Execute explicit events against typed World rules without external effects | `0` (pass), `1` (World or event error) |
 | `simulate <file>` | Vectorized Monte Carlo simulation & liquidity stress-testing | `0` (pass), `1` (lint error), `2` (I/O error) |
-| `init <name>` | Scaffold a production-ready, pre-validated campaign template | `0` (created) |
+| `init <name>` | Scaffold the legacy campaign JSON template | `0` (created) |
+| `init-world <file.fnl>` | Create a minimal source World using the Marketing Standard Library | `0` (created), `2` (invalid target or I/O failure) |
 | `schema` | Print or export the official Draft 2020-12 JSON Schema | `0` |
+
+---
+
+## Experimental first-run command
+
+`funnelscript --version` reports the installed distribution version. `funnelscript init-world first.fnl` writes a type-checkable World importing the packaged `std:marketing/lead_response.fnl` agent as `Prospect`. It refuses to overwrite existing files, requires a `.fnl` suffix, and does not create missing parent directories. The World is inert until an explicit input event is provided.
+
+Continue with `funnelscript check first.fnl`, then use `run-world --event` with the typed Impression payload. See the [Experimental Preview Guide](EXPERIMENTAL_PREVIEW.md) for the full reproducible invocation and limitations.
 
 ---
 

@@ -1,6 +1,6 @@
 [project]
 name = "funnelscript"
-version = "0.1.0"
+version = "0.2.0a1"
 description = "Declarative DSL and Stochastic Agent-Based Simulation Runtime for Marketing Systems Engineering"
 readme = "README.md"
 requires-python = ">=3.12"

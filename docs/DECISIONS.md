@@ -446,3 +446,18 @@
 * **Research and falsification:** `spec/marketing-stdlib-v0.md` (H-M1 to H-M4), `evals/marketing-stdlib-v0.md` and `tests/test_world_modules.py`. Packaged-wheel smoke runs outside the repository.
 * **Rationale:** Makes marketing reuse a library-author decision while preserving the generic language's parser, semantics, scheduler and type system.
 * **Limits:** No multi-export modules, versioned package registry, source-level parameters, multi-agent financial conservation, cross-owner dispatch, real data calibration, or Live execution authorization.
+
+---
+
+### DEC-033: Tagged Git-Source Experimental Preview and Safe World Onboarding
+
+* **Status:** Accepted for candidate v0.2.0a1 (2026-10-31); publication status is independently verified.
+* **Context:** A packageable language runtime and source-defined Marketing Standard Library exist, but the first-time user still needs a cloned checkout and manually authored source. No repository CI existed, and a green local build was not sufficient evidence for a distribution claim.
+* **Decision:**
+  1. Expose `funnelscript init-world TARGET.fnl` as a minimal, deterministic World starter with the existing `std:marketing/lead_response.fnl` import. Use exclusive create mode, reject wrong suffix/missing parent, and preserve existing user bytes on repeated invocation.
+  2. Designate PEP 440 `0.2.0a1` as the package candidate, with `v0.2.0a1` as its Git source reference if safely published. A Git source installation through `uvx --from git+https://...` is the experimental distribution channel; no PyPI or production release is claimed.
+  3. Add pinned GitHub Actions steps for locked Python tests, source/wheel build, clean-directory installed-wheel execution, and Bun frontend lockfile tests/build. Artifacts are retained for 14 days. CI configuration is not evidence of actual remote success.
+  4. Keep onboarding examples and disclaimers explicit: a single typed Impression with model-supplied probability, seeded Bernoulli and one delayed Checkout is a reproducible interpreter example, not a validated market prediction or authority to execute Live effects.
+* **Research and falsification:** `spec/developer-preview-v0.md` (H-P1 to H-P4), `evals/developer-preview-v0.md`, `tests/test_preview_quickstart.py` and a candidate-vs-remote release audit.
+* **Rationale:** A first independent user can try the reference language without learning the repository internals, while a minimal package/tag/CI path is inspectable and reversible before a public release.
+* **Limits:** No PyPI publishing, general package registry, module signatures, clean-machine user study, real economic model validation, or Live execution. A source tag alone is not a verified GitHub Release object.

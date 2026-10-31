@@ -405,3 +405,31 @@ Focused tests progressed to 21 passing and then 23 after adjacent falsification.
 ### Status
 
 Resolved as a deliberately test-first feature gap. No unrelated tests were weakened or removed.
+
+---
+
+## 16. Invalid Negative-Path TDD Checks Counted an Unknown Command as Success
+
+**Class:** Test oracle design / false green. **Status:** Resolved. **Scope:** `tests/test_preview_quickstart.py`.
+
+**Observed:** The first source-free test run produced three expected failures and three passing tests for invalid extensions or nonexistent parents. All three passes occurred only because argparse rejected the unknown `init-world` command, so their assertions `returncode != 0` did not exercise the target validation.
+
+**Hypotheses:** (A) The command-specific invalid-target checks executed and passed; (B) they short-circuited at the missing CLI command. The stderr `invalid choice: init-world` falsified A.
+
+**Correction:** Required `.fnl` or `directory` diagnostics in negative tests before modifying production code. The second RED run produced six deterministic missing-command failures; after minimal CLI implementation, all six passed.
+
+**Invariant learned:** Negative tests must assert an error originating at the intended trust boundary, not merely a nonzero exit code. Keep an explicit failure signature so an upstream parser/dispatcher rejection cannot masquerade as successful validation.
+
+---
+
+## 17. Double-Escaped Newline in Remotely Authored CLI Output
+
+**Class:** Tool-mediated source escaping / user-facing output. **Status:** Resolved. **Scope:** `src/funnelscript/cli.py` starter status line.
+
+**Observed:** An isolated-wheel scenario created, checked, and ran a valid World, but its informational output showed a literal backslash-n sequence between the filename and suggested check command.
+
+**Mechanism and discriminating evidence:** The remote edit payload crossed JavaScript and Python-string escape layers, turning the intended newline into a literal `\\n` in a Python source string. The wheel smoke confirmed the issue was actually shipped in the candidate, while the World source and runtime result remained correct.
+
+**Correction:** Replaced the output with a single correctly escaped newline passed to plain `print`, avoiding Rich markup interpretation of user file paths. Extended `tests/test_preview_quickstart.py` to reject a literal `\\nRun:` and require a real newline before `Run:`.
+
+**Invariant learned:** Verify rendered CLI output at the installed-artifact boundary, not only source compilation or parser behavior. Nested transport escaping is an independent user-facing failure mode.
