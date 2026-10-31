@@ -1,0 +1,107 @@
+{
+  "$schema": "https://funnelscript.org/v1/schema.json",
+  "strategy_name": "ECommerce_Black_Friday_2026",
+  "metadata": {
+    "author": "Marketing Engineer",
+    "industry": "Consumer Electronics",
+    "currency": "USD"
+  },
+  "environment": {
+    "market_volatility": "high",
+    "competitor_activity": "aggressive"
+  },
+  "entities": {
+    "budgets": {
+      "total_budget": 25000,
+      "max_cpc_limit": 1.20,
+      "initial_cash": 12000,
+      "settlement_delay_days": 3
+    },
+    "audiences": [
+      {
+        "id": "aud_01",
+        "name": "Tech Enthusiasts",
+        "type": "cold",
+        "estimated_size": 500000,
+        "attributes": {
+          "brand_affinity": 0.55,
+          "buying_intent_score": 0.65,
+          "price_sensitivity": 0.40,
+          "fomo_index": 0.70
+        }
+      }
+    ],
+    "touchpoints": [
+      {
+        "id": "tp_meta_ads",
+        "type": "paid_traffic",
+        "platform": "Meta",
+        "base_cpc": 0.45,
+        "ad_creative_score": 0.85
+      },
+      {
+        "id": "tp_landing_page",
+        "type": "conversion_surface",
+        "base_conversion_rate": 0.045
+      },
+      {
+        "id": "tp_cart_email",
+        "type": "retargeting_channel",
+        "medium": "Email",
+        "base_open_rate": 0.28
+      }
+    ]
+  },
+  "logic_flow": [
+    {
+      "step": 1,
+      "action": "TriggerTraffic",
+      "source": "aud_01",
+      "via": "tp_meta_ads",
+      "destination": "tp_landing_page"
+    },
+    {
+      "step": 2,
+      "type": "ConditionalBranch",
+      "condition": {
+        "user_action": "AbandonCart",
+        "time_elapsed": "2h"
+      },
+      "true_branch": [
+        {
+          "action": "ExecuteRetargeting",
+          "channel": "tp_cart_email",
+          "payload": {
+            "offer_type": "Scarcity_With_Discount",
+            "discount_percentage": 15
+          },
+          "expected_impact": {
+            "conversion_boost": 0.021
+          }
+        }
+      ],
+      "false_branch": [
+        {
+          "action": "DoNothing"
+        }
+      ]
+    }
+  ],
+  "simulation_engine": {
+    "engine_type": "Agent-Based_Monte_Carlo",
+    "parameters": {
+      "virtual_agents_count": 50000,
+      "timeframe_days": 14,
+      "randomness_factor_sigma": 0.15,
+      "tick_size": "1h"
+    },
+    "historical_data_weight": 0.70,
+    "output_metrics_requested": [
+      "ROAS_Distribution",
+      "CAC_Probability_Curve",
+      "Cash_Ruin_Probability",
+      "Inventory_Burn_Rate",
+      "Worst_Case_Scenario_Loss"
+    ]
+  }
+}

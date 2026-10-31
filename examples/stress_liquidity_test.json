@@ -1,0 +1,55 @@
+{
+  "$schema": "https://funnelscript.org/v1/schema.json",
+  "strategy_name": "Cash_Starved_High_Growth",
+  "entities": {
+    "budgets": {
+      "total_budget": 30000,
+      "max_cpc_limit": 2.00,
+      "initial_cash": 1500,
+      "settlement_delay_days": 7
+    },
+    "audiences": [
+      {
+        "id": "aud_cold",
+        "name": "Broad Audience",
+        "type": "cold",
+        "estimated_size": 200000,
+        "attributes": {
+          "brand_affinity": 0.40,
+          "buying_intent_score": 0.50,
+          "price_sensitivity": 0.60,
+          "fomo_index": 0.50
+        }
+      }
+    ],
+    "touchpoints": [
+      {
+        "id": "tp_meta",
+        "type": "paid_traffic",
+        "base_cpc": 1.20,
+        "ad_creative_score": 0.70
+      },
+      {
+        "id": "tp_store",
+        "type": "conversion_surface",
+        "base_conversion_rate": 0.025
+      }
+    ]
+  },
+  "logic_flow": [
+    {
+      "step": 1,
+      "action": "TriggerTraffic",
+      "source": "aud_cold",
+      "via": "tp_meta",
+      "destination": "tp_store"
+    }
+  ],
+  "simulation_engine": {
+    "parameters": {
+      "virtual_agents_count": 20000,
+      "timeframe_days": 14,
+      "randomness_factor_sigma": 0.20
+    }
+  }
+}
