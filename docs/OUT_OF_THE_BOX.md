@@ -239,3 +239,10 @@ Smart contracts use Satisfiability Modulo Theories (SMT) solvers like Z3 to math
 | **OOTB-012** | Julia / Mojo LLVM Backend | High-Performance ABM / JIT | Conceptual | Benchmark Julia Agents.jl vs NumPy SIMD |
 | **OOTB-013** | Marketing Drift Reconciliation | Cloud IaC / Infrastructure Drift | Seeded | Draft live provider state schema |
 | **OOTB-014** | SMT Formal Verification (Z3) | Formal Methods / SMT Solvers | Conceptual | Model FunnelScript state machine in Z3 |
+
+
+---
+
+## Frontier Status Note: Effect Sandbox and Deterministic Replay (2026-10-31)
+
+The domain-neutral event kernel in `spec/event-kernel-v0.md` establishes only a reference event calendar and inert `EffectIntent` outputs. It is a prerequisite for exploring OOTB-010 (capability sandboxing) and OOTB-011 (event log replay), not evidence that either speculative feature is implemented. Prior to promotion, require falsifiable static effect-permission checks, external side-effect isolation, and adversarial replay tests. Neither a reproducible simulation seed nor a deterministic event log establishes causal identification from real-world market data.
