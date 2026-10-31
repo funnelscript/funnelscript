@@ -202,6 +202,28 @@ The four processed events leave `Counter.value = 3` with no further pending even
 
 ---
 
+### Typed World event payloads (experimental)
+
+World authors can define exact event message shapes and read incoming values in rule transitions:
+
+```funnelscript
+event Credit(amount: int);
+rule Receive on event Credit {
+  transition balance = balance + payload.amount;
+}
+```
+
+```bash
+uv run main.py check examples/payload_world.fnl
+uv run main.py run-world examples/payload_world.fnl --event Wallet.Start@3
+uv run main.py run-world examples/payload_world.fnl \
+  --event '{"name":"Wallet.Credit","time":0,"payload":{"amount":8}}'
+```
+
+The runtime validates payload field names, exact primitive types and finite float values before processing or scheduling. See the [Typed Event Payload Research Contract](https://github.com/funnelscript/funnelscript-research/blob/main/spec/typed-event-payloads-v0.md). This is pure, deterministic World behavior, not empirically validated consumer simulation.
+
+---
+
 ## Documentation & Community
 
 * **[Contributing Guide](CONTRIBUTING.md):** Setup, testing standards, and good-first-issue taxonomy.

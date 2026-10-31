@@ -37,6 +37,7 @@ class TokenType(Enum):
     MINUS = auto()
     PLUS = auto()
     DOTDOT = auto()
+    DOT = auto()
     LBRACE = auto()
     RBRACE = auto()
     LPAREN = auto()
@@ -160,6 +161,7 @@ class Lexer:
                 "+": TokenType.PLUS,
                 ">": TokenType.GT,
                 "<": TokenType.LT,
+                ".": TokenType.DOT,
             }
             if char in delimiters:
                 self.tokens.append(Token(delimiters[char], char, self.line, self.col))

@@ -17,6 +17,11 @@ class StateDefinition(BaseModel):
     value: object
 
 
+class PayloadFieldExpression(BaseModel):
+    kind: Literal["payload_field"] = "payload_field"
+    name: str
+
+
 class LiteralExpression(BaseModel):
     kind: Literal["literal"] = "literal"
     value: object
@@ -31,11 +36,11 @@ class BinaryExpression(BaseModel):
     kind: Literal["binary"] = "binary"
     operator: Literal["+", "-"]
     left: ReferenceExpression
-    right: LiteralExpression
+    right: LiteralExpression | PayloadFieldExpression
 
 
 StateExpression = Annotated[
-    LiteralExpression | ReferenceExpression | BinaryExpression,
+    LiteralExpression | ReferenceExpression | PayloadFieldExpression | BinaryExpression,
     Field(discriminator="kind"),
 ]
 
@@ -45,9 +50,20 @@ class StateTransitionDefinition(BaseModel):
     expr: StateExpression
 
 
+class EventFieldDefinition(BaseModel):
+    name: str
+    type_name: str
+
+
+class EventDefinition(BaseModel):
+    name: str
+    fields: list[EventFieldDefinition] = Field(default_factory=list)
+
+
 class EventEmissionDefinition(BaseModel):
     event: str
     delay: object
+    arguments: dict[str, StateExpression] = Field(default_factory=dict)
 
 
 class GuardDefinition(BaseModel):
@@ -68,6 +84,7 @@ class EntityDefinition(BaseModel):
     kind: Literal["entity"] = "entity"
     name: str
     states: list[StateDefinition] = Field(default_factory=list)
+    events: list[EventDefinition] = Field(default_factory=list)
     rules: list[EventRuleDefinition] = Field(default_factory=list)
 
 
@@ -125,8 +142,25 @@ class WorldTypeChecker:
 
 
     @classmethod
+    def _event_types(cls, declaration: EntityDefinition) -> dict[str, dict[str, str]]:
+        schemas: dict[str, dict[str, str]] = {}
+        for event in declaration.events:
+            if event.name in schemas:
+                raise WorldTypeError(f"Duplicate event declaration '{event.name}'")
+            fields: dict[str, str] = {}
+            for field in event.fields:
+                if field.name in fields:
+                    raise WorldTypeError(f"Duplicate event field '{field.name}'")
+                if field.type_name not in cls.PRIMITIVES:
+                    raise WorldTypeError(f"Unknown event field type '{field.type_name}'")
+                fields[field.name] = field.type_name
+            schemas[event.name] = fields
+        return schemas
+
+    @classmethod
     def _check_rules(cls, declaration: EntityDefinition) -> None:
         types = {state.name: state.type_name for state in declaration.states}
+        event_types = cls._event_types(declaration)
         names: set[str] = set()
         events: set[str] = set()
         declared_events = {rule.event for rule in declaration.rules}
@@ -148,7 +182,9 @@ class WorldTypeChecker:
                 if target not in types:
                     raise WorldTypeError(f"Unknown transition target '{target}'")
                 targets.add(target)
-                actual_type = cls._expression_type(transition.expr, types)
+                actual_type = cls._expression_type(
+                    transition.expr, types, event_types.get(rule.event, {})
+                )
                 if actual_type != types[target]:
                     raise WorldTypeError(
                         f"Type mismatch assigning '{target}': "
@@ -158,6 +194,12 @@ class WorldTypeChecker:
             for emission in rule.emissions:
                 if emission.event not in declared_events:
                     raise WorldTypeError(f"Unknown emitted event '{emission.event}'")
+                cls._check_payload_arguments(
+                    emission.arguments,
+                    event_types.get(emission.event, {}),
+                    types,
+                    event_types.get(rule.event, {}),
+                )
                 delay = emission.delay
                 if type(delay) not in (int, float):
                     raise WorldTypeError("Event emission delay must be numeric")
@@ -167,6 +209,28 @@ class WorldTypeChecker:
                     finite = False
                 if not finite or delay < 0:
                     raise WorldTypeError("Event emission delay must be finite and non-negative")
+
+    @classmethod
+    def _check_payload_arguments(
+        cls,
+        arguments: dict[str, StateExpression],
+        schema: dict[str, str],
+        state_types: dict[str, str],
+        current_payload: dict[str, str],
+    ) -> None:
+        missing = schema.keys() - arguments.keys()
+        extra = arguments.keys() - schema.keys()
+        if extra:
+            raise WorldTypeError(f"Unexpected event arguments: {sorted(extra)}")
+        if missing:
+            raise WorldTypeError(f"Missing event arguments: {sorted(missing)}")
+        for name, expr in arguments.items():
+            actual = cls._expression_type(expr, state_types, current_payload)
+            if actual != schema[name]:
+                raise WorldTypeError(
+                    f"Type mismatch in emitted argument '{name}': "
+                    f"expected {schema[name]}, got {actual}"
+                )
 
     @classmethod
     def _check_guard(cls, guard: GuardDefinition, types: dict[str, str]) -> None:
@@ -182,7 +246,10 @@ class WorldTypeChecker:
             raise WorldTypeError("Ordered guard comparisons require numeric types")
 
     @classmethod
-    def _expression_type(cls, expr: StateExpression, types: dict[str, str]) -> str:
+    def _expression_type(
+        cls, expr: StateExpression, types: dict[str, str],
+        payload_types: dict[str, str] | None = None,
+    ) -> str:
         if isinstance(expr, LiteralExpression):
             for name, value_type in cls.PRIMITIVES.items():
                 if type(expr.value) is value_type:
@@ -192,9 +259,13 @@ class WorldTypeChecker:
             if expr.name not in types:
                 raise WorldTypeError(f"Unknown state reference '{expr.name}'")
             return types[expr.name]
+        if isinstance(expr, PayloadFieldExpression):
+            if expr.name not in (payload_types or {}):
+                raise WorldTypeError(f"Unknown payload field '{expr.name}'")
+            return payload_types[expr.name]
         if isinstance(expr, BinaryExpression):
-            left_type = cls._expression_type(expr.left, types)
-            right_type = cls._expression_type(expr.right, types)
+            left_type = cls._expression_type(expr.left, types, payload_types)
+            right_type = cls._expression_type(expr.right, types, payload_types)
             if left_type not in ("int", "float") or right_type not in ("int", "float"):
                 raise WorldTypeError("Binary arithmetic requires numeric operands")
             if left_type != right_type:

@@ -208,10 +208,13 @@ class Parser:
                 raise ParserError("Expected entity or agent declaration", kind)
             decl_name = str(self.expect(TokenType.IDENTIFIER).value)
             self.expect(TokenType.LBRACE)
-            states, rules = self._parse_world_members()
+            states, events, rules = self._parse_world_members()
             self.expect(TokenType.RBRACE)
             declarations.append(
-                {"kind": kind.value, "name": decl_name, "states": states, "rules": rules}
+                {
+                    "kind": kind.value, "name": decl_name,
+                    "states": states, "events": events, "rules": rules,
+                }
             )
 
         self.expect(TokenType.RBRACE)
@@ -222,8 +225,9 @@ class Parser:
 
     def _parse_world_members(
         self,
-    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
         states: list[dict[str, Any]] = []
+        events: list[dict[str, Any]] = []
         rules: list[dict[str, Any]] = []
         while self.current().type != TokenType.RBRACE:
             if self.current().type == TokenType.EOF:
@@ -231,6 +235,8 @@ class Parser:
             keyword = self.expect(TokenType.IDENTIFIER)
             if keyword.value == "rule":
                 rules.append(self._parse_world_rule())
+            elif keyword.value == "event":
+                events.append(self._parse_event_declaration())
             elif keyword.value == "state":
                 field_name = str(self.expect(TokenType.IDENTIFIER).value)
                 self.expect(TokenType.COLON)
@@ -240,8 +246,24 @@ class Parser:
                 self.expect(TokenType.SEMICOLON)
                 states.append({"name": field_name, "type_name": type_name, "value": value})
             else:
-                raise ParserError("Expected state or rule declaration", keyword)
-        return states, rules
+                raise ParserError("Expected state, event or rule declaration", keyword)
+        return states, events, rules
+
+    def _parse_event_declaration(self) -> dict[str, Any]:
+        name = str(self.expect(TokenType.IDENTIFIER).value)
+        self.expect(TokenType.LPAREN)
+        fields: list[dict[str, str]] = []
+        if self.current().type != TokenType.RPAREN:
+            while True:
+                field = str(self.expect(TokenType.IDENTIFIER).value)
+                self.expect(TokenType.COLON)
+                type_name = str(self.expect(TokenType.IDENTIFIER).value)
+                fields.append({"name": field, "type_name": type_name})
+                if not self.match(TokenType.COMMA):
+                    break
+        self.expect(TokenType.RPAREN)
+        self.expect(TokenType.SEMICOLON)
+        return {"name": name, "fields": fields}
 
     def _parse_world_rule(self) -> dict[str, Any]:
         rule_name = str(self.expect(TokenType.IDENTIFIER).value)
@@ -269,12 +291,24 @@ class Parser:
                 transitions.append({"target": target, "expr": expr})
             elif keyword.value == "emit":
                 target = str(self.expect(TokenType.IDENTIFIER).value)
+                arguments: dict[str, dict[str, Any]] = {}
+                if self.match(TokenType.LPAREN):
+                    if self.current().type != TokenType.RPAREN:
+                        while True:
+                            field = str(self.expect(TokenType.IDENTIFIER).value)
+                            if field in arguments:
+                                raise ParserError(f"Duplicate emitted event field '{field}'")
+                            self.expect(TokenType.ASSIGN)
+                            arguments[field] = self._parse_rule_expression()
+                            if not self.match(TokenType.COMMA):
+                                break
+                    self.expect(TokenType.RPAREN)
                 after = self.expect(TokenType.IDENTIFIER)
                 if after.value != "after":
                     raise ParserError("Expected 'after' in emit statement", after)
                 delay = self._parse_world_literal()
                 self.expect(TokenType.SEMICOLON)
-                emissions.append({"event": target, "delay": delay})
+                emissions.append({"event": target, "delay": delay, "arguments": arguments})
             else:
                 raise ParserError("Expected transition or emit statement", keyword)
         self.expect(TokenType.RBRACE)
@@ -305,8 +339,20 @@ class Parser:
         self.expect(TokenType.RPAREN)
         return {"field": field, "operator": operators[comparison.type], "value": value}
 
+    def _parse_payload_reference(self) -> dict[str, Any]:
+        self.expect(TokenType.IDENTIFIER)
+        self.expect(TokenType.DOT)
+        return {
+            "kind": "payload_field",
+            "name": str(self.expect(TokenType.IDENTIFIER).value),
+        }
+
     def _parse_rule_expression(self) -> dict[str, Any]:
         tok = self.current()
+        if tok.type == TokenType.IDENTIFIER and tok.value == "payload" and (
+            self.peek() is not None and self.peek().type == TokenType.DOT
+        ):
+            return self._parse_payload_reference()
         if tok.type == TokenType.IDENTIFIER and tok.value not in ("true", "false"):
             self.pos += 1
             reference = {"kind": "reference", "name": str(tok.value)}
@@ -320,7 +366,12 @@ class Parser:
                 "kind": "binary",
                 "operator": operator,
                 "left": reference,
-                "right": {"kind": "literal", "value": self._parse_world_literal()},
+                "right": (
+                    self._parse_payload_reference()
+                    if self.current().value == "payload"
+                    and self.peek() is not None and self.peek().type == TokenType.DOT
+                    else {"kind": "literal", "value": self._parse_world_literal()}
+                ),
             }
         return {"kind": "literal", "value": self._parse_world_literal()}
 

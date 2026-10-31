@@ -302,3 +302,18 @@ Every step in this plan complies strictly with [`AGENTS.md`](file:///Users/mamdo
 **Verification:** TDD observed 5 focused runtime RED failures after parser/type support, followed by 20 focused GREEN tests and 121 total passing Python tests. Example: `examples/guarded_world.fnl` uses a bounded self-scheduled Tick chain ending at value three.
 
 **Next gates:** Formal conditional composition, typed event payloads, explicit RNG operators and probabilistic guard semantics; empirical calibration remains separate. No automatic Live/Shadow execution is authorized by guarded rules.
+
+
+---
+
+## Language Core Milestone: Typed World Event Records (2026-10-31)
+
+**Research gate:** `funnelscript-research/spec/typed-event-payloads-v0.md` establishes H-P1 through H-P4, strict record and primitive typing, pre-event payload reads and pre-enqueue validity. Decision: DEC-030.
+
+**Implementation:** Domain-neutral event declarations (`event Credit(amount: int);`) add schemas to the typed World AST. Rule expressions can read `payload.amount`; same-owner `emit Credit(amount = expr) after Delay;` validates every named argument at compile time, evaluates against the pre-event snapshot, and schedules a typed in-memory message through the existing event calendar. The CLI supports JSON-serialized input through the existing repeatable `--event` flag. Legacy untyped World rules remain valid for empty records only.
+
+**Reliability gates:** Incoming records are checked before any guarded handler runs; generated messages are checked before entering pending queues. Missing/extra/non-string fields, wrong primitives, bool-as-int and nonfinite floats are rejected. No external effects, stochastic model or second scheduler is created.
+
+**TDD evidence:** Initial 29 focused RED cases, 17 RED after compiler support, 29 GREEN after runtime/CLI, followed by adversarial RED cases for nonfinite numbers and invalid pending messages. 37 focused payload tests and 158 full Python tests pass after the final code mutation; `uv build` produced sdist and wheel. Privacy-specific RED tests eliminated raw event echoes and ambiguous duplicate JSON keys. Example: `examples/payload_world.fnl`.
+
+**Next gates:** Source-level payload comparisons and composite typed guards, seeded probability operators, explicit state-space constraints and model calibration interfaces. Future Shadow/Live actions still require independently audited effect capabilities and external authorization.

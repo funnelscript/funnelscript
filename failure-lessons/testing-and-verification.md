@@ -306,3 +306,20 @@ Test an observable event chain and assert final state, processed event count, an
 
 ### Status
 Resolved; see `tests/test_world_guards.py` and `funnelscript-research/evals/world-guards-v0.md`.
+
+
+---
+
+## 9. Validate Messages at Both Ingress and Calendar Insertion (2026-10-31)
+
+**Failure class:** Data-boundary type and numeric validity leak in a deterministic event interpreter. Detected by the Typed Event Payloads v0 TDD falsification matrix, not by the initial happy-path tests.
+
+**Controlled reproduction:** `uv run pytest -q tests/test_world_payloads.py` began with 29/29 expected RED failures from unsupported source contracts, then reached GREEN after AST/parser/runtime work. Four new adversarial tests subsequently demonstrated that `float('nan')`, `float('inf')` and `float('-inf')` were accepted as input event values, and the CLI even serialized invalid numeric state. Two additional probes showed mixed-type Python mapping keys raised a generic `TypeError` while an invalid source-emitted record could remain pending past a finite horizon without ever being validated. Both calendar-boundary RED tests failed deterministically; follow-up privacy and duplicate-key RED probes established separate CLI serialization failure modes before their respective fixes.
+
+**Root contributors:** The core Event class intentionally owns no model schema; initial World runtime validation checked exact primitive classes but not IEEE-754 finiteness. The diagnostic path assumed all dictionary keys were comparable strings. The outgoing path relied on *future* receiver validation rather than validating the message at enqueue time, so stopping before the receiver deferred the error indefinitely.
+
+**Bounded repair:** Keep the general EventMachine payload model unchanged. Enforce plain string-key maps, exact schema shape, bool-int separation and finite float values in `WorldExecutor._validated_payload`. Validate generated events using the same method **before** returning them to the scheduler, so a horizon cannot mask invalid messages. Retain an explicit WorldExecutionError with stable classification for malformed external records.
+
+**Evidence:** 37 focused payload tests now pass. A privacy RED probe caught raw malformed event arguments echoed to stderr; the CLI now emits a non-echoing syntax message. A separate JSON RED probe caught duplicate field names silently overriding earlier values; strict duplicate-key rejection now applies to nested payloads. Final fresh verification: 158 Python tests pass, package sdist and wheel build successfully, and source compilation passes. The example CLI input and source-generated event both produce the expected final states; `uv build` succeeds. See `funnelscript-research/evals/typed-event-payloads-v0.md` for the red-green timeline and H-P probes.
+
+**Preventive invariant:** For every World event (external or generated), `keys(payload) = keys(schema)`, all keys are strings, `type(value) = declared primitive type`, and float values satisfy `isfinite`, **before** the event is applied or enters a future calendar slot. This does not yet enforce general finite arithmetic on all state updates or validate calibrated market behavior.

@@ -119,6 +119,38 @@ def check_command(file_path: str, quiet: bool = False) -> int:
     return 0
 
 
+def _unique_json_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    result: dict[str, object] = {}
+    for name, value in pairs:
+        if name in result:
+            raise ValueError(f"Duplicate JSON event field '{name}'")
+        result[name] = value
+    return result
+
+
+def _parse_world_input_event(spec: str) -> Event:
+    """Accept legacy qualified timestamps or a JSON-encoded event record."""
+    if spec.lstrip().startswith("{"):
+        data = json.loads(spec, object_pairs_hook=_unique_json_object)
+        if type(data) is not dict:
+            raise ValueError("JSON event must be an object")
+        extra = data.keys() - {"name", "time", "payload", "priority"}
+        if extra:
+            raise ValueError(f"Unexpected JSON event fields: {sorted(extra)}")
+        if "name" not in data or "time" not in data:
+            raise ValueError("JSON event requires name and time")
+        if type(data["name"]) is not str or not data["name"]:
+            raise ValueError("JSON event name must be a non-empty string")
+        return Event(
+            time=data["time"], name=data["name"],
+            payload=data.get("payload"), priority=data.get("priority", 0),
+        )
+    name, delimiter, when = spec.rpartition("@")
+    if not delimiter or not name or not when:
+        raise ValueError("Invalid event syntax; use OWNER.EVENT@TIME or a JSON object")
+    return Event(time=float(when), name=name)
+
+
 def run_world_command(
     file_path: str,
     event_specs: list[str],
@@ -133,12 +165,9 @@ def run_world_command(
             raise ValueError("run-world requires a world declaration, not a strategy")
         events: list[Event] = []
         for spec in event_specs:
-            name, delimiter, when = spec.rpartition("@")
-            if not delimiter or not name or not when:
-                raise ValueError(f"Invalid event '{spec}'; use OWNER.EVENT@TIME")
-            events.append(Event(time=float(when), name=name))
+            events.append(_parse_world_input_event(spec))
         result = WorldExecutor(ast).run(events, seed=seed, max_events=max_events)
-    except (FileNotFoundError, LexerError, ParserError, ValueError, RuntimeError) as exc:
+    except (FileNotFoundError, LexerError, ParserError, ValueError, TypeError, RuntimeError) as exc:
         print(f"World execution error: {exc}", file=sys.stderr)
         return 1
 
@@ -407,7 +436,7 @@ def main() -> None:
     world_p.add_argument("file", help="Path to a world .fnl file")
     world_p.add_argument(
         "--event", action="append", default=[], metavar="OWNER.EVENT@TIME",
-        help="Timestamped event (repeatable)",
+        help="Timestamped OWNER.EVENT@TIME or JSON event with typed payload (repeatable)",
     )
     world_p.add_argument("--seed", type=int, default=0)
     world_p.add_argument("--max-events", type=int, default=100_000)

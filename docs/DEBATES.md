@@ -947,3 +947,20 @@ A critical trap in ambitious software projects is delaying release until a massi
 **Alternative rejected:** Let the rule run and roll back transitions if the guard is false. That would still permit accidental events and effects; the entire rule must be skipped before statements run.
 
 **Evidence and uncertainty:** H-G1 to H-G4 in `spec/world-guards-v0.md` assert type discipline, false-branch suppression, bounded example behavior and compatibility. No tests claim that these predicates reproduce consumer decision-making. Logical combinators, nested predicates and stochastic guards are separate research questions.
+
+
+---
+
+## Debate 19: Explicit Message Schemas vs. Dynamic Event Payloads
+
+**Question:** Should the core World language expose the EventMachine's arbitrary Python `payload` directly to handlers, or make source message shapes part of the type system?
+
+**Option A: Dynamic records everywhere.** Minimal parser work and easy experimentation, but misspelled fields, silent bool-as-int conversion, unstructured runtime messages, and nonfinite values can leak into decisions or pending events.
+
+**Option B: Explicit local schemas (chosen for v0).** Each owner defines `event E(field: primitive)`, rules can read `payload.field`, and source emissions must provide all declared fields with exact types. The compiler checks references and generated payload expressions; the World interpreter validates both incoming and scheduled messages without changing the general event kernel.
+
+**Alternative:** Infer schemas from each emission or observed data. Inference is ambiguous for external input, creates cross-module coupling and allows incomplete observations to masquerade as complete contracts.
+
+**Unresolved:** Schema version migration, optional and nested fields, union types, cross-owner protocols and adapter-specific serialization remain research topics. The current `run-world` JSON form is only an input encoding, not a distributed wire protocol.
+
+**Falsification:** H-P1 to H-P4 in `spec/typed-event-payloads-v0.md` require static unknown-field rejection, exact shape/type checks even on false guards, pre-enqueue validation of generated records and compatibility with existing empty-payload rules. Passing tests do not show that event contents represent real human behavior.

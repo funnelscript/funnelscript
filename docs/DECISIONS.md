@@ -37,6 +37,7 @@
 | **DEC-027** | [Contextual World Rules and Snapshot-Atomic Transitions](#dec-027-contextual-world-rules-and-snapshot-atomic-transitions) | 2026-10-31 | **Accepted** | Pure source-level handlers and simultaneous state transitions via EventMachine |
 | **DEC-028** | [Source-Scheduled Local Events Through the Existing Event Calendar](#dec-028-source-scheduled-local-events-through-the-existing-event-calendar) | 2026-10-31 | **Accepted** | Type-checked `emit` and bounded deterministic event scheduling |
 | **DEC-029** | [Type-Checked Pre-Event Guards for World Rules](#dec-029-type-checked-pre-event-guards-for-world-rules) | 2026-10-31 | **Accepted** | Deterministic conditional execution of typed World rules |
+| **DEC-030** | [Exact-Typed Local Event Records at Both Calendar Boundaries](#dec-030-exact-typed-local-event-records-at-both-calendar-boundaries) | 2026-10-31 | **Accepted** | Static message schemas, strict ingress and pre-enqueue checking |
 
 ---
 
@@ -394,3 +395,20 @@
 * **Research and falsification:** `spec/world-guards-v0.md` defines H-G1 through H-G4 and safety invariants; `evals/world-guards-v0.md` maps 20 focused tests and the regression suite to observable counterexamples.
 * **Rationale:** Conditional decision mechanics become expressible while compiler and runtime retain a small domain-neutral, predictable semantic surface.
 * **Limit:** Passing a guard test does not validate causal attribution, synthetic agent psychology or calibrated marketing forecasts.
+
+
+---
+
+### DEC-030: Exact-Typed Local Event Records at Both Calendar Boundaries
+
+* **Status:** Accepted (experimental World-language subset)
+* **Context:** DEC-019's domain-neutral Event object already holds an opaque model-owned payload, while DEC-027 to DEC-029 source rules lacked static knowledge of event data. Mutable or unstructured payloads could reach source handlers with no type contract.
+* **Decision:**
+  1. Add contextual source `event Name(field: PrimitiveType, ...);` declarations per entity/agent. Validate unique event and field names and restrict to the existing exact `int`, `float`, `bool`, `string` types.
+  2. Allow `payload.field` in current handler transition expressions, and optional named arguments in same-owner `emit Name(field = Expr) after Delay;`. Resolve event fields and argument types statically, with no implicit numeric promotion.
+  3. Preserve legacy no-payload handlers and source emission statements. Undeclared events have an implicit empty record; structured input to those handlers must fail instead of bypassing type checks.
+  4. Validate source interpreter message shape, string keys, exact primitives, and finite floats before any handler runs **and** before generated messages enter the existing event calendar. Guards cannot bypass validation. Keep the general Python EventMachine opaque and independent of World schemas.
+  5. Extend the existing repeatable `run-world --event` input to accept a JSON event record while preserving `OWNER.EVENT@TIME` compatibility and source-specified order. No new evaluator, network effects, or scheduler is introduced.
+* **Research and falsification:** `spec/typed-event-payloads-v0.md` defines H-P1 to H-P4 and exact-record invariants. `evals/typed-event-payloads-v0.md` records RED/GREEN evidence, 37 focused tests, 158 total passing Python tests, CLI smoke checks and package build.
+* **Rationale:** Static message contracts prevent accidental cross-field, wrong-type and nonfinite data propagation while letting communities define arbitrary domain event vocabularies.
+* **Limits:** No composite records, polymorphism, stochastic decision semantics, cross-owner delivery, persistent queues, empirical market fidelity or Live capability authorization is implied.

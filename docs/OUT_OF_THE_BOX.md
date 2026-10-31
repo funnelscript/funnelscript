@@ -391,3 +391,17 @@ A prospective debug adapter could record which guard condition held at each inpu
 
 ### Boundary
 Unimplemented and uncalibrated. A counterfactual execution trace is not a causal estimate of a real marketing intervention; that requires an identification design and held-out data.
+
+
+---
+
+## 24. Schema-Consistent Event Corpus for Counterfactual Replay (OOTB-024)
+
+### Idea
+An optional research extension could collect consented, sanitized empirical event records in a versioned corpus and replay them through third-party World libraries after validating each record against a declared event schema. Counterfactual branches would compare deterministic policy mechanics under controlled changes to a payload field, without granting the core interpreter permission to call marketing platforms.
+
+### Future falsifiable hypothesis
+**H-O24:** Schema-validated replay corpora discover more incorrect rule field accesses and event-order regressions in community libraries than equal-sized random event streams in a preregistered benchmark. Falsified if there is no improvement, if real records leak private information, or if reproduction is nondeterministic under fixed inputs.
+
+### Boundaries
+Not implemented. Stored records require provenance, minimization, consent/privacy controls, schema migration policy, retention rules and a separate empirical identification design. Changing a synthetic or historical payload value alone is **not** a causal estimate of a real intervention.

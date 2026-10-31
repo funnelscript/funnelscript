@@ -76,9 +76,17 @@ funnelscript run-world examples/counter_world.fnl \
 ```
 
 * `file`: `.fnl` source with a `world` declaration containing `entity` / `agent`, typed `state`, and `rule` definitions.
-* `--event OWNER.EVENT@TIME`: Provide a qualified event name and non-negative finite timestamp; can be repeated.
+* `--event OWNER.EVENT@TIME` or JSON: Provide a qualified event and non-negative finite timestamp; can be repeated. For typed payloads, use a JSON record with `name`, `time`, and `payload`, e.g. `--event '{"name":"Wallet.Credit","time":0,"payload":{"amount":8}}'`. The order of repeated flags is preserved.
 * `--seed <int>`: Deterministic event machine seed (default `0`).
 * `--max-events <int>`: Positive processing limit (default `100000`). It also bounds recursive zero-delay source emission.
+
+Example with a source-level typed event payload:
+
+```bash
+funnelscript run-world examples/payload_world.fnl --event '{"name":"Wallet.Credit","time":0,"payload":{"amount":8}}'
+```
+
+An explicit event declaration such as `event Credit(amount: int);` establishes exact field and primitive type checks for both input JSON events and source-emitted arguments. Invalid payloads fail before executing the handler, including when its guard is false. Plain `OWNER.EVENT@TIME` remains available for no-payload events.
 
 Example with a typed, self-terminating event guard:
 
