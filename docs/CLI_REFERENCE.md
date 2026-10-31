@@ -16,6 +16,7 @@ funnelscript [--help] <command> [options]
 | :--- | :--- | :--- |
 | `check <file>` | Static semantic verification, Tarjan cycle detection, and invariant analysis | `0` (clean), `1` (defect), `2` (I/O error) |
 | `compile <file>` | Alias for `check` | `0`, `1`, `2` |
+| `run-world <file>` | Execute explicit events against typed World rules without external effects | `0` (pass), `1` (World or event error) |
 | `simulate <file>` | Vectorized Monte Carlo simulation & liquidity stress-testing | `0` (pass), `1` (lint error), `2` (I/O error) |
 | `init <name>` | Scaffold a production-ready, pre-validated campaign template | `0` (created) |
 | `schema` | Print or export the official Draft 2020-12 JSON Schema | `0` |
@@ -77,9 +78,23 @@ funnelscript run-world examples/counter_world.fnl \
 * `file`: `.fnl` source with a `world` declaration containing `entity` / `agent`, typed `state`, and `rule` definitions.
 * `--event OWNER.EVENT@TIME`: Provide a qualified event name and non-negative finite timestamp; can be repeated.
 * `--seed <int>`: Deterministic event machine seed (default `0`).
-* `--max-events <int>`: Positive processing limit (default `100000`).
+* `--max-events <int>`: Positive processing limit (default `100000`). It also bounds recursive zero-delay source emission.
 
-Outputs JSON containing `world`, `state`, `processed_events`, and `pending_events`. A missing handler, type violation, invalid timestamp, non-World source, or event limit error returns a nonzero exit code with an explanatory stderr message. This v0 does not auto-generate events or execute platform effects. See [World Rules Language Reference](LANGUAGE_REFERENCE_WORLD_RULES.md).
+Example with a typed, self-terminating event guard:
+
+```bash
+funnelscript run-world examples/guarded_world.fnl --event Counter.Tick@0 --max-events 5
+```
+
+Expected output: `Counter.value = 3`, `processed_events = 4`, and zero pending events. `when (field OP literal)` evaluates typed primitive state before an event's transitions and local emissions. If false, neither action runs, but the input event is counted.
+
+Example with a three-event causal chain:
+
+```bash
+funnelscript run-world examples/event_chain_world.fnl --event Worker.Start@1
+```
+
+Outputs JSON containing `world`, `state`, `processed_events`, and `pending_events`. A missing handler, type violation, invalid timestamp, non-World source, or event limit error returns a nonzero exit code with an explanatory stderr message. World rules may now generate additional **local** events using `emit Event after Delay;`, and these are included in `processed_events` and `pending_events`. Initial events still come from `--event`. No platform effects are executed. See [World Rules Language Reference](LANGUAGE_REFERENCE_WORLD_RULES.md).
 
 ---
 
@@ -112,5 +127,5 @@ funnelscript schema --output spec/schema.json
 | Code | Label | Cause |
 | :---: | :--- | :--- |
 | **0** | `SUCCESS` | Strategy compiled, checked, or simulated without invariant violations. |
-| **1** | `INVARIANT_ERROR` | Syntax failure, cycle detected, or critical linter error (`FS201`, `FS202`, `FS301`, `FS501`). |
+| **1** | `VALIDATION_OR_RUNTIME_ERROR` | Syntax/invariant failures or, for `run-world`, invalid World input, unknown event, missing file, or processing-limit error. |
 | **2** | `IO_ERROR` | Target file does not exist or cannot be read/written. |

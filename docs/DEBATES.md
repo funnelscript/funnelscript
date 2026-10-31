@@ -900,3 +900,50 @@ A critical trap in ambitious software projects is delaying release until a massi
 * **Typing alternative:** Implicitly widen integers to floats versus requiring exact primitive initializer types. Exact typing was chosen for v0 because source-language numeric coercion and its cost/precision semantics are not yet specified; a future coherent numeric promotion rule can supersede it.
 * **Falsification gate:** H-W1 to H-W4 in `spec/world-declarations-v0.md`; a world must typecheck without marketing node requirements, and unsupported execution must fail explicitly.
 * **Open research question:** Declaring an `agent` without autonomous transitions is only an AST subtype. Behavior typing, rule dispatch, state visibility, effect capabilities, and actual World construction remain unresolved.
+
+
+---
+
+## Debate 16: Simultaneous vs Sequential World Transitions
+
+**Question:** When one event handler contains `transition a = b; transition b = a;`, should the second statement observe the first update? Sequential assignment gives `(a,b)=(2,2)` from `(1,2)`; simultaneous assignment gives `(2,1)`.
+
+**Alternative A: Sequential mutation.** Familiar imperative behavior and simpler naive interpreter, but source line order unexpectedly changes the meaning of otherwise independent state updates. Mutation also makes prior snapshots unsafe for replay.
+
+**Alternative B: Snapshot-atomic transition set (chosen in v0).** Evaluate every right-hand side against one pre-event state and publish the updates together. This makes swaps and multi-variable invariants easier to reason about. It requires rejecting duplicate targets and documenting rule granularity.
+
+**Open limit:** This choice defines one handler on one owner, not distributed transactions across agents. Atomic cross-owner effects, scheduling, conditional guards, stochastic choice, and causal market identification each require separate research and tests.
+
+**Falsifier:** If `a=1,b=2` and a rule assigns `a=b; b=a;`, output must be `(2,1)` and the original snapshot must remain `(1,2)`. See H-R2 in `spec/rule-transitions-v0.md`.
+
+
+---
+
+## Debate 17: World-Generated Events vs. Unbounded Source Loops
+
+**Question:** Should a declarative World be allowed to generate follow-up events, and how can this remain causally valid and bounded?
+
+**Option A, allow imperative loops:** Easier to explain to Python users but bypasses the event calendar, loses timestamp semantics, risks busy-spinning, and binds execution to source-order control flow.
+
+**Option B, only externally supplied events:** Minimizes interpreter surface but prevents the language from representing multi-step behaviors and delayed causal reactions. A World never produces subsequent interactions.
+
+**Option C, bounded event emission (accepted for v0):** Introduce `emit E after d;` as a declarative, same-owner local event that is statically resolved, scheduled at `t+d`, and executed by the existing calendar. Delays must be nonnegative and finite. Zero-delay cycles are allowed only under the finite event-processing budget, with explicit failure on exhaustion.
+
+**Open questions:** Cross-owner addressing needs capabilities; stochastic delays need explicit RNG semantics and model provenance; persistent event delivery needs durable logs, idempotency and replay. None is implied by basic local emission.
+
+**Falsification boundary:** A source emission must preserve chronological ordering and stable ties, respect finite horizons and `max_events`, and create no external effects. See H-E1 to H-E4 in `spec/event-emission-v0.md`.
+
+
+---
+
+## Debate 18: State Predicates vs. General Expressions in World Guards
+
+**Problem:** DEC-028 permits recursive source events, but an event can only be suppressed using an out-of-language cap. World authors require a source-level stopping condition.
+
+**Option A: General boolean expression interpreter.** Powerful immediately, but raises precedence, function purity, nullable evaluation, short-circuit behavior and stochastic draw semantics before the core expression and effect system are mature.
+
+**Option B: A single typed comparison (chosen in v0).** `when (field OP literal)` resolves one same-owner field and one exact-type primitive. The predicate reads pre-event state, then either executes the full rule or suppresses its transitions and emissions. This is easy to compile, trace, and falsify, at the cost of expressiveness.
+
+**Alternative rejected:** Let the rule run and roll back transitions if the guard is false. That would still permit accidental events and effects; the entire rule must be skipped before statements run.
+
+**Evidence and uncertainty:** H-G1 to H-G4 in `spec/world-guards-v0.md` assert type discipline, false-branch suppression, bounded example behavior and compatibility. No tests claim that these predicates reproduce consumer decision-making. Logical combinators, nested predicates and stochastic guards are separate research questions.

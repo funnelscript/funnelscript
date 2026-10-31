@@ -5,6 +5,7 @@ Research: funnelscript-research/spec/world-declarations-v0.md (H-W1 to H-W4).
 
 from __future__ import annotations
 
+import math
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
@@ -44,10 +45,23 @@ class StateTransitionDefinition(BaseModel):
     expr: StateExpression
 
 
+class EventEmissionDefinition(BaseModel):
+    event: str
+    delay: object
+
+
+class GuardDefinition(BaseModel):
+    field: str
+    operator: Literal["==", "!=", "<", "<=", ">", ">="]
+    value: object
+
+
 class EventRuleDefinition(BaseModel):
     name: str
     event: str
+    guard: GuardDefinition | None = None
     transitions: list[StateTransitionDefinition] = Field(default_factory=list)
+    emissions: list[EventEmissionDefinition] = Field(default_factory=list)
 
 
 class EntityDefinition(BaseModel):
@@ -115,6 +129,7 @@ class WorldTypeChecker:
         types = {state.name: state.type_name for state in declaration.states}
         names: set[str] = set()
         events: set[str] = set()
+        declared_events = {rule.event for rule in declaration.rules}
         for rule in declaration.rules:
             if rule.name in names:
                 raise WorldTypeError(f"Duplicate rule '{rule.name}'")
@@ -122,6 +137,8 @@ class WorldTypeChecker:
                 raise WorldTypeError(f"Duplicate event handler '{rule.event}'")
             names.add(rule.name)
             events.add(rule.event)
+            if rule.guard is not None:
+                cls._check_guard(rule.guard, types)
 
             targets: set[str] = set()
             for transition in rule.transitions:
@@ -137,6 +154,32 @@ class WorldTypeChecker:
                         f"Type mismatch assigning '{target}': "
                         f"expected {types[target]}, got {actual_type}"
                     )
+
+            for emission in rule.emissions:
+                if emission.event not in declared_events:
+                    raise WorldTypeError(f"Unknown emitted event '{emission.event}'")
+                delay = emission.delay
+                if type(delay) not in (int, float):
+                    raise WorldTypeError("Event emission delay must be numeric")
+                try:
+                    finite = math.isfinite(float(delay))
+                except OverflowError:
+                    finite = False
+                if not finite or delay < 0:
+                    raise WorldTypeError("Event emission delay must be finite and non-negative")
+
+    @classmethod
+    def _check_guard(cls, guard: GuardDefinition, types: dict[str, str]) -> None:
+        type_name = types.get(guard.field)
+        if type_name is None:
+            raise WorldTypeError(f"Unknown guard field '{guard.field}'")
+        expected = cls.PRIMITIVES[type_name]
+        if type(guard.value) is not expected:
+            raise WorldTypeError(
+                f"Type mismatch in guard '{guard.field}': expected {type_name}"
+            )
+        if guard.operator in ("<", "<=", ">", ">=") and type_name not in ("int", "float"):
+            raise WorldTypeError("Ordered guard comparisons require numeric types")
 
     @classmethod
     def _expression_type(cls, expr: StateExpression, types: dict[str, str]) -> str:

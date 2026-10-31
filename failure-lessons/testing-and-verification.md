@@ -259,10 +259,50 @@ A negative test expected a `ParserError` for the unsupported `*` operator in a W
 The test conflated two distinct phases of a compiler frontend: tokenization and syntax analysis. Unsupported characters can be rejected before the parser receives input.
 
 ### Fix and verification
-The test now asserts `(LexerError, ParserError)` for invalid source spellings. The compiler still rejects unsupported operators rather than silently interpreting them. After implementing the narrow grammar and interpreter, the focused suite passed 21 tests and the complete Python suite passed 85.
+The test now asserts `(LexerError, ParserError)` for invalid source spellings. The compiler still rejects unsupported operators rather than silently interpreting them. After implementing the narrow grammar and interpreter, the focused suite passed 22 tests and the complete Python suite passed 86 (including a post-review AST-mutation regression test).
 
 ### Prevention rule
 For negative grammar tests, assert a **rejection boundary**, and only require a specific exception class when the lexical versus syntactic distinction is itself the behavior under test. Never broaden the assertion to a catch-all exception that would hide a runtime crash.
 
 ### Status
 Resolved and covered by `tests/test_world_rules.py`.
+
+
+---
+
+## 7. Negative Grammar Tests Can Pass Before a New Feature Exists
+
+### Context
+Test-first implementation of source-level `emit Event after Delay;` statements.
+
+### Observed sequence
+The initial 13-test focused suite had 10 failures from the old parser rejecting valid new syntax, while three tests rejecting malformed syntax already passed. After parser and static checker implementation, five meaningful runtime failures remained: scheduling, same-time order, future pending events, zero-delay recursion cap, and CLI-observed event count.
+
+### Root cause of potential false confidence
+An invalid-source test passing only proves rejection. It does not demonstrate support for valid syntax or observable runtime semantics, and must not be counted as a Green implementation milestone by itself.
+
+### Resolution and prevention
+Retained both positive executable assertions and negative type/syntax checks, verified the parser-only stage separately, then implemented event scheduling only after the runtime RED was visible. The final focused suite passed 15 tests and the complete Python suite passed 101 after review-driven priority inheritance and fractional-delay regressions. Future grammar work must pair at least one valid parse/execution assertion with rejection cases.
+
+### Status
+Resolved; see `tests/test_world_emissions.py` and the research evaluation manifest.
+
+
+---
+
+## 8. Validate Guarded Event Chains Beyond Syntax Acceptance
+
+### Context
+Adding conditional `when (state OP literal)` clauses to the World interpreter under TDD.
+
+### Observation
+The initial 20-case guard suite had 16 failures and 4 existing rejection passes. After lexer/parser/AST support, 15 passed but 5 runtime failures remained: false guards still produced transitions and events, so a bounded chain exhausted `max_events` instead of stopping at its guard limit.
+
+### Lesson
+Successful syntax/type acceptance does not establish operational behavior. A guarded rule needs both a static rejection check and a runtime falsifier demonstrating that state and event scheduling are skipped on a false predicate.
+
+### Prevention
+Test an observable event chain and assert final state, processed event count, and pending calendar, along with independent negative type cases. The final stage passed 20 focused tests and 121 total tests.
+
+### Status
+Resolved; see `tests/test_world_guards.py` and `funnelscript-research/evals/world-guards-v0.md`.

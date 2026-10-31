@@ -13,6 +13,7 @@ from funnelscript.compiler.world_ast import (
     LiteralExpression,
     ReferenceExpression,
     StateExpression,
+    GuardDefinition,
     WorldAST,
     WorldTypeChecker,
 )
@@ -30,9 +31,10 @@ class WorldExecutor:
 
     def __init__(self, world: WorldAST) -> None:
         WorldTypeChecker.check(world)
-        self.world = world
+        # Retain a private snapshot of checked definitions: callers may mutate ASTs.
+        self.world = world.model_copy(deep=True)
         self.handlers: dict[str, tuple[str, EventRuleDefinition]] = {}
-        for declaration in world.declarations:
+        for declaration in self.world.declarations:
             for rule in declaration.rules:
                 key = f"{declaration.name}.{rule.event}"
                 self.handlers[key] = (declaration.name, rule)
@@ -55,18 +57,60 @@ class WorldExecutor:
             return left + right if expr.operator == "+" else left - right
         raise WorldExecutionError("Unknown expression type")
 
+    @staticmethod
+    def _guard_matches(guard: GuardDefinition | None, snapshot: dict[str, object]) -> bool:
+        if guard is None:
+            return True
+        left, right = snapshot[guard.field], guard.value
+        if guard.operator == "==":
+            return left == right
+        if guard.operator == "!=":
+            return left != right
+        if guard.operator == "<":
+            return left < right
+        if guard.operator == "<=":
+            return left <= right
+        if guard.operator == ">":
+            return left > right
+        return left >= right
+
+    def _updated_state(
+        self, state: WorldState, owner: str, rule: EventRuleDefinition
+    ) -> WorldState:
+        snapshot = state[owner]
+        updates = {
+            item.target: self._evaluate(item.expr, snapshot)
+            for item in rule.transitions
+        }
+        return {**state, owner: {**snapshot, **updates}}
+
     def advance(self, state: WorldState, event: Event) -> WorldState:
-        """Apply all assignments from one handler against a single old snapshot."""
+        """Apply a rule only when its guard matches the pre-event state."""
         handler = self.handlers.get(event.name)
         if handler is None:
             raise WorldExecutionError(f"Unknown event '{event.name}'")
         owner, rule = handler
-        snapshot = state[owner]
-        updates = {
-            transition.target: self._evaluate(transition.expr, snapshot)
-            for transition in rule.transitions
-        }
-        return {**state, owner: {**snapshot, **updates}}
+        if not self._guard_matches(rule.guard, state[owner]):
+            return state
+        return self._updated_state(state, owner, rule)
+
+    def _step(self, state: WorldState, event: Event) -> Transition[WorldState]:
+        handler = self.handlers.get(event.name)
+        if handler is None:
+            raise WorldExecutionError(f"Unknown event '{event.name}'")
+        owner, rule = handler
+        if not self._guard_matches(rule.guard, state[owner]):
+            return Transition(state=state)
+        updated = self._updated_state(state, owner, rule)
+        scheduled = tuple(
+            Event(
+                time=event.time + emission.delay,
+                name=f"{owner}.{emission.event}",
+                priority=event.priority,
+            )
+            for emission in rule.emissions
+        )
+        return Transition(state=updated, events=scheduled)
 
     def run(
         self,
@@ -77,9 +121,7 @@ class WorldExecutor:
         max_events: int = 100_000,
     ) -> RunResult[WorldState]:
         """Lower source rules to a pure reducer using the existing event calendar."""
-        machine = EventMachine(
-            lambda state, event, rng: Transition(state=self.advance(state, event))
-        )
+        machine = EventMachine(lambda state, event, rng: self._step(state, event))
         return machine.run(
             self.initial_state(), events, seed=seed, until=until, max_events=max_events
         )

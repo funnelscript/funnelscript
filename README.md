@@ -168,6 +168,40 @@ The second command returns JSON with `Counter.count = 2`. Events are supplied ex
 
 ---
 
+### Source-generated events
+
+World rules can now schedule more local reactions without another CLI event. `emit Step after 2;` queues a handler on the same owner two abstract time units after the current event. This does not produce external effects or calibrated human behavior.
+
+```bash
+uv run main.py run-world examples/event_chain_world.fnl --event Worker.Start@1
+```
+
+The example processes `Start`, `Step`, and `Stop` using the same bounded event calendar; expected `processed_events` is `3`. See [Scheduled Event Research](https://github.com/funnelscript/funnelscript-research/blob/main/spec/event-emission-v0.md).
+
+---
+
+### Typed World guards (experimental)
+
+Rules can inspect pre-event state and suppress both transitions and locally emitted events when a guard is false:
+
+```funnelscript
+rule Advance on event Tick when (value < 3) {
+  transition value = value + 1;
+  emit Tick after 1;
+}
+```
+
+Try the complete bounded example:
+
+```bash
+uv run main.py check examples/guarded_world.fnl
+uv run main.py run-world examples/guarded_world.fnl --event Counter.Tick@0 --max-events 5
+```
+
+The four processed events leave `Counter.value = 3` with no further pending events. Comparisons require matching primitive types; this establishes only deterministic execution behavior, not market-prediction accuracy. See [Typed World Guard Research](https://github.com/funnelscript/funnelscript-research/blob/main/spec/world-guards-v0.md).
+
+---
+
 ## Documentation & Community
 
 * **[Contributing Guide](CONTRIBUTING.md):** Setup, testing standards, and good-first-issue taxonomy.

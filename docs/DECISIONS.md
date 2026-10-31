@@ -34,6 +34,9 @@
 | **DEC-024** | [The Modular Library, Framework, and Package Manager Ecosystem (fpm)](#dec-024-the-modular-library-framework-and-package-manager-ecosystem-fpm) | 2026-10-31 | **Accepted** | Strategy reusability, business frameworks, industry benchmarks, and fpm registry |
 | **DEC-025** | [Specification-First Open-Source Adoption & Shim Strategy](#dec-025-specification-first-open-source-adoption--shim-strategy) | 2026-10-31 | **Accepted** | Credibility-first open source, formal spec release, and linter-as-wedge adoption |
 | **DEC-026** | [Community Contribution Architecture (CONTRIBUTING.md & Issue Standard)](#dec-026-community-contribution-architecture-contributingmd--issue-standard) | 2026-10-31 | **Accepted** | Low-friction onboarding, architectural boundaries, RFC governance, and triage taxonomy |
+| **DEC-027** | [Contextual World Rules and Snapshot-Atomic Transitions](#dec-027-contextual-world-rules-and-snapshot-atomic-transitions) | 2026-10-31 | **Accepted** | Pure source-level handlers and simultaneous state transitions via EventMachine |
+| **DEC-028** | [Source-Scheduled Local Events Through the Existing Event Calendar](#dec-028-source-scheduled-local-events-through-the-existing-event-calendar) | 2026-10-31 | **Accepted** | Type-checked `emit` and bounded deterministic event scheduling |
+| **DEC-029** | [Type-Checked Pre-Event Guards for World Rules](#dec-029-type-checked-pre-event-guards-for-world-rules) | 2026-10-31 | **Accepted** | Deterministic conditional execution of typed World rules |
 
 ---
 
@@ -341,3 +344,53 @@
   3. Mandate RFC (Request for Comments) process for any modification to language grammar, type system, or core invariants.
 * **Rationale:** Reduces contributor cognitive load, provides psychological safety, and enforces production-grade engineering standards across all community contributions.
 * **Consequences:** Enables scalable community growth while preserving the mathematical and architectural integrity of the core kernel.
+
+
+---
+
+### DEC-027: Contextual World Rules and Snapshot-Atomic Transitions
+
+* **Status:** Accepted (experimental v0 reference interpreter)
+* **Context:** DEC-019 introduced the domain-neutral event kernel and DEC-022 introduced typed World declarations, but language-authored Worlds were static declarations without operational semantics. Marketers and library authors need a precise, testable state-transition substrate before stochastic or external effect models are added.
+* **Decision:**
+  1. Extend World declarations with contextual `rule NAME on event NAME { transition FIELD = EXPR; }` blocks and typed expression/transition AST nodes.
+  2. Define exact primitive types and restricted expressions (literal, same-owner field reference, numeric reference +/- matching numeric literal); forbid implicit coercion.
+  3. Evaluate all assignment right-hand sides against the same pre-event state, apply a copy-on-write update, and reject ambiguous duplicate handlers/targets.
+  4. Address input events as `Owner.Event`; execute through the existing `EventMachine` with explicit input timestamps and seeded deterministic replay.
+  5. Expose a pure `run-world` CLI and reserve source-level event emission, stochastic decisions, economic models, Live/Shadow effect handlers, and external calibration for separately verified extensions.
+* **Research and falsification:** `spec/rule-transitions-v0.md` states H-R1 to H-R4 and mathematical invariants; `evals/world-rules-v0.md` ties tests to counterexamples.
+* **Rationale:** Source-level rules become executable without embedding audience/campaign assumptions or creating a second scheduler. Snapshot atomicity makes transition order semantics unambiguous.
+* **Consequences:** The core remains domain neutral. Runtime tests establish interpreter correctness only, not simulation fidelity or predictive market accuracy.
+
+
+---
+
+### DEC-028: Source-Scheduled Local Events Through the Existing Event Calendar
+
+* **Status:** Accepted (experimental v0 contract)
+* **Context:** DEC-027 made World rule transitions executable, but source code could not cause subsequent reactions. The event kernel (DEC-019) already schedules reducer-emitted events with deterministic ties and explicit event-count limits.
+* **Decision:**
+  1. Introduce a contextual World-rule statement: `emit EventName after Delay;`, where `Delay` is a finite nonnegative integer or floating-point literal in abstract World time units.
+  2. Require a statically defined matching handler on the same entity/agent. Permit forward references and recursive local events, but reject unknown handlers and invalid delays before execution.
+  3. Lower emitted events to `Transition.events` on the existing `EventMachine`; do not add a second scheduler, busy-loop, effect provider, or hidden automatic startup event.
+  4. Preserve pre-event snapshot assignments, source order among same-time emissions, and the parent event priority (including zero-delay cases). The event processing cap halts recursive zero-delay cycles; finite horizons leave scheduled events pending.
+  5. Defer cross-owner emissions, payloads, conditional triggers, probability distributions, cancellation, persistent delivery, and all Live/Shadow actions to separate typed and capability-gated contracts.
+* **Research and falsification:** `spec/event-emission-v0.md` specifies H-E1 through H-E4 and temporal invariants; `evals/event-emission-v0.md` provides RED/GREEN and regression evidence.
+* **Rationale:** Causal sequences become expressible in the language using the same discrete-event semantics already tested, while compiler and runtime remain business-domain neutral.
+* **Consequences:** Worlds can now schedule local events after an externally supplied trigger. They remain neither autonomous digital twins nor validated predictive market models.
+
+
+---
+
+### DEC-029: Type-Checked Pre-Event Guards for World Rules
+
+* **Status:** Accepted (experimental deterministic World language subset)
+* **Context:** DEC-027 defines snapshot-atomic assignments and DEC-028 permits local source emissions. Without declarative conditions, recursive event chains can only stop at event caps or external input boundaries.
+* **Decision:**
+  1. Support an optional `when (field OP literal)` immediately after a World rule's `on event EventName` clause. Compile it into a typed guard AST node, not a runtime string expression.
+  2. Resolve `field` exclusively on the owning entity or agent and require exact primitive type equality with the literal. Support `==` and `!=` on all primitive types; allow `<`, `<=`, `>` and `>=` only for numeric fields.
+  3. Evaluate the predicate once against the pre-event snapshot before all rule statements. A false guard consumes the incoming event but yields the original state with no new events and no external effects.
+  4. Keep expressions deliberately restricted: no boolean conjunctions, arbitrary function calls, probabilistic draws, cross-owner reads or side effects. These need separately specified semantics and tests.
+* **Research and falsification:** `spec/world-guards-v0.md` defines H-G1 through H-G4 and safety invariants; `evals/world-guards-v0.md` maps 20 focused tests and the regression suite to observable counterexamples.
+* **Rationale:** Conditional decision mechanics become expressible while compiler and runtime retain a small domain-neutral, predictable semantic surface.
+* **Limit:** Passing a guard test does not validate causal attribution, synthetic agent psychology or calibrated marketing forecasts.

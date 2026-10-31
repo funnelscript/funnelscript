@@ -252,22 +252,58 @@ class Parser:
         if event_keyword.value != "event":
             raise ParserError("Expected 'event' after 'on'", event_keyword)
         event_name = str(self.expect(TokenType.IDENTIFIER).value)
+        guard = self._parse_rule_guard() if self.match(TokenType.WHEN) else None
         self.expect(TokenType.LBRACE)
         transitions: list[dict[str, Any]] = []
+        emissions: list[dict[str, Any]] = []
 
         while self.current().type != TokenType.RBRACE:
             if self.current().type == TokenType.EOF:
                 raise ParserError("Unclosed rule", self.current())
             keyword = self.expect(TokenType.IDENTIFIER)
-            if keyword.value != "transition":
-                raise ParserError("Expected transition statement", keyword)
-            target = str(self.expect(TokenType.IDENTIFIER).value)
-            self.expect(TokenType.ASSIGN)
-            expr = self._parse_rule_expression()
-            self.expect(TokenType.SEMICOLON)
-            transitions.append({"target": target, "expr": expr})
+            if keyword.value == "transition":
+                target = str(self.expect(TokenType.IDENTIFIER).value)
+                self.expect(TokenType.ASSIGN)
+                expr = self._parse_rule_expression()
+                self.expect(TokenType.SEMICOLON)
+                transitions.append({"target": target, "expr": expr})
+            elif keyword.value == "emit":
+                target = str(self.expect(TokenType.IDENTIFIER).value)
+                after = self.expect(TokenType.IDENTIFIER)
+                if after.value != "after":
+                    raise ParserError("Expected 'after' in emit statement", after)
+                delay = self._parse_world_literal()
+                self.expect(TokenType.SEMICOLON)
+                emissions.append({"event": target, "delay": delay})
+            else:
+                raise ParserError("Expected transition or emit statement", keyword)
         self.expect(TokenType.RBRACE)
-        return {"name": rule_name, "event": event_name, "transitions": transitions}
+        return {
+            "name": rule_name,
+            "event": event_name,
+            "guard": guard,
+            "transitions": transitions,
+            "emissions": emissions,
+        }
+
+    def _parse_rule_guard(self) -> dict[str, Any]:
+        self.expect(TokenType.LPAREN)
+        field = str(self.expect(TokenType.IDENTIFIER).value)
+        operators = {
+            TokenType.EQ: "==",
+            TokenType.NEQ: "!=",
+            TokenType.LT: "<",
+            TokenType.LTE: "<=",
+            TokenType.GT: ">",
+            TokenType.GTE: ">=",
+        }
+        comparison = self.current()
+        if comparison.type not in operators:
+            raise ParserError("Expected guard comparison operator", comparison)
+        self.pos += 1
+        value = self._parse_world_literal()
+        self.expect(TokenType.RPAREN)
+        return {"field": field, "operator": operators[comparison.type], "value": value}
 
     def _parse_rule_expression(self) -> dict[str, Any]:
         tok = self.current()

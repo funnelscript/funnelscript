@@ -47,6 +47,8 @@ class TokenType(Enum):
     SEMICOLON = auto()
     GTE = auto()
     LTE = auto()
+    GT = auto()
+    LT = auto()
     EQ = auto()
     NEQ = auto()
 
@@ -156,6 +158,8 @@ class Lexer:
                 ":": TokenType.COLON,
                 "-": TokenType.MINUS,
                 "+": TokenType.PLUS,
+                ">": TokenType.GT,
+                "<": TokenType.LT,
             }
             if char in delimiters:
                 self.tokens.append(Token(delimiters[char], char, self.line, self.col))

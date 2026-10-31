@@ -1,6 +1,6 @@
-# Experimental Language Reference: Typed World Rules v0
+# Experimental Language Reference: Typed World Rules and Emitted Events
 
-**Status:** Executable, intentionally minimal. Research authority: `funnelscript-research/spec/rule-transitions-v0.md` (H-R1 to H-R4; DEC-027). This describes the current implementation, not an autonomous market simulator.
+**Status:** Executable, intentionally minimal. Research authority: `funnelscript-research/spec/rule-transitions-v0.md` (H-R1 to H-R4; DEC-027), `funnelscript-research/spec/event-emission-v0.md` (H-E1 to H-E4; DEC-028), and `funnelscript-research/spec/world-guards-v0.md` (H-G1 to H-G4; DEC-029). This describes the current implementation, not an autonomous market simulator.
 
 ## Source grammar
 
@@ -9,8 +9,12 @@ WorldFile           ::= "world" Identifier "{" WorldDeclaration* "}" ;
 WorldDeclaration    ::= ("entity" | "agent") Identifier "{" WorldMember* "}" ;
 WorldMember         ::= StateField | RuleDeclaration ;
 StateField          ::= "state" Identifier ":" PrimitiveType "=" StateLiteral ";" ;
-RuleDeclaration     ::= "rule" Identifier "on" "event" Identifier "{" TransitionStatement* "}" ;
+RuleDeclaration     ::= "rule" Identifier "on" "event" Identifier GuardClause? "{" RuleStatement* "}" ;
+GuardClause         ::= "when" "(" Identifier GuardOp StateLiteral ")" ;
+GuardOp             ::= "==" | "!=" | "<" | "<=" | ">" | ">=" ;
+RuleStatement       ::= TransitionStatement | EmitStatement ;
 TransitionStatement ::= "transition" Identifier "=" StateExpression ";" ;
+EmitStatement       ::= "emit" Identifier "after" SignedNumber ";" ;
 StateExpression     ::= StateLiteral | Identifier ( ("+" | "-") StateLiteral )? ;
 PrimitiveType       ::= "int" | "float" | "bool" | "string" ;
 ```
@@ -34,10 +38,40 @@ Expected JSON values: `world = "CounterDemo"`, `state.Counter.count = 2`, `state
 - Each declaration name is unique within a World. Fields have unique names and exactly typed primitive initializers; `bool` is not an `int`.
 - Within each entity or agent, rule names and listened-to event names must be unique.
 - Each rule may assign a state field at most once, and only fields of its own declaration.
+- A rule may optionally declare a typed `when (field OP literal)` guard. The field must belong to the rule owner, and its primitive type must exactly match the literal. Numeric fields support all six comparison operators; booleans and strings support only `==` and `!=`.
+- Guards inspect the pre-event snapshot. A false guard consumes the input event but performs **no transitions and no source emissions**; the next rule can still process separately scheduled events. Guards do not call functions, sample probability, or invoke external effects.
 - Expressions accept primitive literals, same-owner references, or reference plus/minus a numeric literal of the exact same numeric type. No implicit int-to-float conversion, string concatenation, function calls, or cross-owner access.
 - **Simultaneous assignments:** all right-hand expressions in a rule read the pre-event snapshot. For `a=1,b=2`, `transition a=b; transition b=a;` produces `a=2,b=1`, not `a=2,b=2`.
-- Previous states remain unmodified. Runtime returns the next state, processed event list, inert effect-intent list, and pending events.
-- Unknown event handlers fail explicitly. The executor cannot emit events or effects and never reaches external providers.
+- Previous states remain unmodified. The executor makes a deep copy of checked World definitions at construction, so subsequent mutations to the caller's AST cannot bypass type checking. Runtime returns the next state, processed event list, inert effect-intent list, and pending events.
+- Unknown event handlers fail explicitly. Source `emit Event after Delay;` can schedule a local handler at the current timestamp plus a nonnegative finite numeric delay. Forward references are valid; unresolved target events are rejected at typecheck. `max_events` bounds zero-delay recursion. Emitted events inherit their parent event priority, including zero-delay emissions. The executor does not emit external effects or reach providers.
+
+## Source-generated causal chains
+
+A real source example is `examples/event_chain_world.fnl`:
+
+```bash
+uv run main.py check examples/event_chain_world.fnl
+uv run main.py run-world examples/event_chain_world.fnl --event Worker.Start@1
+```
+
+It schedules `Worker.Step` at t=3 and `Worker.Stop` at t=6, returning `processed_events=3`, `progress=1`, and `active=false`. Each event is processed through the same stable event calendar; `run-world` still needs an initial externally supplied event. Emission is restricted to the same owner, with no payloads or stochastic delays in this milestone. A typed rule guard can conditionally suppress emission.
+
+## Conditional World rules
+
+`examples/guarded_world.fnl` demonstrates a bounded self-emission chain:
+
+```funnelscript
+rule Advance on event Tick when (value < 3) {
+  transition value = value + 1;
+  emit Tick after 1;
+}
+```
+
+```bash
+uv run main.py run-world examples/guarded_world.fnl --event Counter.Tick@0 --max-events 5
+```
+
+The first three events mutate `value` and schedule follow-ups; the fourth event finds the guard false and schedules nothing. The resulting value is 3 and there are no pending events. This does not mean recursion is generally terminating: an always-true self-emitting rule still requires an event limit.
 
 ## Scope and safety boundaries
 
@@ -46,7 +80,7 @@ This World interpreter is distinct from the older marketing-specific `simulate` 
 ## Verification
 
 ```bash
-uv run pytest -v tests/test_world_rules.py
+uv run pytest -v tests/test_world_rules.py tests/test_world_emissions.py tests/test_world_guards.py
 uv run pytest -v
 ```
 

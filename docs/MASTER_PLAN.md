@@ -273,6 +273,32 @@ Every step in this plan complies strictly with [`AGENTS.md`](file:///Users/mamdo
 
 **Implementation:** Typed `EventRuleDefinition`, `StateTransitionDefinition` and expression nodes extend the World AST; the parser accepts contextual `rule R on event E { transition ...; }` blocks. `WorldExecutor` dispatches externally supplied qualified events through the existing `EventMachine`, using copy-on-write and one pre-event snapshot per rule. `run-world` emits a pure JSON state summary. No dynamic `eval`, autonomous event generation, provider interaction or new scheduler is introduced.
 
-**Verification:** Focused TDD `tests/test_world_rules.py` (21 passing tests), complete Python suite (85 passing tests as checked on 2026-10-31), and a CLI smoke example at `examples/counter_world.fnl`. Results verify the interpreter and legacy compatibility, not empirical predictive performance.
+**Verification:** Focused TDD `tests/test_world_rules.py` (22 passing tests), complete Python suite (86 passing tests as checked on 2026-10-31), and a CLI smoke example at `examples/counter_world.fnl`. Results verify the interpreter and legacy compatibility, not empirical predictive performance.
 
 **Next gates:** Property-based transition tests, source-level event emission and effects with capability checks, stochastic primitive/agent models, module and standard-library boundaries, PyMC Marketing/OmniTwin calibration adapters, and separately controlled Simulation/Shadow/Live handlers. Preserve language neutrality throughout.
+
+
+---
+
+## Language Core Milestone: Scheduled Source Events (2026-10-31)
+
+**Research gate:** `funnelscript-research/spec/event-emission-v0.md` defines H-E1 to H-E4, the causal timestamp invariant `t_emit=t_event+delay>=t_event`, local handler resolution, and a finite event-processing budget. DEC-028 records the design.
+
+**Implementation:** The `emit Event after NonNegativeNumber;` rule statement adds type-checked same-owner event emission without a second scheduler. The `WorldExecutor` reducer returns scheduled `Event` objects to `EventMachine` via `Transition.events`; equal-time ordering and `max_events` remain kernel-owned. The AST and parsing remain contextual and compatible with existing strategy files. No Live side effect, stochastic decision or cross-entity dispatch is introduced.
+
+**TDD verification:** After observed RED (5 runtime failures remaining after parser support), plus a code-review regression for nonzero-priority zero-delay scheduling, 15 focused emission tests and 101 total Python tests passed. `examples/event_chain_world.fnl` demonstrates a three-event self-scheduled chain. This validates local interpreter semantics only, not market prediction.
+
+**Next gates:** Controlled payload typing, richer composable guards (single-comparison typed guards were implemented in the following DEC-029 milestone), locally seeded stochastic operators, cross-declaration addressing with capability rules, and empirically calibrated model adapters. Keep Live execution behind an independent authority, idempotency, monetary and security gate.
+
+
+---
+
+## Language Core Milestone: Typed Guarded Rules (2026-10-31)
+
+**Research gate:** `funnelscript-research/spec/world-guards-v0.md` documents the Hoare/Plotkin foundations, H-G1 through H-G4, exact comparison typing, and the false-guard no-transition/no-emission invariant. Architectural record: DEC-029.
+
+**Implementation:** Source World rules accept optional `when (state OP literal)` clauses. Only same-owner fields can be read; exact primitive typing is mandatory. Numeric ordered comparisons and primitive equality/inequality are checked before runtime. Guards read pre-event state, skip both transitions and scheduled events when false, and leave legacy unguarded rules unchanged.
+
+**Verification:** TDD observed 5 focused runtime RED failures after parser/type support, followed by 20 focused GREEN tests and 121 total passing Python tests. Example: `examples/guarded_world.fnl` uses a bounded self-scheduled Tick chain ending at value three.
+
+**Next gates:** Formal conditional composition, typed event payloads, explicit RNG operators and probabilistic guard semantics; empirical calibration remains separate. No automatic Live/Shadow execution is authorized by guarded rules.

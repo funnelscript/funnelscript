@@ -209,3 +209,15 @@ def test_legacy_strategy_remains_unsupported_for_world_runner():
         capture_output=True, text=True,
     )
     assert result.returncode != 0
+
+
+def test_executor_isolates_checked_world_from_caller_mutations(tmp_path):
+    from funnelscript.runtime.world_executor import WorldExecutor
+
+    parsed_world = parse_source(tmp_path)
+    executor = WorldExecutor(parsed_world)
+    parsed_world.declarations[0].states[0].value = 99
+    parsed_world.declarations[0].rules[1].transitions[0].expr.right.value = 900
+
+    result = executor.run([Event(0, "Counter.Pulse")])
+    assert result.state["Counter"]["a"] == 2

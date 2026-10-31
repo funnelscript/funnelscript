@@ -335,6 +335,8 @@ Marketing science has historically been divided between empirical econometrics (
 | **OOTB-018** | Executable In-Doc Sandboxes | Documentation / WebAssembly | Conceptual | Prototype WASM simulator embedded in MDX |
 | **OOTB-019** | Automated Connector Bounties | Open-Source Incentive Architecture | Seeded | Draft provider certification criteria |
 | **OOTB-020** | Academic Benchmark Challenge | Academic Outreach / Benchmarks | Conceptual | Draft annual simulation competition rules |
+| **OOTB-021** | Counterfactual Fidelity Harness | Model Evaluation / Research | Conceptual | Preregister held-out calibration and intervention tests |
+| **OOTB-022** | Causal Event Lineage Inspector | Runtime Provenance / Debugging | Conceptual | Specify bounded event ancestry metadata |
 
 ---
 
@@ -347,3 +349,45 @@ The domain-neutral event kernel in `spec/event-kernel-v0.md` establishes only a 
 ## Frontier Status Note: Typed Worlds Are Not Autonomous Digital Twins (2026-10-31)
 
 DEC-022 adds only declarative `world`, `entity`, `agent`, and typed `state` AST nodes. It does not generate synthetic populations, cognitive agents, adaptive behavior, or calibrations. The speculative OmniTwin council (OOTB-004), twin-universe testing (OOTB-006), capability sandboxing (OOTB-010), and event replay (OOTB-011) remain future programs. Any claim that type-correct world source predicts the real market must be rejected until empirical out-of-sample validation exists.
+
+
+---
+
+## 21. Counterfactual Fidelity Harness for Community World Libraries (OOTB-021)
+
+### Concept
+Provide an optional evaluation package that runs the same typed World policy on held-out historical interventions, reports calibration and intervention uncertainty, and identifies cases where simulated and observed trajectories diverge. The core language would specify the decision mechanics; empirical adapters would supply calibrated priors, posterior samples, and data quality metadata.
+
+### Hypothesis and failure boundary
+**Future H-O21:** A preregistered, held-out evaluation harness detects systematically miscalibrated community World models before they are advertised as predictive. Falsified if miscalibrated models routinely pass the published acceptance thresholds.
+
+### Boundary
+Not implemented in this milestone. This is not a claim that PyMC Marketing or OmniTwin already enables accurate individual-level counterfactual predictions. World syntax and rules remain neutral to provider, model and industry.
+
+
+---
+
+## 22. Causal Event Lineage Inspector (OOTB-022)
+
+### Concept
+A potential language tooling extension would attach causal parent IDs and source spans to each emitted World event, producing an inspectable event dependency graph for counterfactual debugging. Analysts could ask why an event occurred and which source rule introduced it without depending on a marketing-specific agent template.
+
+### Falsifiable future hypothesis
+**H-O22:** Causal event lineage reduces the time needed to reproduce event-order failures compared with timestamp-only traces in preregistered debugging tasks. Falsification: no measurable difference or incorrect attribution of event ancestry.
+
+### Boundary
+Not implemented. Event emission currently preserves only time, qualified name, and stable ordering through the existing kernel. A lineage system would need separate provenance schema, memory bounds, and deterministic replay tests.
+
+
+---
+
+## 23. Guard Branch Coverage and Counterfactual Path Explorer (OOTB-023)
+
+### Idea
+A prospective debug adapter could record which guard condition held at each input event, its pre-event state snapshot, and an alternative path if that predicate outcome were changed. The interpreter would remain neutral to marketing concepts; a market library could supply calibrated inputs for domain-specific scenarios.
+
+### Hypothesis and falsification
+**Future H-O23:** Against a preregistered suite of state-dependent event-chain bugs, guard-branch coverage reports plus reproducible counterfactual traces reduce the time to identify missed reactions compared with timestamp-only logs. Falsification: incorrect attribution, nondeterministic replay or no improvement in diagnosis time.
+
+### Boundary
+Unimplemented and uncalibrated. A counterfactual execution trace is not a causal estimate of a real marketing intervention; that requires an identification design and held-out data.
