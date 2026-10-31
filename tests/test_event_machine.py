@@ -122,6 +122,14 @@ def test_kernel_api_is_exported_from_core_package():
     assert getattr(core, "EffectIntent", None) is EffectIntent
 
 
+def test_rejects_non_intent_effect_outputs():
+    def invalid_effect(state, event, rng):
+        return Transition(state=state, effects=("raw_dispatch",))
+
+    with pytest.raises(TypeError, match="EffectIntent"):
+        EventMachine(invalid_effect).run(0, (Event(0, "x"),), seed=0)
+
+
 def test_model_must_return_transition():
     with pytest.raises(TypeError, match="Transition"):
         EventMachine(lambda state, event, rng: state).run(0, (Event(0, "x"),), seed=0)

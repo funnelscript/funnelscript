@@ -115,8 +115,11 @@ class EventMachine(Generic[S]):
                 if future.time == event.time and future.priority < event.priority:
                     raise ValueError("Cannot schedule retrograde priority at the current time")
                 heappush(queue, (future.time, future.priority, next(ordinal), future))
+            for intent in transition.effects:
+                if not isinstance(intent, EffectIntent):
+                    raise TypeError("Model effects must be EffectIntent instances")
+                intents.append(intent)
             state = transition.state
-            intents.extend(transition.effects)
             processed.append(event)
 
         pending = tuple(item[3] for item in sorted(queue))

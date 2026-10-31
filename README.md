@@ -104,6 +104,26 @@ strategy ECommerce_Black_Friday_2026 {
 
 ---
 
+## Experimental Language-Neutral Event Kernel
+
+The first model-neutral foundation is available as a Python reference API. User-defined transitions own all world/agent state; the kernel only orders discrete events and records inert effect intents.
+
+```python
+from funnelscript.core import Event, EventMachine, Transition
+
+def step(count, event, rng):
+    return Transition(state=count + 1)
+
+result = EventMachine(step).run(
+    0, (Event(0.0, "first"), Event(2.0, "second")), seed=42
+)
+assert result.state == 2
+```
+
+The kernel is experimental and separate from the existing marketing-specific `.fnl` compiler and vectorized simulator. No generic entity syntax, effect handlers, live providers, or empirical calibration is implied by this API. Its falsifiable contract is documented in [the research repository](https://github.com/funnelscript/funnelscript-research/blob/main/spec/event-kernel-v0.md).
+
+---
+
 ## Running the Test Suite
 
 ```bash
