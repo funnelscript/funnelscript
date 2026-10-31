@@ -493,6 +493,113 @@ The runtime environment provides three interchangeable effect handlers:
 
 ---
 
+## Debate 11: The Architectural Triad — Synthesis of Terraform (IaC), Julia (ABM), and Solidity (Financial Safety)
+
+### 1. The Three Ancestral Lineages
+FunnelScript resolves a foundational dilemma in marketing engineering by synthesizing three previously disconnected software paradigms:
+
+```
+                      ┌─────────────────────────────────────────┐
+                      │          The FunnelScript Triad         │
+                      └────────────────────┬────────────────────┘
+                                           │
+         ┌─────────────────────────────────┼─────────────────────────────────┐
+         │                                 │                                 │
+         ▼                                 ▼                                 ▼
+┌──────────────────┐             ┌──────────────────┐              ┌──────────────────┐
+│  Terraform / HCL │             │ Julia / Agents.jl│              │ Solidity / Move  │
+│  (Declarative    │             │ (High-Performance│              │ (Formal Financial│
+│  Infrastructure) │             │  Scientific ABM) │              │  Safety & Guards)│
+├──────────────────┤             ├──────────────────┤              ├──────────────────┤
+│ • DAG Topology   │             │ • LLVM JIT Speed │              │ • Invariant Enforce│
+│ • Provider Model │             │ • $10^6$ Agents  │              │ • Gas / Burn Cap │
+│ • Plan vs Apply  │             │ • Non-Linear ODEs│              │ • Static Proofs  │
+└──────────────────┘             └──────────────────┘              └──────────────────┘
+```
+
+#### A. Terraform & HCL: Declarative Marketing Infrastructure as Code (MaC)
+* **The Inspiration:** HashiCorp Configuration Language (HCL) allows operators to declare cloud topology (`aws_vpc`, `aws_instance`) without scripting individual API calls. The engine builds a Directed Acyclic Graph (DAG) and executes a two-phase lifecycle: `plan` (calculate diff) followed by `apply` (execute mutations via pluggable providers).
+* **The FunnelScript Translation:** FunnelScript treats marketing campaigns as **Infrastructure as Code**. An ad set, landing page, retargeting sequence, and abandoned-cart trigger form a DAG of dependent resources. The compiler decouples resource definition from platform APIs:
+  ```funnelscript
+  provider "meta" {
+    api_version = "v21.0"
+    account_id  = env.META_ACT_ID
+  }
+
+  touchpoint "meta_ad_top_funnel" {
+    provider = provider.meta
+    channel  = "paid_social"
+    budget   = 1500.00 USD / day
+  }
+  ```
+  The developer executes `funnelscript plan` to inspect the topology, calculate expected daily burn, and simulate risk before committing to `funnelscript apply`.
+
+#### B. Julia & Agents.jl: High-Performance Scientific Simulation
+* **The Inspiration:** Julia combines dynamic ergonomics with C-like execution speed via LLVM just-in-time (JIT) compilation. Libraries like `Agents.jl` empower researchers to simulate millions of interacting agents governed by complex differential equations and stochastic choice kernels.
+* **The FunnelScript Translation:** Marketing funnels do not operate in a vacuum; they interact with open stochastic human populations. FunnelScript incorporates the mathematical rigor of Julia and NetLogo:
+  * Consumer choice governed by empirical probability distributions (Dirichlet, Beta, Gaussian).
+  * Saturation and diminishing returns modeled via non-linear Hill kinetics:
+    $$\text{Saturation}(x) = \frac{x^n}{K^n + x^n}$$
+  * Multi-timescale scheduling borrowing from SimPy's discrete-event simulation (DES) calendar.
+  * Future backend roadmap: compiling FunnelScript transition kernels directly to Julia / LLVM for billion-agent national economic simulations.
+
+#### C. Solidity & Move: Financial Invariants and Smart Contract Safety
+* **The Inspiration:** In Web3 and smart-contract programming (Solidity, Move), code directly manipulates financial capital. Compilers enforce strict formal invariants, capability-based security, and gas consumption ceilings to prevent treasury drain bugs or reentrancy exploits.
+* **The FunnelScript Translation:** Automated marketing execution directly risks real corporate budgets. A flawed loop in an algorithmic bidding script can spend $\$100,000$ in minutes on Meta Ads. FunnelScript borrows smart-contract safety:
+  * **Static Spend Verification:** The AST linter guarantees that all loops, retargeting rules, and dynamic bid allocations have statically bounded maximum capital draw ($C_{\text{max}}$). Unbounded loops fail at compile time.
+  * **Runtime Budget Gas:** Every campaign execution maintains a non-bypassable hardware/driver error budget. If spend rate exceeds authorized bounds, the circuit breaker trips immediately.
+  * **Idempotency Keys:** Every external call carries cryptographic transaction uniqueness to eliminate duplicate ad charges or spam re-sends.
+
+---
+
+### 2. Cross-Paradigm Architectural Matrix
+
+| Dimension | Terraform (HCL) | Julia (Agents.jl) | Solidity (EVM) | FunnelScript Unified Core |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Domain** | Cloud Compute & Networking | Scientific Numerical Computing | Decentralized Ledger State | Marketing Systems & Simulated Markets |
+| **Execution Philosophy** | Declarative State Reconciliation | Dynamic Vectorized JIT | Deterministic Bytecode State Machine | Dual-Mode: Pure Simulation + Idempotent Live Apply |
+| **Dependency Model** | Explicit DAG of Resources | Function Dispatch Graph | Call Graph & Storage Slots | DAG Topology of Marketing Touchpoints & Cohorts |
+| **External Interface** | Provider Plugins (AWS, GCP) | C / Python FFI | EVM Oracles & Precompiles | Pluggable Provider Adapters (Meta, Google, Shopify) |
+| **Safety Guarantees** | Speculative `plan` Diff | Numerical Precision & Typing | Formal Verification & Gas Limits | Static Spend Ceilings & SRE Circuit Breakers |
+| **Agent Agency** | None (Passive Infrastructure) | Autonomous Dynamic Agents | Autonomous Smart Contracts | Autonomous Consumer & Competitor Agents |
+
+---
+
+### 3. Strategic Architectural Roadmap: Providers vs. Agent Core
+
+A central strategic question emerges from this synthesis:
+> *"Should the immediate next milestone focus on formalizing Terraform-inspired Provider abstractions in the EBNF Grammar, or proceed directly to advancing the simulation Agent Core?"*
+
+#### The Architectural Resolution: Interface Precedence via Inside-Out Discipline
+Adhering to **Phase Core-Outwards Discipline (DEC-001)** and **Layer Neutrality (DEC-008)**, the two concepts are intimately coupled through a strict interface dependency:
+
+```
+┌────────────────────────────────────────────────────────┐
+│           Layer 01: Language Grammar (EBNF)            │
+│  Declares abstract `provider` and `resource` interfaces│
+└───────────────────────────┬────────────────────────────┘
+                            │ defines contract
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│       Layer 02: Reference Simulation Runtime           │
+│   ┌────────────────────────┐  ┌──────────────────────┐ │
+│   │ SimulatedProvider      │  │ Advanced Agent Core  │ │
+│   │ (In-Memory Mock Touch- │◄─┤ (Interacts with      │ │
+│   │  points & Ad Auctions) │  │  Provider Touchpoints│ │
+│   └────────────────────────┘  └──────────────────────┘ │
+└────────────────────────────────────────────────────────┘
+```
+
+1. **The Language Core must remain platform-agnostic:** Hardcoding Meta Ads, Google Ads, or Klaviyo into the compiler grammar violates Axiom 1 (World-Model Neutrality).
+2. **The Agent Mind requires concrete touchpoints to evaluate:** Synthetic consumer agents cannot calculate click or conversion probabilities in the abstract; they must interact with touchpoints exposed by resources.
+3. **The Sequential Execution Path:**
+   * **Step A (Grammar Formalization):** Author the generic `provider` and `resource` EBNF grammar specifications.
+   * **Step B (Simulated Provider Mock):** Implement an in-memory `SimulatedProvider` in Python that exposes touchpoint stimulus signals without external network calls.
+   * **Step C (Agent Core Evolution):** Advance the Agent Mind to consume stimuli and make decisions against these generic provider touchpoints.
+   * **Step D (Live Provider Adapters):** Author live production providers (`MetaProvider`, `KlaviyoProvider`) in later phases, plugging into the exact same EBNF contract without altering a single line of agent simulation code.
+
+---
+
 ## Actionable Operational Checklist
 
 | # | Domain | Actionable Specification | Priority | Status |
@@ -512,4 +619,20 @@ The runtime environment provides three interchangeable effect handlers:
 | **13** | **Shadow Execution Mode** | Build real-time webhook ingestion bridge to track $\Delta_{\text{actual vs predicted}}$ without live mutations. | P2 | **Roadmap** |
 | **14** | **Provider Adapters** | Implement provider abstraction contracts for Meta Marketing API, Klaviyo, and Shopify Admin API. | P2 | **Roadmap** |
 | **15** | **Safety Guardrails** | Implement non-bypassable spend rate-limiters, daily burn ceilings, and SHA-256 idempotency keying. | P1 | **Next Phase** |
+| **16** | **EBNF Provider Grammar** | Author generic `provider` and `resource` EBNF grammar rules for declarative Marketing as Code. | P1 | **Next Phase** |
+| **17** | **Simulated Provider Mock** | Author in-memory reference `SimulatedProvider` for hermetic agent evaluation. | P1 | **Next Phase** |
+| **18** | **FunnelScript Plan Engine** | Implement `funnelscript plan` DAG diff engine calculating estimated daily spend and resource mutations. | P2 | **Roadmap** |
+| **19** | **Smart-Contract Invariant Linter**| Author static analysis pass to verify all loops and triggers possess bounded spend ceilings ($C_{\text{max}}$). | P1 | **Next Phase** |
 
+
+
+---
+
+## Implementation Debate: Domain-Neutral Kernel versus Campaign-Specific Runtime (2026-10-31)
+
+**Question:** Should the new computational substrate reuse the current `StrategyAST` and hardcoded audience/touchpoint semantics, or define a model-agnostic event/transition interface first?
+
+* **Marketing-first extension:** Reusing the existing campaign simulator gives rapid feature delivery but reinforces compiler privilege for marketing constructs, contradicting DEC-008/009.
+* **General event kernel:** A user supplies opaque state plus a transition reducer; the runtime schedules events and records effect intents without knowing any marketing schema. This cleanly isolates a testable language semantic layer, although it does not automatically provide a generic parser, typed agent model, vectorized engine, or real-world calibration.
+* **Provisional resolution:** Implement the general event kernel as an additive, reference-level module. Preserve the 29-test legacy marketing engine until language and standard-library migration contracts are explicit. Use H-K1 through H-K4 as falsification gates in `spec/event-kernel-v0.md`.
+* **Open risk:** Python reducer callbacks may invoke I/O or mutate shared objects. Recording inert intents is not an enforceable effect system. A future source-language type/effect checker and restricted execution boundary must be separately designed and tested before Shadow/Live adoption.

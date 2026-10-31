@@ -23,6 +23,10 @@
 | **DEC-013** | [FCM-002: Dual-Mode Execution Architecture & Koka-Style Effect System](#dec-013-fcm-002-dual-mode-execution-architecture--koka-style-effect-system) | 2026-10-31 | **Accepted** | Separation of pure strategy logic from real-world side-effects |
 | **DEC-014** | [Shadow Execution Mode for Risk-Free Live Observation](#dec-014-shadow-execution-mode-for-risk-free-live-observation) | 2026-10-31 | **Accepted** | Real-world webhook evaluation with zero mutations |
 | **DEC-015** | [Idempotency Keys and Compensating Actions for Irreversible Live Operations](#dec-015-idempotency-keys-and-compensating-actions-for-irreversible-live-operations) | 2026-10-31 | **Accepted** | At-most-once execution & compensating sagas for marketing effects |
+| **DEC-016** | [The Terraform-Julia-Solidity Architectural Triad](#dec-016-the-terraform-julia-solidity-architectural-triad) | 2026-10-31 | **Accepted** | Unifying Declarative IaC, High-Performance ABM, and Financial Safety |
+| **DEC-017** | [The Provider Contract Abstraction & Plan-vs-Apply Lifecycle](#dec-017-the-provider-contract-abstraction--plan-vs-apply-lifecycle) | 2026-10-31 | **Accepted** | Decoupling external platforms via pluggable providers and speculative DAG diffs |
+| **DEC-018** | [Static Financial Invariants & Budget Gas Ceilings](#dec-018-static-financial-invariants--budget-gas-ceilings) | 2026-10-31 | **Accepted** | Smart-contract-inspired compile-time budget verification and runtime spend halts |
+| **DEC-019** | [Domain-Neutral Event Kernel v0 and Inert Effect Intents](#dec-019-domain-neutral-event-kernel-v0-and-inert-effect-intents) | 2026-10-31 | **Accepted** | Executable substrate for DEC-008/012/013 without domain coupling |
 
 ---
 
@@ -195,3 +199,52 @@
   * Require explicit **Compensating Actions** (Saga pattern) for irreversible side effects when a campaign is paused, canceled, or fails mid-execution (e.g. deactivating a leaked discount code or dispatching correction notifications).
 * **Rationale:** Guarantees at-most-once execution semantics and predictable failure recovery across distributed third-party marketing APIs.
 * **Consequences:** `LiveEffectHandler` verifies idempotency state before dispatching any provider API mutation.
+
+---
+
+### DEC-016: The Terraform-Julia-Solidity Architectural Triad
+* **Status:** Accepted
+* **Context:** Marketing systems require a unique fusion of declarative infrastructure topology, stochastic agent simulation, and high-stakes financial risk management.
+* **Decision:** Formally ground FunnelScript upon three architectural pillars:
+  1. **Terraform (IaC):** Declarative Marketing as Code, resource DAG dependencies, and `plan` vs `apply` execution lifecycle.
+  2. **Julia / Agents.jl (ABM):** High-performance numerical simulation, vectorized SIMD array processing, and discrete-event scheduling.
+  3. **Solidity / Move (Smart Contracts):** Static invariant analysis, bounded budget gas consumption, and financial anti-drain protection.
+* **Rationale:** Eliminates arbitrary ad-hoc designs by borrowing proven paradigms from cloud infrastructure, computational physics, and financial cryptosystems.
+* **Consequences:** Architectural consensus established; all future compiler and runtime features must trace back to this triad.
+
+---
+
+### DEC-017: The Provider Contract Abstraction & Plan-vs-Apply Lifecycle
+* **Status:** Accepted
+* **Context:** Coupling the compiler grammar to specific ad platforms (Meta, Google, TikTok, Klaviyo, Shopify) would create brittle lock-in and violate world-model neutrality.
+* **Decision:**
+  * Define generic `provider` and `resource` contracts in the core EBNF grammar (Layer 01).
+  * Enforce a two-phase operational lifecycle:
+    * `funnelscript plan`: Validates syntax, builds the resource DAG, calculates estimated daily burn rates, and runs Monte Carlo simulation risk checks.
+    * `funnelscript apply`: Dispatches validated mutations to external platform providers with cryptographic idempotency.
+* **Rationale:** Allows identical FunnelScript source code to run hermetically in simulation (`SimulatedProvider`) or manage multi-million dollar live production campaigns (`LiveProvider`).
+* **Consequences:** Provider plugins can be developed independently by the community without altering compiler internals.
+
+---
+
+### DEC-018: Static Financial Invariants & Budget Gas Ceilings
+* **Status:** Accepted
+* **Context:** In automated execution, algorithmic optimization loops or logic flaws can continuously trigger ad spends or bidding wars, causing catastrophic balance depletion.
+* **Decision:**
+  * Require static upper bounds on capital draw ($C_{\text{max}}$) for all recurring actions, loops, and dynamic triggers.
+  * The compiler AST linter rejects any strategy containing unconstrained spending expressions or unbounded retry loops.
+  * The runtime driver maintains an immutable daily "budget gas" ceiling ($C_{\text{daily\_cap}}$); when consumed, execution halts unconditionally.
+* **Rationale:** Protects enterprise treasuries with the mathematical certainty of smart-contract execution environments.
+* **Consequences:** Prevents automated ad-account drain catastrophes before deployment.
+
+
+---
+
+### DEC-019: Domain-Neutral Event Kernel v0 and Inert Effect Intents
+* **Status:** Accepted as the first bounded implementation slice of DEC-008, DEC-012, and DEC-013.
+* **Research Anchor:** Zeigler's discrete-event system specification; Leijen's separation of algebraic effect interfaces from handlers; Python's documented stable priority-queue pattern. See `spec/event-kernel-v0.md`.
+* **Falsifiable Hypotheses:** H-K1 stable chronological event ordering; H-K2 seeded replay for pure deterministic reducers; H-K3 finite-time and progress bounds; H-K4 domain-neutral model state and inert external effect descriptions.
+* **Mathematical Invariants:** A processed event's `(time, priority, ordinal)` tuple cannot decrease. Newly scheduled events obey `time(new) >= time(current)`; equal-time scheduling cannot decrease priority. The run terminates or raises at a caller-controlled `max_events` bound.
+* **Decision:** Introduce a minimal Python reference event kernel taking an opaque user-defined state and reducer and returning a new state, processed/pending events, and effect-intent values. Keep legacy campaign-specific AST/linter and vectorized runtime intact pending a separate migration decision.
+* **Safety Boundary:** Emission of inert effect descriptions is not enforcement of pure Python callbacks, static capability checking, or safe live execution. No provider handler or live API mutation is implemented in this phase.
+* **Consequences:** An executable domain-neutral semantic contract and regression checks are available independently of marketing-specific concepts. This does not establish predictive validity or a full DEVS/Koka implementation.
