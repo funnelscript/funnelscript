@@ -1,0 +1,63 @@
+{
+  "$schema": "https://funnelscript.org/v1/schema.json",
+  "strategy_name": "Broken_Campaign_Diagnostics",
+  "entities": {
+    "budgets": {
+      "total_budget": 5000,
+      "max_cpc_limit": 2.00,
+      "initial_cash": 200,
+      "settlement_delay_days": 6
+    },
+    "audiences": [
+      {
+        "id": "aud_active",
+        "name": "Active Audience",
+        "type": "cold",
+        "estimated_size": 100000
+      },
+      {
+        "id": "aud_forgotten",
+        "name": "Orphaned Audience",
+        "type": "cold",
+        "estimated_size": 25000
+      }
+    ],
+    "touchpoints": [
+      {
+        "id": "tp_ad_fb",
+        "type": "paid_traffic",
+        "base_cpc": 0.50
+      },
+      {
+        "id": "tp_ad_google",
+        "type": "paid_traffic",
+        "base_cpc": 0.80
+      },
+      {
+        "id": "tp_store_page",
+        "type": "conversion_surface",
+        "base_conversion_rate": 0.03
+      },
+      {
+        "id": "tp_abandoned_touchpoint",
+        "type": "retargeting_channel"
+      }
+    ]
+  },
+  "logic_flow": [
+    {
+      "step": 1,
+      "action": "TriggerTraffic",
+      "source": "aud_active",
+      "via": "tp_ad_fb",
+      "destination": "tp_ad_google"
+    },
+    {
+      "step": 2,
+      "action": "TriggerTraffic",
+      "source": "aud_active",
+      "via": "tp_ad_google",
+      "destination": "tp_ad_fb"
+    }
+  ]
+}

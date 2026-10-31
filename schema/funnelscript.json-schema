@@ -1,0 +1,295 @@
+{
+  "$defs": {
+    "AudienceNode": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "title": "Name",
+          "type": "string"
+        },
+        "type": {
+          "default": "cold",
+          "enum": [
+            "cold",
+            "warm",
+            "retargeting"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "estimated_size": {
+          "minimum": 1,
+          "title": "Estimated Size",
+          "type": "integer"
+        },
+        "attributes": {
+          "$ref": "#/$defs/PsychographicAttributes"
+        }
+      },
+      "required": [
+        "id",
+        "estimated_size"
+      ],
+      "title": "AudienceNode",
+      "type": "object"
+    },
+    "BudgetsNode": {
+      "properties": {
+        "total_budget": {
+          "minimum": 0.0,
+          "title": "Total Budget",
+          "type": "number"
+        },
+        "max_cpc_limit": {
+          "default": 5.0,
+          "minimum": 0.0,
+          "title": "Max Cpc Limit",
+          "type": "number"
+        },
+        "initial_cash": {
+          "default": 10000.0,
+          "description": "Liquid cash available at t=0",
+          "minimum": 0.0,
+          "title": "Initial Cash",
+          "type": "number"
+        },
+        "settlement_delay_days": {
+          "default": 3,
+          "description": "Global merchant payout latency",
+          "minimum": 0,
+          "title": "Settlement Delay Days",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total_budget"
+      ],
+      "title": "BudgetsNode",
+      "type": "object"
+    },
+    "EntitiesNode": {
+      "properties": {
+        "budgets": {
+          "$ref": "#/$defs/BudgetsNode"
+        },
+        "audiences": {
+          "items": {
+            "$ref": "#/$defs/AudienceNode"
+          },
+          "title": "Audiences",
+          "type": "array"
+        },
+        "touchpoints": {
+          "items": {
+            "$ref": "#/$defs/TouchpointNode"
+          },
+          "title": "Touchpoints",
+          "type": "array"
+        }
+      },
+      "required": [
+        "budgets",
+        "audiences",
+        "touchpoints"
+      ],
+      "title": "EntitiesNode",
+      "type": "object"
+    },
+    "PsychographicAttributes": {
+      "properties": {
+        "brand_affinity": {
+          "default": 0.5,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Brand Affinity",
+          "type": "number"
+        },
+        "price_sensitivity": {
+          "default": 0.5,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Price Sensitivity",
+          "type": "number"
+        },
+        "fomo_index": {
+          "default": 0.5,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Fomo Index",
+          "type": "number"
+        },
+        "buying_intent_score": {
+          "default": 0.5,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Buying Intent Score",
+          "type": "number"
+        }
+      },
+      "title": "PsychographicAttributes",
+      "type": "object"
+    },
+    "SimulationEngineParams": {
+      "properties": {
+        "engine_type": {
+          "default": "Agent-Based_Monte_Carlo",
+          "title": "Engine Type",
+          "type": "string"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "title": "Parameters",
+          "type": "object"
+        },
+        "historical_data_weight": {
+          "default": 0.7,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Historical Data Weight",
+          "type": "number"
+        },
+        "output_metrics_requested": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Output Metrics Requested",
+          "type": "array"
+        }
+      },
+      "title": "SimulationEngineParams",
+      "type": "object"
+    },
+    "TouchpointNode": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "paid_traffic",
+            "conversion_surface",
+            "retargeting_channel"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "platform": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Platform"
+        },
+        "medium": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Medium"
+        },
+        "base_cpc": {
+          "default": 0.5,
+          "minimum": 0.0,
+          "title": "Base Cpc",
+          "type": "number"
+        },
+        "ad_creative_score": {
+          "default": 0.75,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Ad Creative Score",
+          "type": "number"
+        },
+        "base_conversion_rate": {
+          "default": 0.03,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Base Conversion Rate",
+          "type": "number"
+        },
+        "base_open_rate": {
+          "default": 0.25,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Base Open Rate",
+          "type": "number"
+        },
+        "settlement_delay_days": {
+          "default": 3,
+          "description": "Payment processor payout delay in days",
+          "minimum": 0,
+          "title": "Settlement Delay Days",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ],
+      "title": "TouchpointNode",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "$schema": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "$Schema"
+    },
+    "strategy_name": {
+      "title": "Strategy Name",
+      "type": "string"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "environment": {
+      "additionalProperties": true,
+      "title": "Environment",
+      "type": "object"
+    },
+    "entities": {
+      "$ref": "#/$defs/EntitiesNode"
+    },
+    "logic_flow": {
+      "items": {},
+      "title": "Logic Flow",
+      "type": "array"
+    },
+    "simulation_engine": {
+      "$ref": "#/$defs/SimulationEngineParams"
+    }
+  },
+  "required": [
+    "strategy_name",
+    "entities"
+  ],
+  "title": "FunnelScript Strategy Specification",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Formal declarative schema for marketing systems engineering and discrete-event simulation."
+}
