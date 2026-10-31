@@ -1,0 +1,97 @@
+# FunnelScript CLI Reference Manual
+
+The `funnelscript` command-line interface provides tools for verifying, simulating, and generating marketing strategies using declarative FunnelScript specifications.
+
+---
+
+## Command Overview
+
+```bash
+funnelscript [--help] <command> [options]
+```
+
+### Commands
+
+| Command | Description | Standard Exit Codes |
+| :--- | :--- | :--- |
+| `check <file>` | Static semantic verification, Tarjan cycle detection, and invariant analysis | `0` (clean), `1` (defect), `2` (I/O error) |
+| `compile <file>` | Alias for `check` | `0`, `1`, `2` |
+| `simulate <file>` | Vectorized Monte Carlo simulation & liquidity stress-testing | `0` (pass), `1` (lint error), `2` (I/O error) |
+| `init <name>` | Scaffold a production-ready, pre-validated campaign template | `0` (created) |
+| `schema` | Print or export the official Draft 2020-12 JSON Schema | `0` |
+
+---
+
+## Detailed Command Documentation
+
+### 1. `funnelscript check`
+
+Runs static verification against the marketing strategy AST:
+- **Graph Reachability:** Ensures all audiences and touchpoints connect to valid traffic flows.
+- **Dead-End Detection:** Flags conversion surfaces with 0% conversion rate or no downstream recovery steps.
+- **Tarjan's SCC Cycle Detection:** Prevents endless attribution feedback loops between channels.
+- **Working Capital Ratio:** Alerts when settlement delay $\Delta_{\text{settle}}$ coupled with initial cash creates high insolvency exposure.
+
+```bash
+funnelscript check strategy.fnl.json
+```
+
+---
+
+### 2. `funnelscript simulate`
+
+Executes high-throughput agent-based discrete-event simulations over a multi-day timeline.
+
+```bash
+funnelscript simulate strategy.fnl.json [options]
+```
+
+#### Flags & Options:
+* `--trials <int>`: Number of independent Monte Carlo iterations (default: `100`).
+* `--agents <int>`: Total synthetic consumers simulated per trial (default: from strategy AST or `10000`).
+* `--export-csv <path>`: Exports terminal trial outcomes (Spend, Impressions, Clicks, Conversions, Revenue, ROAS, CAC, Insolvency) to a CSV file.
+* `--export-json <path>`: Exports the complete distribution report and risk metrics to JSON.
+* `--json`: Suppresses Rich console styling and outputs pure JSON to standard output (ideal for CI/CD pipelines and scripting).
+
+#### Example:
+```bash
+funnelscript simulate strategy.fnl.json \
+  --trials 200 \
+  --agents 50000 \
+  --export-csv ./results/trials.csv \
+  --export-json ./results/report.json
+```
+
+---
+
+### 3. `funnelscript init`
+
+Scaffolds a clean starter template complete with entities, touchpoints, budget controls, and retargeting conditional branches.
+
+```bash
+funnelscript init "Holiday Campaign" --output ./holiday.fnl.json
+```
+
+---
+
+### 4. `funnelscript schema`
+
+Generates the canonical JSON Schema for IDE autocompletion, schema validation, and toolchain integration.
+
+```bash
+# Print to stdout
+funnelscript schema
+
+# Export to file
+funnelscript schema --output spec/schema.json
+```
+
+---
+
+## Exit Code Specification
+
+| Code | Label | Cause |
+| :---: | :--- | :--- |
+| **0** | `SUCCESS` | Strategy compiled, checked, or simulated without invariant violations. |
+| **1** | `INVARIANT_ERROR` | Syntax failure, cycle detected, or critical linter error (`FS201`, `FS202`, `FS301`, `FS501`). |
+| **2** | `IO_ERROR` | Target file does not exist or cannot be read/written. |
