@@ -211,3 +211,35 @@ Multi-runtime monorepos (e.g. Bun for runtime + `tsc` for type verification) req
 
 ### Status
 **Resolved**
+
+
+---
+
+## 5. New Module API Causing Pytest Collection Failure Before Behavioral RED
+
+### Context
+Adding a domain-neutral event kernel to the existing `src/` package while preserving test-first development.
+
+### What happened
+The first focused test import referenced `funnelscript.core.event_machine` before that new module existed. Pytest reported a collection error rather than running the intended behavioral assertions.
+
+### Observable symptom
+```text
+ModuleNotFoundError: No module named 'funnelscript.core.event_machine'
+collected 0 items / 1 error
+```
+
+### Impact
+The first result did not qualify as a behavioral RED test, even though it identified a missing public module.
+
+### Root cause
+The test harness could not import the contract under test; this is a collection-level boundary, not evidence that scheduling logic was wrong.
+
+### Fix and verification
+Bootstrapped the minimal module interface with an intentionally unimplemented `EventMachine.run`, then reran the focused suite. Fourteen tests executed and failed on missing semantics or invalid-input validation. The implemented reference kernel subsequently passed those tests; final suite verification follows.
+
+### Prevention rule
+For a brand-new module, distinguish public-API bootstrap failures from executable behavior failures. Count RED only after tests reach meaningful assertions and runtime code paths.
+
+### Status
+**Resolved at the focused-test boundary; full-suite evidence recorded separately.**
