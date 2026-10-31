@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json.schemastore.org/claude-plugin-manifest.json",
+  "name": "say-no-to-slop",
+  "displayName": "Say No to Slop — Multi-Agent AI Writing Sentinel",
+  "version": "3.29.0",
+  "description": "Multi-agent audit and rewrite suite eliminating AI writing tells, generic structures, and stylistic giveaways with deterministic preservation verification.",
+  "author": {
+    "name": "Mamdouh Aboammar",
+    "url": "https://github.com/imMamdouhaboammar"
+  },
+  "homepage": "https://skills.sh/say-no-to-slop",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imMamdouhaboammar/say-no-to-slop.git"
+  },
+  "license": "MIT",
+  "categories": [
+    "productivity",
+    "writing",
+    "automation",
+    "agent-tools",
+    "developer-tools"
+  ],
+  "keywords": [
+    "say-no-to-slop",
+    "anti-slop",
+    "unslop",
+    "prosewarden",
+    "ai-writing",
+    "humanize",
+    "agent-skill",
+    "skills.sh",
+    "claude-code",
+    "codex",
+    "cursor",
+    "gemini-cli"
+  ],
+  "compatibility": {
+    "claudeCode": ">=1.0.0",
+    "claudeDesktop": ">=1.0.0",
+    "cursor": ">=0.40.0",
+    "codex": ">=0.1.0",
+    "opencode": ">=1.0.0",
+    "antigravity": ">=1.0.0",
+    "geminiCli": ">=1.0.0",
+    "windsurf": ">=1.0.0",
+    "cline": ">=2.0.0"
+  },
+  "entrypoint": "SKILL.md",
+  "bin": {
+    "say-no-to-slop": "./bin/cli.js",
+    "prosewarden": "./bin/cli.js",
+    "avoid-ai-writing": "./bin/cli.js"
+  },
+  "capabilities": [
+    {
+      "name": "ai-detection",
+      "description": "Deterministic pattern and stylometric analysis across 30+ AI giveaway categories",
+      "command": "bun bin/cli.js detect"
+    },
+    {
+      "name": "preservation-verification",
+      "description": "Automated regression testing ensuring code blocks, tables, math, links, and structure remain intact",
+      "command": "bun bin/cli.js verify"
+    },
+    {
+      "name": "agent-orchestration-routing",
+      "description": "Calculates optimal execution path through the 7-node typed skill DAG",
+      "command": "bun bin/cli.js route"
+    }
+  ]
+}

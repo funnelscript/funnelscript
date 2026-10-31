@@ -1,0 +1,20 @@
+{
+  "$schema": "https://skills.sh/schema.json",
+  "name": "say-no-to-slop",
+  "version": "3.29.0",
+  "description": "Say No to Slop! Autonomous multi-agent sentinel for auditing and eliminating AI writing tells with deterministic preservation verification.",
+  "repository": "https://github.com/imMamdouhaboammar/say-no-to-slop",
+  "author": "Mamdouh Aboammar",
+  "license": "MIT",
+  "skill": "SKILL.md",
+  "tags": [
+    "ai-writing",
+    "humanize",
+    "agent-skill",
+    "claude-code",
+    "codex",
+    "gemini-cli",
+    "antigravity",
+    "cursor"
+  ]
+}

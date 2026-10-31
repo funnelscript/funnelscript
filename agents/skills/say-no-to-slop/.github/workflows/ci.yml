@@ -1,0 +1,45 @@
+name: Universal Multi-Agent CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify:
+    name: Test & Validate Multi-Agent Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Verify CLI Entrypoint
+        run: |
+          chmod +x bin/cli.js install.sh
+          bun bin/cli.js --help
+          bun bin/cli.js detect "Acme Analytics is nestled in the heart of Boulder."
+          bun bin/cli.js route "Audit prose and verify non-prose blocks"
+          bun bin/cli.js verify README.md README.md
+
+      - name: Run Test Suite with Bun
+        run: bun test || bun run test
+
+      - name: Run Skill Connection & Plugin Validators
+        run: |
+          python3 scripts/validate-openai-plugin.py
+          python3 scripts/validate-openai-plugin.test.py
+          python3 skills/avoid-ai-writing-router/scripts/validate_connections.test.py
+
+      - name: Verify Self-Scan Quality Gate
+        run: bun run self-scan:check

@@ -1,0 +1,69 @@
+{
+  "name": "say-no-to-slop",
+  "version": "3.29.0",
+  "description": "Say No to Slop! Universal multi-agent skill suite & CLI for auditing and rewriting AI writing patterns across Claude Code, Gemini CLI, Codex, Cursor, and Agent Kernel.",
+  "license": "MIT",
+  "author": "Mamdouh Aboammar <https://github.com/imMamdouhaboammar>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imMamdouhaboammar/say-no-to-slop.git"
+  },
+  "homepage": "https://github.com/imMamdouhaboammar/say-no-to-slop#readme",
+  "bugs": {
+    "url": "https://github.com/imMamdouhaboammar/say-no-to-slop/issues"
+  },
+  "main": "detector/patterns.js",
+  "bin": {
+    "say-no-to-slop": "./bin/cli.js",
+    "prosewarden": "./bin/cli.js",
+    "avoid-ai-writing": "./bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "detector",
+    "skills",
+    "scripts",
+    "references",
+    "SKILL.md",
+    "marketplace.json",
+    ".skills.json",
+    "install.sh"
+  ],
+  "engines": {
+    "bun": ">=1.0.0",
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "bun bin/cli.js",
+    "cli": "bun bin/cli.js",
+    "test": "node detector/patterns.test.js && node detector/categories.test.js && node detector/validate.test.js && node scripts/corpus.test.js && node scripts/check-style.test.js && node scripts/test-canonical-skill-package.js",
+    "test:bun": "bun test && bun run test",
+    "test:python": "python3 scripts/validate-openai-plugin.py && python3 scripts/validate-openai-plugin.test.py && python3 skills/avoid-ai-writing-router/scripts/validate_connections.test.py",
+    "detect": "bun bin/cli.js detect",
+    "verify": "bun bin/cli.js verify",
+    "route": "bun bin/cli.js route",
+    "self-scan": "node scripts/self-scan.js",
+    "self-scan:check": "node scripts/self-scan.js --check",
+    "corpus": "node scripts/corpus.js list",
+    "corpus:fetch": "node scripts/corpus.js fetch",
+    "corpus:verify": "node scripts/corpus.js verify",
+    "fp": "node scripts/fp-measure.js"
+  },
+  "keywords": [
+    "say-no-to-slop",
+    "anti-slop",
+    "unslop",
+    "prosewarden",
+    "agent-skill",
+    "skills-sh",
+    "claude-code",
+    "gemini-cli",
+    "cursor",
+    "codex",
+    "antigravity",
+    "ai-writing",
+    "ai-detector",
+    "humanize",
+    "bun"
+  ]
+}
