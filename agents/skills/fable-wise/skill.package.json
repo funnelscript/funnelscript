@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 2,
+  "id": "fable-wise",
+  "entry": "SKILL.md",
+  "agents": [
+    "agents/openai.yaml"
+  ],
+  "references": [],
+  "templates": [],
+  "examples": [],
+  "evals": [
+    "evals/scenarios.json"
+  ],
+  "scripts": [
+    "scripts/opencode-discovery.js",
+    "scripts/list-skills.sh",
+    "scripts/check-links.sh",
+    "scripts/validate-skills.sh",
+    "scripts/catalog.cjs",
+    "scripts/check-deploy-home.cjs",
+    "scripts/session-check.cjs",
+    "scripts/link-skills.sh",
+    "scripts/check-skill-refs.sh",
+    "scripts/check-catalog-sync.cjs"
+  ],
+  "scriptPolicy": "data-only"
+}

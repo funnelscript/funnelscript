@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 740" width="1080" height="740" role="img" aria-label="The Paperthin map by LilMGenius/paperthin: an old-paper four-quadrant graph. Horizontal axis cardinality moves from one to many; vertical axis time moves from now to across iterations. Depth is one artifact now, breadth is many artifacts now, coil is one project across iterations, and mesh is many minds across rounds.">
+  <defs>
+    <filter id="paper-grain" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="4" seed="23" result="noise"/>
+      <feColorMatrix in="noise" type="matrix" values="0.32 0 0 0 0.58 0 0.28 0 0 0.51 0 0 0.22 0 0.38 0 0 0 0.16 0" result="warmNoise"/>
+      <feBlend in="SourceGraphic" in2="warmNoise" mode="multiply"/>
+    </filter>
+
+    <pattern id="small-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 H 0 V 20" fill="none" stroke="#9FB0B7" stroke-width="0.65" opacity="0.32"/>
+    </pattern>
+
+    <pattern id="large-grid" width="100" height="100" patternUnits="userSpaceOnUse">
+      <rect width="100" height="100" fill="url(#small-grid)"/>
+      <path d="M 100 0 H 0 V 100" fill="none" stroke="#758890" stroke-width="1" opacity="0.34"/>
+    </pattern>
+
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2D2A24"/>
+    </marker>
+  </defs>
+
+  <rect width="1080" height="740" fill="#E7D9B8"/>
+  <rect x="38" y="28" width="1004" height="684" rx="2" fill="#F4E8C8" filter="url(#paper-grain)"/>
+  <rect x="38" y="28" width="1004" height="684" rx="2" fill="none" stroke="#B9A778" stroke-width="1.2"/>
+
+  <!-- notebook stains and deckled age marks -->
+  <path d="M 74 70 C 178 48, 246 64, 346 48 C 480 27, 607 48, 738 40 C 844 34, 942 45, 1010 70" fill="none" stroke="#C8B47A" stroke-width="3" opacity="0.16"/>
+  <path d="M 58 656 C 189 682, 330 650, 474 674 C 596 694, 733 661, 881 680 C 944 688, 997 676, 1025 662" fill="none" stroke="#B59663" stroke-width="4" opacity="0.12"/>
+  <circle cx="910" cy="116" r="56" fill="#B7834A" opacity="0.05"/>
+  <circle cx="188" cy="596" r="78" fill="#8B6C41" opacity="0.045"/>
+
+  <!-- red margin rule, like old graph paper -->
+  <line x1="112" y1="54" x2="112" y2="690" stroke="#B65443" stroke-width="1.4" opacity="0.52"/>
+
+  <!-- graph field -->
+  <rect x="146" y="92" width="846" height="536" fill="#F6ECCF"/>
+  <rect x="146" y="92" width="846" height="536" fill="url(#large-grid)"/>
+  <rect x="146" y="92" width="846" height="536" fill="none" stroke="#3A3328" stroke-width="1.4"/>
+
+  <!-- quadrant divider lines -->
+  <line x1="569" y1="92" x2="569" y2="628" stroke="#3A3328" stroke-width="1.1" stroke-dasharray="7 7"/>
+  <line x1="146" y1="360" x2="992" y2="360" stroke="#3A3328" stroke-width="1.1" stroke-dasharray="7 7"/>
+
+  <!-- arrowed axes -->
+  <line x1="146" y1="360" x2="1018" y2="360" stroke="#2D2A24" stroke-width="2.4" marker-end="url(#arrow)"/>
+  <line x1="569" y1="66" x2="569" y2="654" stroke="#2D2A24" stroke-width="2.4" marker-end="url(#arrow)"/>
+  <circle cx="569" cy="360" r="4.2" fill="#2D2A24"/>
+
+  <!-- axis labels -->
+  <text x="584" y="660" font-family="Georgia,'Times New Roman',serif" font-size="17" font-style="italic" fill="#3C352A">time</text>
+  <text x="920" y="350" font-family="Georgia,'Times New Roman',serif" font-size="17" font-style="italic" fill="#3C352A">cardinality</text>
+  <text x="356" y="656" text-anchor="middle" font-family="'Courier New',Courier,monospace" font-size="13" fill="#5C5448">one</text>
+  <text x="786" y="656" text-anchor="middle" font-family="'Courier New',Courier,monospace" font-size="13" fill="#5C5448">many</text>
+  <text x="82" y="229" font-family="'Courier New',Courier,monospace" font-size="13" fill="#5C5448">now</text>
+  <text x="64" y="492" font-family="'Courier New',Courier,monospace" font-size="13" fill="#5C5448">across</text>
+  <text x="64" y="510" font-family="'Courier New',Courier,monospace" font-size="13" fill="#5C5448">iterations</text>
+
+  <!-- title note -->
+  <text x="151" y="66" font-family="Georgia,'Times New Roman',serif" font-size="15" font-style="italic" fill="#6A5B42">four regions on one thin sheet</text>
+  <text x="992" y="66" text-anchor="end" font-family="'Courier New',Courier,monospace"
+        font-size="13" letter-spacing="0.8" fill="#5C4E39" opacity="0.95">LilMGenius/paperthin</text>
+
+  <!-- depth -->
+  <g transform="translate(184 143)">
+    <text x="0" y="0" font-family="Georgia,'Times New Roman',serif" font-size="48" fill="#23211D">depth</text>
+    <line x1="0" y1="18" x2="132" y2="18" stroke="#7B3F2A" stroke-width="1.4" opacity="0.62"/>
+    <text x="0" y="52" font-family="'Courier New',Courier,monospace" font-size="16" fill="#4F493D">one artifact, now</text>
+    <text x="0" y="92" font-family="Georgia,'Times New Roman',serif" font-size="17" font-style="italic" fill="#314C5B">is this one thing</text>
+    <text x="0" y="116" font-family="Georgia,'Times New Roman',serif" font-size="17" font-style="italic" fill="#314C5B">clean and true?</text>
+  </g>
+
+  <!-- breadth -->
+  <g transform="translate(615 143)">
+    <text x="0" y="0" font-family="Georgia,'Times New Roman',serif" font-size="48" fill="#23211D">breadth</text>
+    <line x1="0" y1="18" x2="156" y2="18" stroke="#7B3F2A" stroke-width="1.4" opacity="0.62"/>
+    <text x="0" y="52" font-family="'Courier New',Courier,monospace" font-size="16" fill="#4F493D">many artifacts, now</text>
+    <text x="0" y="92" font-family="Georgia,'Times New Roman',serif" font-size="17" font-style="italic" fill="#314C5B">is one truth</text>
+    <text x="0" y="116" font-family="Georgia,'Times New Roman',serif" font-size="17" font-style="italic" fill="#314C5B">consistent everywhere?</text>
+  </g>
+
+  <!-- coil -->
+  <g transform="translate(184 422)">
+    <text x="0" y="0" font-family="Georgia,'Times New Roman',serif" font-size="48" fill="#23211D">coil</text>
+    <line x1="0" y1="18" x2="92" y2="18" stroke="#7B3F2A" stroke-width="1.4" opacity="0.62"/>
+    <text x="0" y="52" font-family="'Courier New',Courier,monospace" font-size="15" fill="#4F493D">one project, across iterations</text>
+    <text x="0" y="92" font-family="Georgia,'Times New Roman',serif" font-size="17" font-style="italic" fill="#314C5B">did each pass</text>
+    <text x="0" y="116" font-family="Georgia,'Times New Roman',serif" font-size="17" font-style="italic" fill="#314C5B">teach the next?</text>
+  </g>
+
+  <!-- mesh -->
+  <g transform="translate(615 422)">
+    <text x="0" y="0" font-family="Georgia,'Times New Roman',serif" font-size="48" fill="#23211D">mesh</text>
+    <line x1="0" y1="18" x2="104" y2="18" stroke="#7B3F2A" stroke-width="1.4" opacity="0.62"/>
+    <text x="0" y="52" font-family="'Courier New',Courier,monospace" font-size="15" fill="#4F493D">many minds, across rounds</text>
+    <text x="0" y="92" font-family="Georgia,'Times New Roman',serif" font-size="17" font-style="italic" fill="#314C5B">does the crowd</text>
+    <text x="0" y="116" font-family="Georgia,'Times New Roman',serif" font-size="17" font-style="italic" fill="#314C5B">converge on truth?</text>
+  </g>
+
+  <!-- hand-drawn registration ticks -->
+  <path d="M 132 88 l 18 0 M 142 78 l 0 18" stroke="#493F32" stroke-width="1" opacity="0.42"/>
+  <path d="M 978 632 l 18 0 M 988 622 l 0 18" stroke="#493F32" stroke-width="1" opacity="0.42"/>
+  <path d="M 132 632 l 18 0 M 142 622 l 0 18" stroke="#493F32" stroke-width="1" opacity="0.3"/>
+</svg>

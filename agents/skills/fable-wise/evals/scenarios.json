@@ -1,0 +1,54 @@
+[
+  {
+    "id": "fable-wise-scenario-1",
+    "name": "Rewriting a heavily patched artifact into a clean v0",
+    "category": "should-trigger",
+    "prompt": "This architecture document has accumulated 15 disjoint patches and contradictions. Rewrite it cleanly from v0.",
+    "shouldTrigger": true
+  },
+  {
+    "id": "fable-wise-scenario-2",
+    "name": "General non-design query",
+    "category": "should-not-trigger",
+    "prompt": "What is the speed of light in a vacuum?",
+    "shouldTrigger": false
+  },
+  {
+    "id": "fable-wise-re-architect-contradictory-artifact-to-v0",
+    "description": "Apply the Coil reflex to distill a heavily patched, contradictory design document into a coherent v0 architecture",
+    "given": {
+      "intent": "Rewrite an architecture spec that accumulated 15 contradictory patches into a clean v0 specification",
+      "phase": "planned"
+    },
+    "expected": {
+      "action": "distill-patched-artifact-into-coherent-v0",
+      "produces": "clean-v0-specification",
+      "gates": [
+        "core-invariants-preserved",
+        "contradictory-patches-eliminated"
+      ]
+    },
+    "forbidden": {
+      "action": "append-16th-bandaid-patch-onto-contradictory-spec"
+    }
+  },
+  {
+    "id": "fable-wise-select-depth-breadth-coil-mesh-reflex",
+    "description": "Match the cognitive reflex (Depth, Breadth, Coil, or Mesh) to the structural failure mode of the problem",
+    "given": {
+      "intent": "Select the appropriate cognitive pattern when multiple coupled subsystems exhibit cascading state drift",
+      "phase": "planned"
+    },
+    "expected": {
+      "action": "apply-matched-cognitive-reflex-to-system-shape",
+      "produces": "cognitive-architecture-plan",
+      "gates": [
+        "reflex-matched-to-failure-mode",
+        "coupling-boundaries-simplified"
+      ]
+    },
+    "forbidden": {
+      "action": "apply-brute-force-parallel-mesh-to-tightly-coupled-state"
+    }
+  }
+]

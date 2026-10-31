@@ -1,0 +1,55 @@
+name: release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: write     # create the GitHub Release
+  id-token: write     # npm provenance via OIDC
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Validate the skill catalog
+        run: bash scripts/validate-skills.sh
+
+      - name: Verify tag matches package.json
+        run: |
+          PKG=$(node -p "require('./package.json').version")
+          TAG=${GITHUB_REF_NAME#v}
+          test "$PKG" = "$TAG" || { echo "tag $TAG != package.json $PKG"; exit 1; }
+
+      - name: Publish to npm (public, with provenance)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "paperthin@${VERSION}" version >/dev/null 2>&1; then
+            echo "paperthin@${VERSION} is already published; skipping"
+          else
+            npm publish --provenance --access public
+          fi
+
+      - name: Create the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Read the annotated tag's message from the API: a CI checkout does not carry the
+          # tag object, so local git falls back to the commit message.
+          SHA=$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${GITHUB_REF_NAME}" --jq '.object.sha')
+          gh api "repos/${GITHUB_REPOSITORY}/git/tags/${SHA}" --jq '.message' \
+            | sed '/-----BEGIN PGP SIGNATURE-----/,/-----END PGP SIGNATURE-----/d' > "$RUNNER_TEMP/notes.md"
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release edit "$GITHUB_REF_NAME" --title "Paperthin ${GITHUB_REF_NAME#v}" --notes-file "$RUNNER_TEMP/notes.md"
+          else
+            gh release create "$GITHUB_REF_NAME" --title "Paperthin ${GITHUB_REF_NAME#v}" --notes-file "$RUNNER_TEMP/notes.md"
+          fi

@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Run System Doctor & Verify CLI Execution
+        run: |
+          chmod +x ./bin/cli.js ./install.sh
+          bun ./bin/cli.js doctor
+          bun ./bin/cli.js --help
+
+      - name: Run Python Deterministic Unit Tests
+        run: |
+          python3 -m unittest discover -s evals -p 'test_cli.py' -v
+
+      - name: Run Rust Minimizer Tests
+        run: |
+          cargo test --manifest-path rust/Cargo.toml --all-targets
+
+      - name: Validate SKILL.md Frontmatter & Structure
+        run: |
+          python3 -c "
+          content = open('SKILL.md').read()
+          assert content.startswith('---'), 'Missing YAML frontmatter'
+          assert 'name: deep-digger' in content, 'Missing or incorrect skill name'
+          assert 'description:' in content, 'Missing description'
+          print('✅ SKILL.md validated successfully!')
+          "
