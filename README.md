@@ -141,9 +141,43 @@ world WarehouseDemo {
 }
 ```
 
-Run `uv run main.py check examples/warehouse_world.fnl` for type validation. Agents are subtypes of entities in the AST. The current `world` syntax defines state only; decision rules, world simulation, and Live execution are intentionally not supported yet. Existing campaign `strategy` files continue to use their legacy compiler and simulator.
+Run `uv run main.py check examples/warehouse_world.fnl` for type validation. Agents are subtypes of entities in the AST. Domain-neutral `rule`/`transition` handlers now execute pure state updates in the event kernel; autonomous agent decisions, market calibration, and Live execution remain out of scope. Existing campaign `strategy` files continue to use their legacy compiler and simulator.
 
-Research contract: [World Declarations v0](https://github.com/funnelscript/funnelscript-research/blob/main/spec/world-declarations-v0.md).
+Research contracts: [World Declarations v0](https://github.com/funnelscript/funnelscript-research/blob/main/spec/world-declarations-v0.md) and [Rule Transitions v0](https://github.com/funnelscript/funnelscript-research/blob/main/spec/rule-transitions-v0.md).
+
+### Run typed World rules
+
+```funnelscript
+world CounterDemo {
+  entity Counter {
+    state count: int = 0;
+    rule Increment on event Pulse {
+      transition count = count + 1;
+    }
+  }
+}
+```
+
+```bash
+uv run main.py check examples/counter_world.fnl
+uv run main.py run-world examples/counter_world.fnl \
+  --event Counter.Pulse@0 --event Counter.Pulse@1 --seed 42
+```
+
+The second command returns JSON with `Counter.count = 2`. Events are supplied explicitly as `Owner.Event@Time` and handled in timestamp order. Assignment expressions are deliberately restricted to primitive literals, same-owner state references, or numeric state plus/minus numeric literal of exactly the same type. Multiple assignments in one rule read the same pre-event state. No provider calls or predictions are produced. See [World rules reference](docs/LANGUAGE_REFERENCE_WORLD_RULES.md).
+
+---
+
+## Documentation & Community
+
+* **[Contributing Guide](CONTRIBUTING.md):** Setup, testing standards, and good-first-issue taxonomy.
+* **[Open-Source Growth Playbook](docs/OPEN_SOURCE_GROWTH_PLAYBOOK.md):** Strategy for community scaling and contributor lifecycle.
+* **[Package Manager Specification (`fpm`)](docs/fpm.md):** Modular libraries, manifests, lockfiles, and commercial incentives.
+* **[Marketing Systems Engineering](docs/MARKETING_SYSTEMS_ENGINEERING.md):** Manifesto, mental models, and the MSE practitioner persona.
+* **[The Shim Strategy](docs/SHIM_STRATEGY.md):** Specification-first adoption and the linter wedge.
+* **[Architecture Decisions (DECISIONS.md)](docs/DECISIONS.md):** Canonical records of accepted architectural decisions.
+* **[Engineering Debates (DEBATES.md)](docs/DEBATES.md):** Falsifiable trade-offs and operational boundary decisions.
+* **[Out of the Box Ideas (OUT_OF_THE_BOX.md)](docs/OUT_OF_THE_BOX.md):** Frontier research tracking and speculative hypotheses.
 
 ---
 

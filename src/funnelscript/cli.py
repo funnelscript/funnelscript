@@ -20,7 +20,10 @@ from rich.table import Table
 from funnelscript.compiler.linter import FunnelLinter, LintSeverity
 from funnelscript.compiler.world_ast import WorldAST
 from funnelscript.compiler.schema import export_json_schema
-from funnelscript.parser import Parser
+from funnelscript.parser import Parser, ParserError
+from funnelscript.tokens import LexerError
+from funnelscript.core.event_machine import Event
+from funnelscript.runtime.world_executor import WorldExecutor
 from funnelscript.runtime.engine import SimulationEngine
 from funnelscript.runtime.exporters import (
     export_report_to_json,
@@ -113,6 +116,43 @@ def check_command(file_path: str, quiet: bool = False) -> int:
 
     if not quiet:
         console.print(Panel("[bold yellow]⚠ Completed with advisory warnings. Invariants hold.[/bold yellow]", border_style="yellow"))
+    return 0
+
+
+def run_world_command(
+    file_path: str,
+    event_specs: list[str],
+    *,
+    seed: int = 0,
+    max_events: int = 100_000,
+) -> int:
+    """Execute qualified events against a statically checked World source file."""
+    try:
+        ast = Parser.from_file(file_path)
+        if not isinstance(ast, WorldAST):
+            raise ValueError("run-world requires a world declaration, not a strategy")
+        events: list[Event] = []
+        for spec in event_specs:
+            name, delimiter, when = spec.rpartition("@")
+            if not delimiter or not name or not when:
+                raise ValueError(f"Invalid event '{spec}'; use OWNER.EVENT@TIME")
+            events.append(Event(time=float(when), name=name))
+        result = WorldExecutor(ast).run(events, seed=seed, max_events=max_events)
+    except (FileNotFoundError, LexerError, ParserError, ValueError, RuntimeError) as exc:
+        print(f"World execution error: {exc}", file=sys.stderr)
+        return 1
+
+    print(
+        json.dumps(
+            {
+                "world": ast.name,
+                "state": result.state,
+                "processed_events": len(result.processed),
+                "pending_events": len(result.pending),
+            },
+            sort_keys=True,
+        )
+    )
     return 0
 
 
@@ -362,6 +402,16 @@ def main() -> None:
     compile_p = subparsers.add_parser("compile", help="Alias for check")
     compile_p.add_argument("file", help="Path to strategy file (.json or .fnl)")
 
+    # run-world (event-driven language core, no external effects)
+    world_p = subparsers.add_parser("run-world", help="Execute events on typed World rules")
+    world_p.add_argument("file", help="Path to a world .fnl file")
+    world_p.add_argument(
+        "--event", action="append", default=[], metavar="OWNER.EVENT@TIME",
+        help="Timestamped event (repeatable)",
+    )
+    world_p.add_argument("--seed", type=int, default=0)
+    world_p.add_argument("--max-events", type=int, default=100_000)
+
     # simulate
     sim_p = subparsers.add_parser("simulate", help="Run stochastic Monte Carlo simulations")
     sim_p.add_argument("file", help="Path to strategy file (.json or .fnl)")
@@ -385,6 +435,13 @@ def main() -> None:
     exit_code = 0
     if args.command in ("check", "compile"):
         exit_code = check_command(args.file)
+    elif args.command == "run-world":
+        exit_code = run_world_command(
+            args.file,
+            args.event,
+            seed=args.seed,
+            max_events=args.max_events,
+        )
     elif args.command == "simulate":
         exit_code = simulate_command(
             args.file,

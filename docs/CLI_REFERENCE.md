@@ -64,7 +64,26 @@ funnelscript simulate strategy.fnl.json \
 
 ---
 
-### 3. `funnelscript init`
+### 3. `funnelscript run-world` (experimental)
+
+Executes typed, domain-neutral World rules against explicit input events on the existing `EventMachine` calendar. This is a pure in-memory interpreter, not the legacy marketing simulator and not Live Execution.
+
+```bash
+funnelscript check examples/counter_world.fnl
+funnelscript run-world examples/counter_world.fnl \
+  --event Counter.Pulse@0 --event Counter.Pulse@1 --seed 42
+```
+
+* `file`: `.fnl` source with a `world` declaration containing `entity` / `agent`, typed `state`, and `rule` definitions.
+* `--event OWNER.EVENT@TIME`: Provide a qualified event name and non-negative finite timestamp; can be repeated.
+* `--seed <int>`: Deterministic event machine seed (default `0`).
+* `--max-events <int>`: Positive processing limit (default `100000`).
+
+Outputs JSON containing `world`, `state`, `processed_events`, and `pending_events`. A missing handler, type violation, invalid timestamp, non-World source, or event limit error returns a nonzero exit code with an explanatory stderr message. This v0 does not auto-generate events or execute platform effects. See [World Rules Language Reference](LANGUAGE_REFERENCE_WORLD_RULES.md).
+
+---
+
+### 4. `funnelscript init`
 
 Scaffolds a clean starter template complete with entities, touchpoints, budget controls, and retargeting conditional branches.
 
@@ -74,7 +93,7 @@ funnelscript init "Holiday Campaign" --output ./holiday.fnl.json
 
 ---
 
-### 4. `funnelscript schema`
+### 5. `funnelscript schema`
 
 Generates the canonical JSON Schema for IDE autocompletion, schema validation, and toolchain integration.
 

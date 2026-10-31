@@ -208,9 +208,11 @@ class Parser:
                 raise ParserError("Expected entity or agent declaration", kind)
             decl_name = str(self.expect(TokenType.IDENTIFIER).value)
             self.expect(TokenType.LBRACE)
-            states = self._parse_world_states()
+            states, rules = self._parse_world_members()
             self.expect(TokenType.RBRACE)
-            declarations.append({"kind": kind.value, "name": decl_name, "states": states})
+            declarations.append(
+                {"kind": kind.value, "name": decl_name, "states": states, "rules": rules}
+            )
 
         self.expect(TokenType.RBRACE)
         self.expect(TokenType.EOF, "Unexpected content after world declaration")
@@ -218,22 +220,73 @@ class Parser:
         WorldTypeChecker.check(ast)
         return ast
 
-    def _parse_world_states(self) -> list[dict[str, Any]]:
+    def _parse_world_members(
+        self,
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
         states: list[dict[str, Any]] = []
+        rules: list[dict[str, Any]] = []
         while self.current().type != TokenType.RBRACE:
             if self.current().type == TokenType.EOF:
                 raise ParserError("Unclosed entity or agent", self.current())
             keyword = self.expect(TokenType.IDENTIFIER)
-            if keyword.value != "state":
-                raise ParserError("Expected state declaration", keyword)
-            field_name = str(self.expect(TokenType.IDENTIFIER).value)
-            self.expect(TokenType.COLON)
-            type_name = str(self.expect(TokenType.IDENTIFIER).value)
+            if keyword.value == "rule":
+                rules.append(self._parse_world_rule())
+            elif keyword.value == "state":
+                field_name = str(self.expect(TokenType.IDENTIFIER).value)
+                self.expect(TokenType.COLON)
+                type_name = str(self.expect(TokenType.IDENTIFIER).value)
+                self.expect(TokenType.ASSIGN)
+                value = self._parse_world_literal()
+                self.expect(TokenType.SEMICOLON)
+                states.append({"name": field_name, "type_name": type_name, "value": value})
+            else:
+                raise ParserError("Expected state or rule declaration", keyword)
+        return states, rules
+
+    def _parse_world_rule(self) -> dict[str, Any]:
+        rule_name = str(self.expect(TokenType.IDENTIFIER).value)
+        on = self.expect(TokenType.IDENTIFIER)
+        if on.value != "on":
+            raise ParserError("Expected 'on' after rule name", on)
+        event_keyword = self.expect(TokenType.IDENTIFIER)
+        if event_keyword.value != "event":
+            raise ParserError("Expected 'event' after 'on'", event_keyword)
+        event_name = str(self.expect(TokenType.IDENTIFIER).value)
+        self.expect(TokenType.LBRACE)
+        transitions: list[dict[str, Any]] = []
+
+        while self.current().type != TokenType.RBRACE:
+            if self.current().type == TokenType.EOF:
+                raise ParserError("Unclosed rule", self.current())
+            keyword = self.expect(TokenType.IDENTIFIER)
+            if keyword.value != "transition":
+                raise ParserError("Expected transition statement", keyword)
+            target = str(self.expect(TokenType.IDENTIFIER).value)
             self.expect(TokenType.ASSIGN)
-            value = self._parse_world_literal()
+            expr = self._parse_rule_expression()
             self.expect(TokenType.SEMICOLON)
-            states.append({"name": field_name, "type_name": type_name, "value": value})
-        return states
+            transitions.append({"target": target, "expr": expr})
+        self.expect(TokenType.RBRACE)
+        return {"name": rule_name, "event": event_name, "transitions": transitions}
+
+    def _parse_rule_expression(self) -> dict[str, Any]:
+        tok = self.current()
+        if tok.type == TokenType.IDENTIFIER and tok.value not in ("true", "false"):
+            self.pos += 1
+            reference = {"kind": "reference", "name": str(tok.value)}
+            if self.match(TokenType.PLUS):
+                operator = "+"
+            elif self.match(TokenType.MINUS):
+                operator = "-"
+            else:
+                return reference
+            return {
+                "kind": "binary",
+                "operator": operator,
+                "left": reference,
+                "right": {"kind": "literal", "value": self._parse_world_literal()},
+            }
+        return {"kind": "literal", "value": self._parse_world_literal()}
 
     def _parse_world_literal(self) -> int | float | bool | str:
         negative = self.match(TokenType.MINUS)

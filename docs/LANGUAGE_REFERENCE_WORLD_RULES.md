@@ -1,0 +1,53 @@
+# Experimental Language Reference: Typed World Rules v0
+
+**Status:** Executable, intentionally minimal. Research authority: `funnelscript-research/spec/rule-transitions-v0.md` (H-R1 to H-R4; DEC-027). This describes the current implementation, not an autonomous market simulator.
+
+## Source grammar
+
+```ebnf
+WorldFile           ::= "world" Identifier "{" WorldDeclaration* "}" ;
+WorldDeclaration    ::= ("entity" | "agent") Identifier "{" WorldMember* "}" ;
+WorldMember         ::= StateField | RuleDeclaration ;
+StateField          ::= "state" Identifier ":" PrimitiveType "=" StateLiteral ";" ;
+RuleDeclaration     ::= "rule" Identifier "on" "event" Identifier "{" TransitionStatement* "}" ;
+TransitionStatement ::= "transition" Identifier "=" StateExpression ";" ;
+StateExpression     ::= StateLiteral | Identifier ( ("+" | "-") StateLiteral )? ;
+PrimitiveType       ::= "int" | "float" | "bool" | "string" ;
+```
+
+The complete lexical grammar lives in `funnelscript-research/spec/grammar.ebnf`. `world`, `entity`, `agent`, `state`, `rule`, `on`, `event`, and `transition` are contextual words, not global reserved tokens. This preserves legacy strategy identifiers.
+
+## Execute a minimal World
+
+`examples/counter_world.fnl` contains `Counter.count`, `Counter.active`, and two rules. From the repository root:
+
+```bash
+uv run main.py check examples/counter_world.fnl
+uv run main.py run-world examples/counter_world.fnl \
+  --event Counter.Pulse@0 --event Counter.Pulse@1 --seed 42
+```
+
+Expected JSON values: `world = "CounterDemo"`, `state.Counter.count = 2`, `state.Counter.active = true`, and `processed_events = 2`. The event format is `Owner.Event@Time`; timestamps must be finite and nonnegative. The `--event` option is repeatable, and `--max-events` bounds processing. Input event order need not be chronological; the event kernel schedules events by time, priority, and stable insertion order.
+
+## Type and execution rules
+
+- Each declaration name is unique within a World. Fields have unique names and exactly typed primitive initializers; `bool` is not an `int`.
+- Within each entity or agent, rule names and listened-to event names must be unique.
+- Each rule may assign a state field at most once, and only fields of its own declaration.
+- Expressions accept primitive literals, same-owner references, or reference plus/minus a numeric literal of the exact same numeric type. No implicit int-to-float conversion, string concatenation, function calls, or cross-owner access.
+- **Simultaneous assignments:** all right-hand expressions in a rule read the pre-event snapshot. For `a=1,b=2`, `transition a=b; transition b=a;` produces `a=2,b=1`, not `a=2,b=2`.
+- Previous states remain unmodified. Runtime returns the next state, processed event list, inert effect-intent list, and pending events.
+- Unknown event handlers fail explicitly. The executor cannot emit events or effects and never reaches external providers.
+
+## Scope and safety boundaries
+
+This World interpreter is distinct from the older marketing-specific `simulate` command, which deliberately rejects World files. World rules alone do **not** model consumer psychology, economics, uncertainty, PyMC Marketing, OmniTwin, or the business consequences of tactics. Those belong in optional, empirical model layers and future standard libraries. Simulation Mode, Shadow Mode and Live Execution Mode require separate effect and safety contracts before integration.
+
+## Verification
+
+```bash
+uv run pytest -v tests/test_world_rules.py
+uv run pytest -v
+```
+
+The tests exercise type rejection, state snapshot semantics, calendar order and replay, CLI boundaries, and compatibility with existing strategy tests. Passing tests establish interpreter correctness for this subset, not predictive validity.

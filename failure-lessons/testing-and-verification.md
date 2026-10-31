@@ -243,3 +243,26 @@ For a brand-new module, distinguish public-API bootstrap failures from executabl
 
 ### Status
 **Resolved at the focused-test boundary; full-suite evidence recorded separately.**
+
+
+---
+
+## 6. Distinguish Lexer Rejection from Parser Rejection in Grammar RED Tests
+
+### Context
+Implementing the experimental `rule`/`transition` grammar using test-driven development.
+
+### What happened
+A negative test expected a `ParserError` for the unsupported `*` operator in a World rule. The lexer, which intentionally did not tokenize `*`, correctly raised `LexerError` before parsing began. The first RED failure therefore partly reflected an overly narrow test expectation rather than the intended grammar property.
+
+### Root cause
+The test conflated two distinct phases of a compiler frontend: tokenization and syntax analysis. Unsupported characters can be rejected before the parser receives input.
+
+### Fix and verification
+The test now asserts `(LexerError, ParserError)` for invalid source spellings. The compiler still rejects unsupported operators rather than silently interpreting them. After implementing the narrow grammar and interpreter, the focused suite passed 21 tests and the complete Python suite passed 85.
+
+### Prevention rule
+For negative grammar tests, assert a **rejection boundary**, and only require a specific exception class when the lexical versus syntactic distinction is itself the behavior under test. Never broaden the assertion to a catch-all exception that would hide a runtime crash.
+
+### Status
+Resolved and covered by `tests/test_world_rules.py`.

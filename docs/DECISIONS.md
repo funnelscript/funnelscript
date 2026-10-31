@@ -32,6 +32,8 @@
 | **DEC-022** | [Contextual World Declarations and Strict Primitive State Typing](#dec-022-contextual-world-declarations-and-strict-primitive-state-typing) | 2026-10-31 | **Accepted** | Additive language syntax and typed AST without marketing schema dependency |
 | **DEC-023** | [Formal 4-Pillar Documentation Architecture (Docs as Code)](#dec-023-formal-4-pillar-documentation-architecture-docs-as-code) | 2026-10-31 | **Accepted** | Knowledge scaffolding across tutorials, specs, Bayesian data, and anti-patterns |
 | **DEC-024** | [The Modular Library, Framework, and Package Manager Ecosystem (fpm)](#dec-024-the-modular-library-framework-and-package-manager-ecosystem-fpm) | 2026-10-31 | **Accepted** | Strategy reusability, business frameworks, industry benchmarks, and fpm registry |
+| **DEC-025** | [Specification-First Open-Source Adoption & Shim Strategy](#dec-025-specification-first-open-source-adoption--shim-strategy) | 2026-10-31 | **Accepted** | Credibility-first open source, formal spec release, and linter-as-wedge adoption |
+| **DEC-026** | [Community Contribution Architecture (CONTRIBUTING.md & Issue Standard)](#dec-026-community-contribution-architecture-contributingmd--issue-standard) | 2026-10-31 | **Accepted** | Low-friction onboarding, architectural boundaries, RFC governance, and triage taxonomy |
 
 ---
 
@@ -314,3 +316,28 @@
   4. **Built-in Industry Benchmarks:** Standardized baseline parameter libraries (`fs/benchmarks/ecommerce/fashion`) enabling Day-1 simulation for organizations lacking proprietary PyMC historical data.
 * **Rationale:** Transforms FunnelScript from a syntax compiler into a global, extensible open-source marketing ecosystem with reusable, composable strategy primitives.
 * **Consequences:** The compiler must support module import resolution (`import "path" as Alias`), dependency lockfiles (`funnelscript.lock`), and decentralized registry publishing.
+
+---
+
+### DEC-025: Specification-First Open-Source Adoption & Shim Strategy
+* **Status:** Accepted
+* **Context:** Building an end-to-end multi-tier agent-based compiler and simulation runtime is a massive, multi-year engineering undertaking. Postponing open-source release until full execution runtimes, distributed agent grids, and live provider integrations are finalized stalls adoption and isolates the core team from community feedback.
+* **Decision:** Adopt a two-stage "Specification-First" and "Linter Shim" wedge strategy:
+  1. Standardize and release the formal **Language Specification** (EBNF grammar, AST schemas, operational semantics) and foundational research papers publicly first.
+  2. Ship the lightweight static analysis engine / linter (`funnelscript check`) as a zero-dependency CLI.
+  3. The linter delivers immediate, risk-mitigation value on Day 1 by catching structural marketing flaws (audience mass leaks, attribution cycles, unbounded loops) without requiring any simulation runtime.
+  4. Provide clear compilation and runtime extension hooks for community contributors, compiler engineers, and simulation researchers to implement runtime backends (Python, Rust, WASM, Julia).
+* **Rationale:** Establishes credibility, academic rigor, and immediate practical utility with minimal surface area, converting early adopters from passive observers into active co-creators.
+* **Consequences:** The formal language specification and static verification contracts become the foundational source of truth; runtime implementations can evolve in parallel without fracturing the language standard.
+
+---
+
+### DEC-026: Community Contribution Architecture (CONTRIBUTING.md & Issue Standard)
+* **Status:** Accepted
+* **Context:** An open-source movement requires an accessible, low-friction contribution pipeline that clearly segregates compiler internals, standard libraries, documentation, and external provider adapters.
+* **Decision:**
+  1. Author a comprehensive `CONTRIBUTING.md` defining development environment setup (`uv`, `bun`), testing commands (`uv run pytest`, `bun test`), code style invariants (100% English, type annotations, zero unverified mocks), and architectural boundaries.
+  2. Establish an explicit issue taxonomy with labeled entry points: `good-first-issue` (standard library channels, CLI enhancements), `compiler` (lexer, parser, AST transforms), `runtime` (simulation performance, discrete-event scheduling), and `rfc` (grammar proposals, language extensions).
+  3. Mandate RFC (Request for Comments) process for any modification to language grammar, type system, or core invariants.
+* **Rationale:** Reduces contributor cognitive load, provides psychological safety, and enforces production-grade engineering standards across all community contributions.
+* **Consequences:** Enables scalable community growth while preserving the mathematical and architectural integrity of the core kernel.

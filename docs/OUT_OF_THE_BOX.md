@@ -285,6 +285,32 @@ Static documentation websites show code snippets that readers must manually copy
 
 ---
 
+## 19. Automated Bounty & Grant Distribution for fpm Ecosystem Connectors (OOTB-019)
+
+### The Concept
+Platform connectors (e.g., TikTok Marketing API, HubSpot, Klaviyo, Google Ads, Snapchat) and specialized demographic benchmark libraries are vital for ecosystem ubiquity. Instead of the core team authoring every provider adapter, a community grant and automated bounty system incentivizes ecosystem developers to build and maintain verified connectors.
+
+### Proposed Mechanism
+* Establish a community developer grant fund and issue bounties for verified provider plugins that satisfy the `Provider` contract and test suite.
+* Automated CI validation suite tests prospective provider adapters against a hermetic mock sandbox and verifies idempotency, rate-limiting, and error-handling compliance.
+* Successfully verified packages receive an official `fpm-certified` badge and automated grant disbursement.
+* **Future Hypothesis ($H_{\text{bounty}}$):** *Incentivized connector bounties increase third-party provider coverage by $5\times$ compared to centralized internal development.*
+
+---
+
+## 20. Marketing Systems Engineering Academic Working Group & Annual Benchmark Competition (OOTB-020)
+
+### The Concept
+Marketing science has historically been divided between empirical econometrics (macro MMM) and heuristic agency intuition. FunnelScript provides the first formal programming language and computational substrate for Marketing Systems Engineering.
+
+### Proposed Mechanism
+* Found an academic working group with econometrics, computational social science, and marketing faculties.
+* Host an annual "FunnelScript Simulation Benchmark Challenge" where research teams submit algorithmic strategies written in `.fnl` to compete in unknown synthetic macroeconomic shock scenarios (liquidity crunches, privacy signal loss, algorithmic auction inflation).
+* Submissions evaluated blindly on risk-adjusted ROAS, downside insolvency avoidance ($P(\text{Insolvency}) = 0$), and adaptive learning efficiency.
+* **Future Hypothesis ($H_{\text{academic}}$):** *Academic competition benchmark standards solidify FunnelScript as the de facto scientific standard for algorithmic marketing strategy research.*
+
+---
+
 ## Promotion Pipeline & Tracking
 
 | Idea ID | Title | Domain | Maturity | Next Milestone |
@@ -307,6 +333,8 @@ Static documentation websites show code snippets that readers must manually copy
 | **OOTB-016** | Headless CI/CD PR Risk Bot | DevOps / CI Automation | Seeded | Draft GitHub Action workflow contract |
 | **OOTB-017** | Algorithmic Strategy Registry | Package Management / Registry | Conceptual | Draft package metadata & registry spec |
 | **OOTB-018** | Executable In-Doc Sandboxes | Documentation / WebAssembly | Conceptual | Prototype WASM simulator embedded in MDX |
+| **OOTB-019** | Automated Connector Bounties | Open-Source Incentive Architecture | Seeded | Draft provider certification criteria |
+| **OOTB-020** | Academic Benchmark Challenge | Academic Outreach / Benchmarks | Conceptual | Draft annual simulation competition rules |
 
 ---
 
