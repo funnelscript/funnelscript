@@ -105,3 +105,31 @@ N/A
 
 ### Status
 **Resolved**
+
+
+---
+
+## 3. Dispatching a New Typed World AST into the Legacy Campaign Linter
+
+### Context
+Adding the additive `WorldAST` declaration format while retaining the marketing-specific `FunnelLinter`.
+
+### What happened
+An executable CLI regression test parsed a valid `world`, but `check_command` immediately constructed `FunnelLinter(world_ast)`. The old linter accessed `ast.entities.budgets`, which does not exist on a general World AST.
+
+### Observable symptom
+```text
+AttributeError: 'WorldAST' object has no attribute 'entities'
+```
+
+### Cause
+The CLI's downstream dispatch assumed a single AST shape despite the parser now having two valid result types.
+
+### Fix
+Explicitly branch on `WorldAST` before calling legacy marketing lint or simulation, and reject world simulation as unsupported instead of applying campaign economic assumptions. New CLI tests now execute these boundaries.
+
+### Reusable rule
+When a parser can return multiple valid AST variants, every downstream compiler/runtime dispatch point must be exhaustively typed before running domain-specific logic. Tests must exercise each supported and deliberately unsupported route.
+
+### Status
+**Resolved in the language-core CLI integration tests.**

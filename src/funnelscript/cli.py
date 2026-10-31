@@ -18,6 +18,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from funnelscript.compiler.linter import FunnelLinter, LintSeverity
+from funnelscript.compiler.world_ast import WorldAST
 from funnelscript.compiler.schema import export_json_schema
 from funnelscript.parser import Parser
 from funnelscript.runtime.engine import SimulationEngine
@@ -50,6 +51,19 @@ def check_command(file_path: str, quiet: bool = False) -> int:
         if not quiet:
             console.print(Panel(f"[bold red]❌ Parse Error:[/bold red]\n{e}", border_style="red"))
         return 1
+
+    if isinstance(ast, WorldAST):
+        if not quiet:
+            entities = sum(d.kind == "entity" for d in ast.declarations)
+            agents = sum(d.kind == "agent" for d in ast.declarations)
+            console.print(
+                Panel(
+                    f"[green]World Type Check Passed[/green]\n"
+                    f"World: {ast.name} | Entities: {entities} | Agents: {agents}",
+                    title="FunnelScript Language Core",
+                )
+            )
+        return 0
 
     linter = FunnelLinter(ast)
     findings = linter.lint()
@@ -127,6 +141,14 @@ def simulate_command(
     except Exception as e:
         if not as_json:
             console.print(Panel(f"[bold red]❌ Parse Error:[/bold red]\n{e}", border_style="red"))
+        return 1
+
+    if isinstance(ast, WorldAST):
+        if not as_json:
+            console.print(
+                "[yellow]World declarations support static checking only. "
+                "World simulation is not implemented yet.[/yellow]"
+            )
         return 1
 
     engine = SimulationEngine(ast)

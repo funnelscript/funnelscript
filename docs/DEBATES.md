@@ -600,6 +600,96 @@ Adhering to **Phase Core-Outwards Discipline (DEC-001)** and **Layer Neutrality 
 
 ---
 
+## Debate 12: Developer Experience (DX), Distribution Architecture, and Language Server Protocol (LSP)
+
+### 1. The Distribution Dichotomy: Zero-Install NPX/Bunx vs. Isolated Global Python CLI
+A primary challenge for a Python-implemented domain-specific language is distribution friction. Two distinct user archetypes must be supported:
+* **The Marketing Technologist / Growth Engineer:** Operates primarily in web, Node.js, and TypeScript ecosystems. Demands immediate evaluation without managing Python virtual environments or local dependencies.
+* **The Data Scientist / ML Engineer / SRE:** Operates in Python, Linux containers, and CI/CD pipelines. Demands hermetic virtual environments, reproducible lockfiles, and zero pollution of the global operating system namespace.
+
+#### The Dual Distribution Architecture
+To serve both personas flawlessly without compromising architectural purity:
+1. **Python Distribution (Isolated Virtual Tool via `uv` / `pipx`):**
+   * Package: `funnelscript-cli` on PyPI.
+   * Installation:
+     ```bash
+     uv tool install funnelscript-cli
+     # or traditional isolated pipx
+     pipx install funnelscript-cli
+     ```
+   * Creates an isolated, ephemeral virtual environment on the host machine, making `funnelscript` globally accessible in the shell with zero dependency collisions.
+2. **Zero-Install JavaScript/TypeScript Distribution (via `npx` / `bunx`):**
+   * Package: `@funnelscript/cli` on npm.
+   * Execution:
+     ```bash
+     npx funnelscript simulate campaign.fnl --runs 100000
+     bunx funnelscript check campaign.fnl
+     ```
+   * An ultra-lightweight Node/Bun binary wrapper that either delegates to a locally detected Python runtime or invokes a bundled WebAssembly/Pyodide distribution, enabling instantaneous zero-install execution in any terminal or Node-based CI pipeline.
+
+---
+
+### 2. The IDE Integration Paradigm: Zero Custom IDEs — Meeting Developers in VS Code and Cursor
+A recurring failure mode in programming language design is building a bespoke, standalone graphical IDE. High-adoption languages (TypeScript, Rust, Terraform, Solidity) succeed by embedding directly into existing, world-class developer tools: **Visual Studio Code** and **Cursor**.
+
+FunnelScript delivers first-class developer tooling through an official **VS Code / Cursor Extension (`.vsix`)**:
+* **TextMate Grammar (`syntaxes/funnelscript.tmLanguage.json`):** High-precision semantic tokenization and syntax highlighting for language keywords (`strategy`, `world`, `entity`, `agent`, `touchpoint`, `audience`, `rule`, `constraint`).
+* **IntelliSense & Contextual Autocompletion:** Schema-driven autocompletion for touchpoint channels (`paid_social`, `paid_search`, `email_sequence`), distribution models (`Beta`, `Gamma`, `Normal`), and valid state transition targets.
+
+---
+
+### 3. Language Server Protocol (LSP) Architecture & Real-Time Semantic Guardrails
+The centerpiece of modern developer experience is the **Language Server Protocol (LSP)**. Rather than forcing developers to wait for manual terminal command execution, a background language server runs the Python `FunnelLinter` in real time as the developer types.
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        VS Code / Cursor Client                         │
+│                                                                        │
+│   strategy "BlackFriday" {                                             │
+│     rule "abandoned_cart" {                                            │
+│       if (agent.idle_hours >= 2) {                                     │
+│ ~~~~~~~~ [Red Squiggly: CRITICAL_LEAK: Conditional lacks false_branch] │
+│         dispatch_email("recovery_15")                                  │
+│       }                                                                │
+│     }                                                                  │
+│   }                                                                    │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ JSON-RPC (textDocument/didChange)
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                 FunnelScript Language Server (pygls)                   │
+│                                                                        │
+│   • Incremental Lexer & Parser (< 15ms)                                │
+│   • Real-Time Tarjan's SCC Cycle Detector                              │
+│   • Mass Conservation & Fallback Verifier                              │
+│   • Emits `textDocument/publishDiagnostics` with instant red squiggles│
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+#### Real-Time Diagnostics Capabilities
+* **Immediate Bug Detection:** If a developer omits a fallback branch in an audience diversion rule, the LSP instantly underlines the code with a red squiggly line:
+  ```text
+  CRITICAL_LEAK: ConditionalBranch lacks a false_branch; audience mass will evaporate
+  ```
+* **Attribution Cycle Warnings:** Detects closed routing loops (e.g. Touchpoint $A \to$ Landing Page $B \to$ Touchpoint $A$) and warns before saving.
+* **Financial Risk Highlighting:** Highlights high settlement latency configurations ($\Delta_{\text{settle}} \ge 5\text{ days}$) with yellow warnings if initial working capital is insufficient.
+
+---
+
+### 4. The Enterprise-Ready Developer Workflow
+
+```
+1. Developer opens VS Code / Cursor
+2. Installs "FunnelScript" extension with one click
+3. Authors `black_friday.fnl` with real-time LSP autocomplete & error squiggles
+4. Opens integrated terminal and executes:
+   $ funnelscript simulate black_friday.fnl
+5. Terminal displays Rich statistical distributions (P10, P50, P90, VaR, CVaR)
+6. Optional: Launches local web canvas to visually inspect customer flowcharts
+```
+
+---
+
 ## Actionable Operational Checklist
 
 | # | Domain | Actionable Specification | Priority | Status |
@@ -623,6 +713,10 @@ Adhering to **Phase Core-Outwards Discipline (DEC-001)** and **Layer Neutrality 
 | **17** | **Simulated Provider Mock** | Author in-memory reference `SimulatedProvider` for hermetic agent evaluation. | P1 | **Next Phase** |
 | **18** | **FunnelScript Plan Engine** | Implement `funnelscript plan` DAG diff engine calculating estimated daily spend and resource mutations. | P2 | **Roadmap** |
 | **19** | **Smart-Contract Invariant Linter**| Author static analysis pass to verify all loops and triggers possess bounded spend ceilings ($C_{\text{max}}$). | P1 | **Next Phase** |
+| **20** | **NPM / NPX CLI Wrapper** | Author `@funnelscript/cli` wrapper on npm for zero-install `npx funnelscript` workflows. | P2 | **Roadmap** |
+| **21** | **TextMate Grammar (.tmLanguage)**| Author TextMate grammar syntax highlighter for `.fnl` in VS Code and Cursor. | P2 | **Roadmap** |
+| **22** | **Language Server Protocol (LSP)**| Implement `pygls`-based background language server exposing real-time AST lint diagnostics. | P2 | **Roadmap** |
+| **23** | **VS Code Extension (.vsix)** | Package official VS Code / Cursor extension integrating TextMate grammar, LSP, and snippets. | P2 | **Roadmap** |
 
 
 
@@ -636,3 +730,16 @@ Adhering to **Phase Core-Outwards Discipline (DEC-001)** and **Layer Neutrality 
 * **General event kernel:** A user supplies opaque state plus a transition reducer; the runtime schedules events and records effect intents without knowing any marketing schema. This cleanly isolates a testable language semantic layer, although it does not automatically provide a generic parser, typed agent model, vectorized engine, or real-world calibration.
 * **Provisional resolution:** Implement the general event kernel as an additive, reference-level module. Preserve the 29-test legacy marketing engine until language and standard-library migration contracts are explicit. Use H-K1 through H-K4 as falsification gates in `spec/event-kernel-v0.md`.
 * **Open risk:** Python reducer callbacks may invoke I/O or mutate shared objects. Recording inert intents is not an enforceable effect system. A future source-language type/effect checker and restricted execution boundary must be separately designed and tested before Shadow/Live adoption.
+
+
+---
+
+## Implementation Debate: World Syntax and Backward Compatibility (2026-10-31)
+
+**Problem:** DEC-008 and DEC-010 require general `Entity`, `Agent`, and `State` abstractions, while the shipped `.fnl` parser currently recognizes marketing-specific `strategy` declarations.
+
+* **Option A:** Replace the legacy strategy grammar with new generic syntax immediately. This would risk breaking working campaign programs and 45 existing tests before the marketing standard-library migration exists.
+* **Option B (chosen):** Add a standalone `world` source form with context-sensitive declaration words and a nominal Agent-as-Entity AST relationship. Keep legacy parsing, linting, and simulation unchanged, with an explicit unsupported mode for world execution.
+* **Typing alternative:** Implicitly widen integers to floats versus requiring exact primitive initializer types. Exact typing was chosen for v0 because source-language numeric coercion and its cost/precision semantics are not yet specified; a future coherent numeric promotion rule can supersede it.
+* **Falsification gate:** H-W1 to H-W4 in `spec/world-declarations-v0.md`; a world must typecheck without marketing node requirements, and unsupported execution must fail explicitly.
+* **Open research question:** Declaring an `agent` without autonomous transitions is only an AST subtype. Behavior typing, rule dispatch, state visibility, effect capabilities, and actual World construction remain unresolved.

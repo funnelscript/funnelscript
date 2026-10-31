@@ -221,6 +221,42 @@ Smart contracts use Satisfiability Modulo Theories (SMT) solvers like Z3 to math
 
 ---
 
+## 15. In-Editor Live Monte Carlo Co-Pilot & WebAssembly LSP Simulation Preview (OOTB-015)
+
+### The Concept
+When developers edit code in VS Code or Cursor, they see syntax errors and type warnings. What if hovering over a `touchpoint` or `campaign` block displayed a real-time, interactive probability density preview of expected ROAS and customer journey completion times?
+
+### Proposed Mechanism
+* Compile the vectorized simulation kernel to **WebAssembly (WASM)** via Pyodide or Rust/C++ compilation.
+* Embed the lightweight WASM runner directly inside the FunnelScript Language Server.
+* As the user tweaks budget or targeting numbers, the LSP runs a micro-batch of $1,000$ synthetic agents in $< 20\text{ms}$ in the background.
+* Renders rich CodeLens annotations and interactive hover cards directly above `.fnl` strategy blocks:
+  ```text
+  ▶ 1,000 Agent Preview: Expected ROAS 3.2x [2.1x - 4.4x] | Conv Rate: 8.4% | Insolvency Risk: 0.0%
+  ```
+* **Future Hypothesis ($H_{\text{copilot}}$):** *Real-time in-editor simulation feedback reduces campaign misconfiguration rates by 80% prior to running formal Monte Carlo trials.*
+
+---
+
+## 16. Headless CI/CD GitHub Action & PR Risk Bot (FunnelScript Diff Guardian) (OOTB-016)
+
+### The Concept
+Marketing strategy documents are typically modified in spreadsheets without code review. FunnelScript strategies live in Git. Every pull request altering a `.fnl` file should automatically undergo automated economic risk review before merging.
+
+### Proposed Mechanism
+* Build an official GitHub Action: `funnelscript/diff-guardian-action`.
+* On pull requests:
+  1. Executes `funnelscript check` to guarantee mass conservation and DAG acyclicity.
+  2. Runs $100,000$-agent Monte Carlo simulations on the base branch and the feature branch using identical random seeds.
+  3. Computes the **Strategic Risk Delta**:
+     $$\Delta \text{ROAS} = \text{ROAS}_{\text{PR}} - \text{ROAS}_{\text{base}}$$
+     $$\Delta \text{VaR}_{95} = \text{VaR}_{\text{PR}} - \text{VaR}_{\text{base}}$$
+     $$\Delta P(\text{Insolvency}) = P(\text{Insolvency})_{\text{PR}} - P(\text{Insolvency})_{\text{base}}$$
+  4. Automatically posts a structured markdown comment on the PR detailing financial downside risk and flags any potential cash starvation cliffs.
+* **Future Hypothesis ($H_{\text{ci}}$):** *Automated CI/CD simulation diffs eliminate unexpected real-world marketing budget overruns by gating merges behind statistical risk thresholds.*
+
+---
+
 ## Promotion Pipeline & Tracking
 
 | Idea ID | Title | Domain | Maturity | Next Milestone |
@@ -239,6 +275,8 @@ Smart contracts use Satisfiability Modulo Theories (SMT) solvers like Z3 to math
 | **OOTB-012** | Julia / Mojo LLVM Backend | High-Performance ABM / JIT | Conceptual | Benchmark Julia Agents.jl vs NumPy SIMD |
 | **OOTB-013** | Marketing Drift Reconciliation | Cloud IaC / Infrastructure Drift | Seeded | Draft live provider state schema |
 | **OOTB-014** | SMT Formal Verification (Z3) | Formal Methods / SMT Solvers | Conceptual | Model FunnelScript state machine in Z3 |
+| **OOTB-015** | In-Editor Monte Carlo Co-Pilot | IDE Tooling / WebAssembly | Conceptual | Prototype WASM micro-batch runner |
+| **OOTB-016** | Headless CI/CD PR Risk Bot | DevOps / CI Automation | Seeded | Draft GitHub Action workflow contract |
 
 
 ---
@@ -246,3 +284,9 @@ Smart contracts use Satisfiability Modulo Theories (SMT) solvers like Z3 to math
 ## Frontier Status Note: Effect Sandbox and Deterministic Replay (2026-10-31)
 
 The domain-neutral event kernel in `spec/event-kernel-v0.md` establishes only a reference event calendar and inert `EffectIntent` outputs. It is a prerequisite for exploring OOTB-010 (capability sandboxing) and OOTB-011 (event log replay), not evidence that either speculative feature is implemented. Prior to promotion, require falsifiable static effect-permission checks, external side-effect isolation, and adversarial replay tests. Neither a reproducible simulation seed nor a deterministic event log establishes causal identification from real-world market data.
+
+---
+
+## Frontier Status Note: Typed Worlds Are Not Autonomous Digital Twins (2026-10-31)
+
+DEC-020 adds only declarative `world`, `entity`, `agent`, and typed `state` AST nodes. It does not generate synthetic populations, cognitive agents, adaptive behavior, or calibrations. The speculative OmniTwin council (OOTB-004), twin-universe testing (OOTB-006), capability sandboxing (OOTB-010), and event replay (OOTB-011) remain future programs. Any claim that type-correct world source predicts the real market must be rejected until empirical out-of-sample validation exists.

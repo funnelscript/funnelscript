@@ -124,6 +124,29 @@ The kernel is experimental and separate from the existing marketing-specific `.f
 
 ---
 
+## Experimental `world` Syntax and Primitive State Types
+
+FunnelScript now parses a domain-neutral `world` declaration into a typed AST and checks primitive state fields independently of marketing-specific strategy models.
+
+```funnelscript
+world WarehouseDemo {
+  entity Shelf {
+    state quantity: int = 20;
+  }
+
+  agent Picker {
+    state active: bool = true;
+    state confidence: float = 0.75;
+  }
+}
+```
+
+Run `uv run main.py check examples/warehouse_world.fnl` for type validation. Agents are subtypes of entities in the AST. The current `world` syntax defines state only; decision rules, world simulation, and Live execution are intentionally not supported yet. Existing campaign `strategy` files continue to use their legacy compiler and simulator.
+
+Research contract: [World Declarations v0](https://github.com/funnelscript/funnelscript-research/blob/main/spec/world-declarations-v0.md).
+
+---
+
 ## Running the Test Suite
 
 ```bash

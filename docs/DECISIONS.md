@@ -27,6 +27,9 @@
 | **DEC-017** | [The Provider Contract Abstraction & Plan-vs-Apply Lifecycle](#dec-017-the-provider-contract-abstraction--plan-vs-apply-lifecycle) | 2026-10-31 | **Accepted** | Decoupling external platforms via pluggable providers and speculative DAG diffs |
 | **DEC-018** | [Static Financial Invariants & Budget Gas Ceilings](#dec-018-static-financial-invariants--budget-gas-ceilings) | 2026-10-31 | **Accepted** | Smart-contract-inspired compile-time budget verification and runtime spend halts |
 | **DEC-019** | [Domain-Neutral Event Kernel v0 and Inert Effect Intents](#dec-019-domain-neutral-event-kernel-v0-and-inert-effect-intents) | 2026-10-31 | **Accepted** | Executable substrate for DEC-008/012/013 without domain coupling |
+| **DEC-020** | [Dual Distribution Model (Zero-Install NPX/Bunx & Isolated Python Tooling)](#dec-020-dual-distribution-model-zero-install-npxbunx--isolated-python-tooling) | 2026-10-31 | **Accepted** | Frictionless DX across marketing technologists (Node) and ML engineers (Python) |
+| **DEC-021** | [IDE Ecosystem Integration via Language Server Protocol (LSP)](#dec-021-ide-ecosystem-integration-via-language-server-protocol-lsp) | 2026-10-31 | **Accepted** | Real-time in-editor AST linting and red squiggly error detection in VS Code/Cursor |
+| **DEC-020** | [Contextual World Declarations and Strict Primitive State Typing](#dec-020-contextual-world-declarations-and-strict-primitive-state-typing) | 2026-10-31 | **Accepted** | Additive language syntax and typed AST without marketing schema dependency |
 
 ---
 
@@ -248,3 +251,38 @@
 * **Decision:** Introduce a minimal Python reference event kernel taking an opaque user-defined state and reducer and returning a new state, processed/pending events, and effect-intent values. Keep legacy campaign-specific AST/linter and vectorized runtime intact pending a separate migration decision.
 * **Safety Boundary:** Emission of inert effect descriptions is not enforcement of pure Python callbacks, static capability checking, or safe live execution. No provider handler or live API mutation is implemented in this phase.
 * **Consequences:** An executable domain-neutral semantic contract and regression checks are available independently of marketing-specific concepts. This does not establish predictive validity or a full DEVS/Koka implementation.
+
+---
+
+### DEC-020: Dual Distribution Model (Zero-Install NPX/Bunx & Isolated Python Tooling)
+* **Status:** Accepted
+* **Context:** Language adoption hinges upon developer onboarding friction. Marketing technologists and web engineers predominantly operate within JavaScript/Node runtimes, while quantitative researchers and SREs operate in Python environments.
+* **Decision:** Distribute FunnelScript through two parallel canonical packaging channels:
+  1. **Python Distribution:** `funnelscript-cli` on PyPI installed via `uv tool install funnelscript-cli` or `pipx install funnelscript-cli`, providing hermetic virtual environment isolation on host operating systems.
+  2. **JavaScript Distribution:** `@funnelscript/cli` on npm, enabling instantaneous zero-install execution via `npx funnelscript` or `bunx funnelscript`.
+* **Rationale:** Removes installation barriers entirely. A growth engineer can validate a campaign file in seconds without managing Python environments, while an ML pipeline can cleanly pin virtual dependencies.
+* **Consequences:** Cross-registry packaging pipelines must synchronize version releases between PyPI and npm.
+
+---
+
+### DEC-021: IDE Ecosystem Integration via Language Server Protocol (LSP)
+* **Status:** Accepted
+* **Context:** Developers should not have to manually run terminal commands to discover logic bugs, unreachable campaign nodes, or audience mass balance leaks. Building a bespoke standalone IDE introduces high maintenance and adoption resistance.
+* **Decision:**
+  * Implement an open Language Server Protocol (LSP) background daemon in Python (`funnelscript-lsp`) communicating via JSON-RPC.
+  * Package an official client extension for VS Code and Cursor (`.vsix`).
+  * As the developer writes code, the LSP executes the incremental parser and `FunnelLinter`, rendering real-time inline diagnostics (red squiggly lines for mass leaks, yellow squigglies for liquidity warnings, code completions, and hover documentation).
+* **Rationale:** Meets developers where they already work. Catches marketing logic errors before files are saved or simulations are executed.
+* **Consequences:** Strategy authoring achieves enterprise-grade IDE ergonomics identical to Rust Analyzer or Terraform HCL language tools.
+
+
+---
+
+### DEC-020: Contextual World Declarations and Strict Primitive State Typing
+* **Status:** Accepted as an additive compiler milestone implementing the already established DEC-008/010 language-core separation.
+* **Research Anchor:** Cardelli and Wegner (1985) on subtyping; Pierce (2002) on type judgments; Pydantic v2 discriminated AST unions. See `spec/world-declarations-v0.md`.
+* **Falsifiable Hypotheses:** H-W1 neutral parsing; H-W2 exact primitive type/uniqueness checking; H-W3 agent-to-entity AST subtyping; H-W4 backward compatibility and blocked unsupported world simulation.
+* **Mathematical Invariants:** Distinct declaration names per world; distinct state names per declaration; `literal_type(value) = declared_type`; `AgentDefinition <: EntityDefinition`.
+* **Decision:** Support a top-level `world Name { entity ... agent ... }` source form with explicit `state name: type = literal;` fields. Treat the four new declaration words as contextual keywords, retaining their legacy identifier status. Use strict `int`, `float`, `bool`, `string` literal typing without coercion in v0.
+* **Compatibility Boundary:** Keep legacy `strategy` AST and marketing simulator unchanged. A world can be statically checked, but simulation is explicitly unsupported until world transitions and runtime construction exist.
+* **Consequences:** A real, testable syntax-to-AST and type-checking route exists without inventing prebuilt market Worlds. Declaring an agent without behavior is not evidence of autonomy, and static typing is not evidence of predictive accuracy.

@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 from funnelscript.models import StrategyAST
+from funnelscript.compiler.world_ast import WorldAST, WorldTypeChecker
 from funnelscript.tokens import Lexer, Token, TokenType
 
 
@@ -26,8 +27,8 @@ class Parser:
         return StrategyAST.model_validate(data)
 
     @staticmethod
-    def from_file(file_path: str | Path) -> StrategyAST:
-        """Loads and parses a FunnelScript (.fnl or .json) file."""
+    def from_file(file_path: str | Path) -> StrategyAST | WorldAST:
+        """Loads and parses a legacy strategy or a domain-neutral world."""
         path = Path(file_path)
         if not path.exists():
             raise FileNotFoundError(f"Strategy file not found: {path}")
@@ -39,6 +40,8 @@ class Parser:
         lexer = Lexer(content)
         tokens = lexer.tokenize()
         parser = Parser(tokens)
+        if tokens[0].type == TokenType.IDENTIFIER and tokens[0].value == "world":
+            return parser.parse_world()
         return parser.parse_strategy()
 
     def __init__(self, tokens: list[Token]) -> None:
@@ -186,3 +189,64 @@ class Parser:
             else:
                 self.pos += 1
         return steps
+
+
+    def parse_world(self) -> WorldAST:
+        """Parse a standalone domain-neutral world into a typed declaration AST."""
+        start = self.expect(TokenType.IDENTIFIER)
+        if start.value != "world":
+            raise ParserError("Expected world declaration", start)
+        name = str(self.expect(TokenType.IDENTIFIER).value)
+        self.expect(TokenType.LBRACE)
+        declarations: list[dict[str, Any]] = []
+
+        while self.current().type != TokenType.RBRACE:
+            if self.current().type == TokenType.EOF:
+                raise ParserError("Unclosed world declaration", self.current())
+            kind = self.expect(TokenType.IDENTIFIER)
+            if kind.value not in ("entity", "agent"):
+                raise ParserError("Expected entity or agent declaration", kind)
+            decl_name = str(self.expect(TokenType.IDENTIFIER).value)
+            self.expect(TokenType.LBRACE)
+            states = self._parse_world_states()
+            self.expect(TokenType.RBRACE)
+            declarations.append({"kind": kind.value, "name": decl_name, "states": states})
+
+        self.expect(TokenType.RBRACE)
+        self.expect(TokenType.EOF, "Unexpected content after world declaration")
+        ast = WorldAST.model_validate({"name": name, "declarations": declarations})
+        WorldTypeChecker.check(ast)
+        return ast
+
+    def _parse_world_states(self) -> list[dict[str, Any]]:
+        states: list[dict[str, Any]] = []
+        while self.current().type != TokenType.RBRACE:
+            if self.current().type == TokenType.EOF:
+                raise ParserError("Unclosed entity or agent", self.current())
+            keyword = self.expect(TokenType.IDENTIFIER)
+            if keyword.value != "state":
+                raise ParserError("Expected state declaration", keyword)
+            field_name = str(self.expect(TokenType.IDENTIFIER).value)
+            self.expect(TokenType.COLON)
+            type_name = str(self.expect(TokenType.IDENTIFIER).value)
+            self.expect(TokenType.ASSIGN)
+            value = self._parse_world_literal()
+            self.expect(TokenType.SEMICOLON)
+            states.append({"name": field_name, "type_name": type_name, "value": value})
+        return states
+
+    def _parse_world_literal(self) -> int | float | bool | str:
+        negative = self.match(TokenType.MINUS)
+        tok = self.current()
+        if tok.type == TokenType.NUMBER:
+            self.pos += 1
+            return -tok.value if negative else tok.value
+        if negative:
+            raise ParserError("Unary minus requires a number", tok)
+        if tok.type == TokenType.STRING:
+            self.pos += 1
+            return str(tok.value)
+        if tok.type == TokenType.IDENTIFIER and tok.value in ("true", "false"):
+            self.pos += 1
+            return tok.value == "true"
+        raise ParserError("Expected state literal", tok)
