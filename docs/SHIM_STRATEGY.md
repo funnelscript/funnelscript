@@ -1,6 +1,6 @@
 # The Shim Strategy: Specification-First Adoption & The Linter Wedge
 
-> Strategic doctrine on overcoming the cold-start problem of programming language ecosystems through static verification and specification-first engineering.
+> **Strategic proposal.** The installed CLI and World preview are documented separately; performance targets, integrations and future adoption strategies here are hypotheses, not shipped guarantees.
 
 ---
 

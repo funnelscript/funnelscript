@@ -461,3 +461,11 @@
 * **Research and falsification:** `spec/developer-preview-v0.md` (H-P1 to H-P4), `evals/developer-preview-v0.md`, `tests/test_preview_quickstart.py` and a candidate-vs-remote release audit.
 * **Rationale:** A first independent user can try the reference language without learning the repository internals, while a minimal package/tag/CI path is inspectable and reversible before a public release.
 * **Limits:** No PyPI publishing, general package registry, module signatures, clean-machine user study, real economic model validation, or Live execution. A source tag alone is not a verified GitHub Release object.
+
+
+### DEC-034: Repository-Specific Documentation Contracts for the Experimental Preview
+
+* **Decision (2026-10-31):** The application and research repositories each maintain a true contributor entrypoint and a no-new-dependency test for their canonical local Markdown links. Shipped World behavior must be distinguished from the legacy strategy path and from the unimplemented `fpm`, growth, WASM, calibration, and Live plans.
+* **Alternatives:** A single copied contributor guide was falsified by nonexistent research paths; a generated external documentation portal would add dependency and synchronization surface without addressing current broken links.
+* **Research and tests:** H-P5 through H-P7 in `spec/developer-preview-v0.md`; `tests/test_documentation_links.py` in the app and `tests/test_docs_links.py` in research. The observed RED/GREEN chronology is in FL-018 and the preview evaluation.
+* **Limits:** File link conformance does not prove external URL availability, correct code-block execution, citation quality, scientific validity, or public adoption. Those remain independent verification gates.

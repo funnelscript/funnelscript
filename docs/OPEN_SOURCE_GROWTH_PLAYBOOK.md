@@ -1,6 +1,6 @@
 # FunnelScript Open-Source Movement Playbook
 
-> Strategic framework for scaling FunnelScript from a core research specification into a global open-source software movement.
+> **Strategic proposal, not evidence of current adoption.** References to future community programs, metrics, and partnerships are targets until independently measured.
 
 ---
 

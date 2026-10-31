@@ -46,10 +46,10 @@ Every Python repository adhering to `src/` layout MUST explicitly declare `pytho
 Standard layout patterns (`src/`) protect against accidental local import shadowing during distribution builds, but require explicit configuration for test harnesses.
 
 ### Related code
-[`pyproject.toml`](file:///Users/mamdouhaboammar/Documents/funnelscript/pyproject.toml)
+[`pyproject.toml`](../pyproject.toml)
 
 ### Related tests
-[`tests/test_agent_core.py`](file:///Users/mamdouhaboammar/Documents/funnelscript/tests/test_agent_core.py)
+[`tests/test_agent_core.py`](../tests/test_agent_core.py)
 
 ### Related lessons
 - `Bun test type definition absence under TypeScript project tsc -b`
@@ -97,10 +97,10 @@ Inspect module definitions or `__all__` exported symbols before writing integrat
 API naming consistency matters: standardizing on `loads` (Python standard) or `from_json_str` across all parsing classes prevents call-site divergence.
 
 ### Related code
-[`src/funnelscript/parser.py`](file:///Users/mamdouhaboammar/Documents/funnelscript/src/funnelscript/parser.py)
+[`src/funnelscript/parser.py`](../src/funnelscript/parser.py)
 
 ### Related tests
-[`tests/test_engine_scale.py`](file:///Users/mamdouhaboammar/Documents/funnelscript/tests/test_engine_scale.py)
+[`tests/test_engine_scale.py`](../tests/test_engine_scale.py)
 
 ### Related lessons
 - `Linter Duck-Typing ID Access Mismatch`
@@ -148,10 +148,10 @@ Never assert brittle literal tokens without confirming the canonical specificati
 Contract tests should validate structural schema integrity (properties, required keys, $schema draft version) rather than cosmetic title strings unless title stability is a formal requirement.
 
 ### Related code
-[`src/funnelscript/compiler/schema.py`](file:///Users/mamdouhaboammar/Documents/funnelscript/src/funnelscript/compiler/schema.py)
+[`src/funnelscript/compiler/schema.py`](../src/funnelscript/compiler/schema.py)
 
 ### Related tests
-[`tests/test_cli.py`](file:///Users/mamdouhaboammar/Documents/funnelscript/tests/test_cli.py)
+[`tests/test_cli.py`](../tests/test_cli.py)
 
 ### Related lessons
 - `Parser Method Signature Drift in Test Fixtures`
@@ -201,10 +201,10 @@ Whenever using Bun test utilities inside TypeScript Vite or Next.js applications
 Multi-runtime monorepos (e.g. Bun for runtime + `tsc` for type verification) require affirmative bridging of type declarations.
 
 ### Related code
-[`apps/web/tsconfig.json`](file:///Users/mamdouhaboammar/Documents/funnelscript/apps/web/tsconfig.json)
+[`apps/web/tsconfig.json`](../apps/web/tsconfig.json)
 
 ### Related tests
-[`apps/web/src/lib/transpiler.test.ts`](file:///Users/mamdouhaboammar/Documents/funnelscript/apps/web/src/lib/transpiler.test.ts)
+[`apps/web/src/lib/transpiler.test.ts`](../apps/web/src/lib/transpiler.test.ts)
 
 ### Related lessons
 - `Python Import Path Resolution in src/-Layout Pyproject Packages`
@@ -363,7 +363,7 @@ Both commands exited `127` with `zsh:1: command not found: bun` from noninteract
 
 ### Competing hypotheses and discriminating probe
 
-Either Bun was not installed, or the current shell's PATH omitted its binary. Direct read-only checks found executable `/Users/mamdouhaboammar/.bun/bin/bun` and a Homebrew-managed symlink.
+Either Bun was not installed, or the current shell's PATH omitted its binary. Direct read-only checks found an executable user-local Bun binary and a Homebrew-managed symlink.
 
 ### Intervention and verification
 
@@ -433,3 +433,17 @@ Resolved as a deliberately test-first feature gap. No unrelated tests were weake
 **Correction:** Replaced the output with a single correctly escaped newline passed to plain `print`, avoiding Rich markup interpretation of user file paths. Extended `tests/test_preview_quickstart.py` to reject a literal `\\nRun:` and require a real newline before `Run:`.
 
 **Invariant learned:** Verify rendered CLI output at the installed-artifact boundary, not only source compilation or parser behavior. Nested transport escaping is an independent user-facing failure mode.
+
+---
+
+## 18. Documentation Copy Drift, Broken Links, and a False-Green Matcher
+
+**Class:** Documentation integrity / test harness validity. **Status:** Resolved. **Scope:** Research `CONTRIBUTING.md`, app `failure-lessons/`, developer entrypoints and documentation link regressions.
+
+**Observed failure:** The research contributor guide advertised absent `src/` and `apps/web/` directories, tried to run application-only tests from a research checkout, and linked to three nonexistent `docs/DECISIONS.md`-style locations. The app's failure lessons contained 18 workstation-specific absolute file URLs, unusable from GitHub.
+
+**TDD timeline:** An initial research `unittest` run passed with a `FutureWarning`, but the regex contained an extra escaping layer and matched no actual links. The warning and an independent link audit invalidated that false green. After correcting the matcher, the focused test failed with **three missing-link subtests**. Replacing the contributor guide with true research paths moved it to green. An independent app `pytest` link test then failed on the first private `file:` URL, and passed after replacing the stale absolute references with repository-relative paths and a public cross-repository URL. Both tests now assert a minimum number of examined links to detect a zero-match harness regression.
+
+**Root cause:** Contribution documentation was copied across two repositories with different physical layouts; historical local-machine hyperlinks were retained. The first test's transport-escaped regex validated only that no matches were found, not that the audit ran. A green status without a nonzero observation count was insufficient evidence.
+
+**Prevention:** Each repository verifies its own canonical Markdown links in CI-compatible standard tools. Keep contributor commands tied to present files and real CLIs, refuse `file:` links in application docs, preserve explicit shipped-versus-proposed labels, and verify example outputs separately against installed artifacts. Link presence does **not** verify external URLs, Markdown anchors, truth of prose, or market-model validity.

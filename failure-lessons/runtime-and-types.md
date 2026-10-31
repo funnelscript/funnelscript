@@ -43,10 +43,10 @@ When mutating frozen dataclass attributes within `__post_init__`, always supply 
 Unbound dunder methods on `object` (`__setattr__`, `__delattr__`) always demand the target instance as the first parameter.
 
 ### Related code
-[`src/funnelscript/core/agent.py`](file:///Users/mamdouhaboammar/Documents/funnelscript/src/funnelscript/core/agent.py)
+[`src/funnelscript/core/agent.py`](../src/funnelscript/core/agent.py)
 
 ### Related tests
-[`tests/test_agent_core.py`](file:///Users/mamdouhaboammar/Documents/funnelscript/tests/test_agent_core.py)
+[`tests/test_agent_core.py`](../tests/test_agent_core.py)
 
 ### Related lessons
 - `TypeScript Strict Unused Variable and Discriminated Union Build Failures`
@@ -100,10 +100,10 @@ Distinguish identifier collections from entity model collections through unambig
 Never perform duck-typed attribute access on collections whose elements might already be primitive identifiers.
 
 ### Related code
-[`src/funnelscript/compiler/linter.py`](file:///Users/mamdouhaboammar/Documents/funnelscript/src/funnelscript/compiler/linter.py)
+[`src/funnelscript/compiler/linter.py`](../src/funnelscript/compiler/linter.py)
 
 ### Related tests
-[`tests/test_linter.py`](file:///Users/mamdouhaboammar/Documents/funnelscript/tests/test_linter.py)
+[`tests/test_linter.py`](../tests/test_linter.py)
 
 ### Related lessons
 - `Frozen Dataclass Attribute Mutation via object.__setattr__`
@@ -157,10 +157,10 @@ Always enforce discriminated union type guards with the `in` operator when worki
 Modern JSX transforms do not require default `React` imports; omit them to prevent `noUnusedLocals` build failures.
 
 ### Related code
-[`apps/web/src/lib/transpiler.ts`](file:///Users/mamdouhaboammar/Documents/funnelscript/apps/web/src/lib/transpiler.ts)
+[`apps/web/src/lib/transpiler.ts`](../apps/web/src/lib/transpiler.ts)
 
 ### Related tests
-[`apps/web/src/lib/transpiler.test.ts`](file:///Users/mamdouhaboammar/Documents/funnelscript/apps/web/src/lib/transpiler.test.ts)
+[`apps/web/src/lib/transpiler.test.ts`](../apps/web/src/lib/transpiler.test.ts)
 
 ### Related lessons
 - `Bun Test Type Definition Absence Under TypeScript tsc -b`
@@ -209,7 +209,7 @@ In agentic and automated environments, never invoke wizard-style scaffolding CLI
 Declarative configuration (explicit files) is always more reliable in automation than procedural scaffolding CLIs.
 
 ### Related code
-[`apps/web/package.json`](file:///Users/mamdouhaboammar/Documents/funnelscript/apps/web/package.json)
+[`apps/web/package.json`](../apps/web/package.json)
 
 ### Related tests
 N/A (Scaffolding process)

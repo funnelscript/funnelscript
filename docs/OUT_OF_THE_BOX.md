@@ -282,6 +282,7 @@ Static documentation websites show code snippets that readers must manually copy
 * When a reader reads about "Saturating Ad Margins and Ad Fatigue", the documentation embeds an interactive `.fnl` code block alongside live slider controls (Budget, Creative Quality, Adstock Half-Life $\lambda$).
 * The browser runs $10,000$ synthetic agents in real time via WebAssembly in $< 30\text{ms}$, dynamically plotting live conversion curves, ROAS distributions, and cash survival graphs directly within the documentation page.
 * **Future Hypothesis ($H_{\text{doclab}}$):** *Executable documentation laboratories increase developer comprehension of complex stochastic marketing phenomena by $> 60\%$ compared to static code examples.*
+* **2026-10-31 boundary:** Still speculative. The documentation conformance tests introduced under DEC-034 check local link targets only. No in-doc WASM runtime, 30ms benchmark, or 60% comprehension result has been demonstrated.
 
 ---
 

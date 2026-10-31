@@ -8,7 +8,7 @@ FunnelScript is an experimental source language and reference interpreter, not a
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) and Git.
 - No credentials, paid advertising accounts, API keys, or marketing datasets are required.
 
-The versioned Git source is the release channel for this preview, **not PyPI**. These commands require the public `v0.2.0a1` tag to exist; until it is published, use the repository checkout with `uv run funnelscript`.
+The verified public `v0.2.0a1` Git tag is the release channel for this preview, **not PyPI**. The tagged CI and clean-directory Git-source installation were checked on 2026-10-31; see the [research attestation](https://github.com/funnelscript/funnelscript-research/blob/main/evals/developer-preview-v0.md).
 
 ## Start in a new directory
 

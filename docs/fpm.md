@@ -1,12 +1,12 @@
 # FunnelScript Package Manager (`fpm`) Specification
 
-> Architecture, package anatomy, dependency resolution, and commercial incentive model for the FunnelScript package ecosystem.
+> **Design proposal, not an implemented package manager.** The current CLI has no `fpm` command or deployed package registry. Names, registry domains, quantitative examples, and business models below are illustrative, not verified services or measurements.
 
 ---
 
 ## 1. Architectural Mission
 
-A domain-specific language scales through modular, reusable code primitives. The FunnelScript Package Manager (`fpm`) provides a decentralized registry and deterministic package manager for distributing verified marketing channels, audience definitions, behavioral archetypes, and industry benchmark libraries.
+A domain-specific language scales through modular, reusable code primitives. A proposed FunnelScript Package Manager (`fpm`) would distribute versioned marketing libraries through a registry and deterministic dependency resolution; no such registry, `fpm` CLI, or verified commercial library catalog is currently deployed.
 
 ```
                            ┌───────────────────────────────┐

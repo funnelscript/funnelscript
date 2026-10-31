@@ -1,6 +1,6 @@
 # FunnelScript CLI Reference Manual
 
-The `funnelscript` command-line interface provides tools for verifying, simulating, and generating marketing strategies using declarative FunnelScript specifications.
+The `funnelscript` CLI serves two distinct source paths: a typed, domain-neutral World language with in-memory event execution, and an older marketing-strategy checker and simulator. The modes have different semantics and neither establishes real-market forecasting accuracy.
 
 ---
 
@@ -36,7 +36,7 @@ Continue with `funnelscript check first.fnl`, then use `run-world --event` with 
 
 ### 1. `funnelscript check`
 
-Runs static verification against the marketing strategy AST:
+For a legacy strategy input, `check` runs marketing-specific analysis. For a source `world` declaration, the same command performs World parsing, primitive-state type checks, event/rule validation and import resolution; it does **not** run the campaign graph linter or execute the World. Legacy strategy diagnostics include:
 - **Graph Reachability:** Ensures all audiences and touchpoints connect to valid traffic flows.
 - **Dead-End Detection:** Flags conversion surfaces with 0% conversion rate or no downstream recovery steps.
 - **Tarjan's SCC Cycle Detection:** Prevents endless attribution feedback loops between channels.

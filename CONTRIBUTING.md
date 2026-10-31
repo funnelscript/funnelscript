@@ -1,115 +1,63 @@
 # Contributing to FunnelScript
 
-> Engineering guidelines, development workflows, testing requirements, and contribution taxonomy for the FunnelScript compiler and runtime.
+FunnelScript is an experimental source language, not an empirically validated market forecasting system. Contributions must preserve the separation between the domain-neutral World interpreter and the legacy marketing-strategy simulator.
 
----
+## Implementation map
 
-## Architectural Overview
+| Path | Responsibility |
+| --- | --- |
+| [`src/funnelscript/parser.py`](src/funnelscript/parser.py) and [`tokens.py`](src/funnelscript/tokens.py) | Source parsing and token definitions |
+| [`src/funnelscript/compiler/world_ast.py`](src/funnelscript/compiler/world_ast.py) | Typed World AST, semantic validation, module contracts |
+| [`src/funnelscript/core/event_machine.py`](src/funnelscript/core/event_machine.py) | Discrete-event ordering, bounded execution, seeded RNG |
+| [`src/funnelscript/runtime/world_executor.py`](src/funnelscript/runtime/world_executor.py) | Pure World rule execution and events |
+| [`src/funnelscript/runtime/simulator.py`](src/funnelscript/runtime/simulator.py) | Separate legacy marketing simulator |
+| [`src/funnelscript/cli.py`](src/funnelscript/cli.py) | `check`, `compile`, `run-world`, `simulate`, `init`, `init-world`, `schema`, `--version` |
+| [`src/funnelscript/stdlib/marketing/`](src/funnelscript/stdlib/marketing/lead_response.fnl) | First reusable Marketing Standard Library source module |
+| [`tests/`](tests/test_preview_quickstart.py) | Python behavior, negative-path, and installed-CLI tests |
+| [`apps/web/`](apps/web/package.json) | Bun-based editor/frontend and tests |
 
-FunnelScript is engineered with a strict inside-out separation of concerns:
+## Development and verification
 
-```
-src/funnelscript/
-├── tokens.py              # Lexer token specifications and regex rules
-├── parser.py              # Recursive-descent AST parser (WorldAST & StrategyAST)
-├── linter.py              # Static semantic analysis, DAG reachability, mass balance
-├── runtime/
-│   ├── engine.py          # Vectorized SIMD agent execution engine
-│   └── event_kernel.py    # Priority-queue discrete-event calendar substrate
-├── compiler/
-│   └── world_ast.py       # General World, Entity, and Agent type checking
-├── adapters/
-│   └── pymc_adapter.py    # Bayesian posterior parameter ingestion
-└── cli.py                 # Command-line interface (check, simulate, calibrate)
-```
-
-Web client applications and visualization dashboards reside in `apps/web`.
-
----
-
-## Development Environment Setup
-
-### Prerequisites
-
-* Python $\ge 3.11$ with [`uv`](https://github.com/astral-sh/uv)
-* [`bun`](https://bun.sh) for JavaScript/TypeScript tooling
-
-### Installation
+Python 3.12+ and [uv](https://docs.astral.sh/uv/) are required. Bun is required to verify changes affecting the Web Studio.
 
 ```bash
-git clone https://github.com/imMamdouhaboammar/funnelscript.git
+git clone https://github.com/funnelscript/funnelscript.git
 cd funnelscript
-
-# Install Python dependencies and virtual environment
-uv sync
-
-# Install Web Studio dependencies
-cd apps/web
-bun install
-cd ../..
-```
-
----
-
-## Verification & Test Execution
-
-All pull requests must pass the complete polyglot test suite before review:
-
-### Python Compiler & Runtime Tests
-
-```bash
-# Execute complete unit, integration, and performance test suite
+uv sync --locked --dev
 uv run pytest -v
-
-# Target specific compiler test suites
-uv run pytest tests/test_world_language.py -v
-uv run pytest tests/test_event_kernel.py -v
-uv run pytest tests/test_linter.py -v
-uv run pytest tests/test_runtime.py -v
-```
-
-### Web Studio Tests & Production Build
-
-```bash
+uv build
 cd apps/web
+bun install --frozen-lockfile
 bun test
 bun run build
-cd ../..
 ```
 
----
+For a narrow change, first run its relevant test module (for example `uv run pytest tests/test_world_modules.py -v` or `uv run pytest tests/test_preview_quickstart.py -v`), then run the complete suite and affected build gates before submitting. The GitHub workflow [`preview-ci.yml`](.github/workflows/preview-ci.yml) runs the pinned Python/wheel and Bun paths on supported pushes and tags.
 
-## Contribution Taxonomy & Entry Points
+## Research-first TDD
 
-Issues and pull requests are categorized by architectural layer:
+1. Read [`AGENTS.md`](AGENTS.md) and the relevant [research specification](https://github.com/funnelscript/funnelscript-research/tree/main/spec). Record a theoretical or measured anchor, a falsifiable hypothesis and explicit invariants before changing language behavior.
+2. Write an independently justified regression test. For a new behavior or bug, observe RED against the current implementation, then implement the minimum GREEN change.
+3. Preserve existing test oracles. Do not weaken tests, add silent error recovery, or present fabricated simulation outputs as market evidence.
+4. Update the app [decision/debate/hypothesis records](docs/DECISIONS.md) and their research counterparts when decisions change; update [failure lessons](failure-lessons/README.md) for actual failures.
+5. Verify the CLI and public docs against the implemented commands. Run `git diff --check` and review the full diff.
 
-| Label | Scope | Typical Entry Tasks |
-| :--- | :--- | :--- |
-| `good-first-issue` | Standard Library & CLI | New standard channels, CLI output formatting, documentation examples |
-| `compiler` | Syntax & AST | Parser extensions, AST node definitions, type checker validations |
-| `runtime` | Execution Engine | Vectorized SIMD kernels, event calendar performance, stochastic sampling |
-| `adapters` | Ecosystem Connectors | PyMC calibration schemas, provider API mocks, webhook ingestion |
-| `rfc` | Language Specification | Formal grammar revisions, new syntax keywords, core type changes |
+## Working on an experimental World
 
----
+```bash
+uv run funnelscript init-world first.fnl
+uv run funnelscript check first.fnl
+uv run funnelscript run-world first.fnl --event '{"name":"Prospect.Impression","time":0,"payload":{"cpc":2.0,"conversion_probability":0.7,"order_value":100.0}}' --seed 1
+```
 
-## Pull Request Guidelines
+The [Experimental Preview Guide](docs/EXPERIMENTAL_PREVIEW.md) explains the source module and user-assumed conversion probability. The installed `v0.2.0a1` Git-source preview is verified; no PyPI package, Live execution engine, or empirical PyMC/OmniTwin calibration is implied.
 
-1. **Strict 100% English Standard:** All code, comments, docstrings, issue reports, and commit messages must be strictly in English. Non-English characters are prohibited in tracked source files.
-2. **Red-Green Falsification:** Every bug fix or net-new feature must include automated test cases that fail without the proposed implementation and pass with it.
-3. **Mass & Budget Invariants:** Any modification to strategy linting or simulation semantics must prove that audience mass conservation ($\sum P(\text{state}) = 1.0$) and financial budget ceilings ($C_{\text{max}}$) remain fully preserved.
-4. **RFC Process for Core Changes:** Changes modifying language grammar (`tokens.py`, `parser.py`) or type systems require an accepted RFC proposal in `docs/` prior to implementation.
+## Contribution scope
 
----
+- Core syntax and types: accompany changes with updated grammar/World semantics research.
+- World runtime: preserve typed payload validation, pre-event snapshots, deterministic seeded replay, and bounded scheduling.
+- Marketing library: keep source modules domain-specific and the language kernel domain-neutral.
+- Legacy engine: preserve its public CLI behavior unless an explicitly scoped migration is accepted.
+- Docs and research: keep every usage claim reproducible and distinguish installed features from RFCs, proposals, and past milestones.
 
-## Strategic & Architectural Documentation
-
-Contributors should consult the following foundational guides:
-
-* **[Open-Source Growth Playbook](docs/OPEN_SOURCE_GROWTH_PLAYBOOK.md):** The 4-pillar open-source scaling strategy.
-* **[The Shim Strategy](docs/SHIM_STRATEGY.md):** Specification-first adoption and the linter wedge.
-* **[Package Manager Specification (`fpm`)](docs/fpm.md):** Anatomy, lockfiles, and commercial incentives.
-* **[Marketing Systems Engineering](docs/MARKETING_SYSTEMS_ENGINEERING.md):** The core persona, mental models, and JTBD.
-* **[Architecture Decision Records](docs/DECISIONS.md):** Canonical record of all accepted architectural decisions (DEC-001 through DEC-026).
-* **[Intellectual Debates](docs/DEBATES.md):** Rigorous engineering trade-offs and falsification boundaries.
-* **[Out of the Box Ideas](docs/OUT_OF_THE_BOX.md):** Speculative hypotheses and frontier research tracking (OOTB-001 through OOTB-020).
+Use English in tracked files and commit messages. Never commit credentials or private customer data. Reference the actual tests, output and limitations in pull requests.

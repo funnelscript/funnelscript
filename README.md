@@ -46,7 +46,9 @@ The generated World imports the bundled `std:marketing/lead_response.fnl` module
 
 ---
 
-## Quick Start
+## Legacy strategy simulator (separate execution path)
+
+These JSON-based strategy commands belong to the earlier marketing engine. For a first experience with the domain-neutral language, use the source-based World preview above. Neither path predicts observed market outcomes from uncalibrated inputs.
 
 ### 1. Validate a Strategy File
 Verify that all audiences, touchpoints, and flow paths satisfy domain invariants:
@@ -64,7 +66,7 @@ uv run main.py simulate examples/black_friday_2026.json --trials 100 --agents 50
 
 ---
 
-## Sample Syntax (`.fnl`)
+## Legacy campaign syntax (illustrative `.fnl`, not the World preview)
 
 ```hcl
 strategy ECommerce_Black_Friday_2026 {

@@ -1,6 +1,6 @@
 # Marketing Systems Engineering: The Discipline, Persona & Mental Models
 
-> Foundational manifesto on the convergence of systems engineering, Bayesian econometrics, and digital marketing.
+> **Position paper.** This describes a proposed discipline and research agenda, not a validated claim of market forecasting or a statement that all proposed systems are implemented.
 
 ---
 

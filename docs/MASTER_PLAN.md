@@ -1,8 +1,8 @@
 # FunnelScript Master Execution Plan (Phases 2 – 5)
 
-**Governing Constitution:** [`AGENTS.md`](file:///Users/mamdouhaboammar/Documents/funnelscript/AGENTS.md) (Hypothesis-First & Research-Gated Engineering)  
+**Governing Constitution:** [`AGENTS.md`](../AGENTS.md) (Hypothesis-First & Research-Gated Engineering)
 **Methodology:** Core-Outwards & Discrete-Event Systems Engineering  
-**Version:** 1.0.0 — Production Blueprint  
+**Status:** Historical phased design blueprint, **not** a released version or a statement that every pictured subsystem exists. The verified public source preview is `v0.2.0a1`; see [Public Preview Readiness](PUBLIC_PREVIEW_READINESS.md).
 
 ---
 
@@ -229,7 +229,7 @@ Build an interactive visual canvas for marketing practitioners that allows visua
 
 ## Constitutional Compliance Verification
 
-Every step in this plan complies strictly with [`AGENTS.md`](file:///Users/mamdouhaboammar/Documents/funnelscript/AGENTS.md):
+Every step in this plan complies strictly with [`AGENTS.md`](../AGENTS.md):
 - **Rule 1 Enforced:** Every phase specifies its research anchor, falsifiable hypothesis ($H$), and mathematical invariant.
 - **Inside-Out Discipline:** Physical UI is strictly fenced into Phase 5, after the mathematical core (P1), linter (P2), runtime (P3), and CLI (P4) are fully verified.
 - **Conservation Laws Preserved:** Cash latency ($\Delta_{\text{settle}}$), mass conservation ($\sum N = N_{\text{total}}$), and wallet bounds ($P_{\text{eff}} \le w$) are enforced throughout.
@@ -359,3 +359,8 @@ Every step in this plan complies strictly with [`AGENTS.md`](file:///Users/mamdo
 ### Experimental Preview Release Gate: Verified Git Source Tag
 
 On 2026-10-31, the annotated application tag `v0.2.0a1` and remote peeled tag both resolved to commit `ba43bd4c3aba38eb8f58dadd09c16ca315bc41a0`; the research tag resolved to `e1872c4c8588c4596dc6720742a1b6853d07e9cb`. The [tag-triggered CI run](https://github.com/funnelscript/funnelscript/actions/runs/41218915451) passed Python/wheel and Bun/frontend jobs and uploaded the built distributions. A clean-directory public Git-source `uvx --from git+https://github.com/funnelscript/funnelscript@v0.2.0a1` install then passed `--version`, `init-world`, `check`, and `run-world`, yielding the documented seeded result. This closes the **Git-source experimental preview** gate. PyPI, a standalone GitHub Release, empirical model validity and Live capabilities remain explicitly out of scope.
+
+
+## Documentation Integrity Milestone: Public Research Preview (2026-10-31)
+
+The published `v0.2.0a1` Git-source preview is unchanged. This documentation-only phase reconciled the two contributor guides with their actual repository layouts, qualified legacy campaign versus World preview onboarding, removed private workstation hyperlinks from canonical failure lessons, and marked strategic ecosystem specifications as unimplemented proposals. A research-first H-P5 through H-P7 extension was recorded under `spec/developer-preview-v0.md`; both repositories now have local Markdown link conformance tests. The research test was observed RED on three broken links; the app test was observed RED on a private `file:` URL. The post-fix results and full-suite verification belong in the matching research evaluation and failure lesson FL-018. No change grants model calibration, financial forecasting, or Live Execution.

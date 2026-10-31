@@ -1004,3 +1004,15 @@ A critical trap in ambitious software projects is delaying release until a massi
 * **Option C, one-file `init-world` and versioned Git source (accepted):** Reuse the packaged Marketing module and native `pathlib.open("x")` semantics. CI tests the wheel from outside the repository. Author-facing steps are versioned and explicit, without extra package manager code.
 * **Trade-offs:** The user needs uv and Git, the generated World still requires explicit typed events, and GitHub Actions artifacts are time-limited. Preview install success on one platform does not establish population-scale execution or external predictive validity.
 * **Falsification:** H-P1 to H-P4 require an observable installed-CLI journey, non-overwrite behavior, wheel inspection and proof that the announced tag/commit and public CI evidence agree.
+
+
+---
+
+## Debate 23: Copied Cross-Repository Docs vs Scoped Verified Entry Points
+
+**Problem:** A shared contributor template described application runtime directories and commands as if they existed in the research repository. The resulting links and onboarding were observably false.
+
+* **Option A, one synchronized copy:** Lower writing effort, but different repository trees make its examples and links inaccurate. Rejected for contributor instructions.
+* **Option B, independent repository-specific guides with local link tests (accepted):** Each checkout explains its own paths; the application owns runtime tests and build instructions, while research documents falsifiable contracts. Both explicitly link to the other repository where appropriate.
+* **Trade-off:** Two guides need editorial synchronization. Local link checks cannot validate economic claims, external documentation links, or tutorial semantics; the existing installed-CLI smoke is the separate executable oracle.
+* **Falsification:** H-P5 through H-P7 and test RED/GREEN recorded in FL-018. A future successful link test alongside a reproducibly false local command would refute any stronger claim of documentation correctness.

@@ -43,11 +43,12 @@ A programming language compiler must verify syntax, type safety, and graph topol
 Analogous to SQL: SQL provides relational algebra primitives (`SELECT`, `JOIN`, `CONSTRAINT`); it does not dictate a company's customer schema or pricing rules.
 
 ### Related code
-[`funnelscript-research/DEBATES.md`](file:///Users/mamdouhaboammar/Documents/funnelscript-research/DEBATES.md)  
-[`docs/MASTER_PLAN.md`](file:///Users/mamdouhaboammar/Documents/funnelscript/docs/MASTER_PLAN.md)
+[DEBATES.md`](https://github.com/funnelscript/funnelscript-research/blob/main/DEBATES.md)
+
+[`docs/MASTER_PLAN.md`](../docs/MASTER_PLAN.md)
 
 ### Related tests
-[`tests/test_linter.py`](file:///Users/mamdouhaboammar/Documents/funnelscript/tests/test_linter.py)
+[`tests/test_linter.py`](../tests/test_linter.py)
 
 ### Related lessons
 - `Linter Duck-Typing ID Access Mismatch`
