@@ -31,36 +31,54 @@ The project’s intellectual trajectory is governed by three interconnected livi
 - Never commit Arabic or other non-English text into repository files.
 - Translate any verbal prompt concepts or colloquial discussion points into rigorous, canonical computer science and statistical terminology.
 
-### 4. Core-Outwards Development (Inside-Out Discipline)
+### 4. Mandatory Skill & Tool Arsenal (Core Execution Stack)
+**In every engineering, research, and coding session, the agent MUST mandatorily operate under and invoke the following foundational skill stack as its core operational arsenal:**
+- **/j-space**: Multi-dimensional architectural reasoning, cognitive spatial modeling, and holistic system design.
+- **/deep-digger**: Exhaustive structural exploration, deep code and theoretical archaeologies, and recursive root-cause discovery.
+- **/deep-research**: Rigorous academic grounding, canonical literature synthesis, and theoretical validation.
+- **/anti-slop-engineering**: Strict zero-dependency bloat, clean-code gates, KISS/DRY/YAGNI enforcement, and Google SRE reliability principles.
+- **/get-things-done** (`/gsd`): Disciplined milestone decomposition, phase execution waves, and atomic deliverable verification.
+- **/openreview**: Rigorous adversarial peer review, falsification testing, and academic critique.
+- **/fable-wise**: Wisdom governance, architectural discipline, and alignment with foundational system axioms.
+- **/ponytail**: Clean-room senior dev ladder and SHIT interceptor (eliminating Scope creep, Hypothetical hardening, Intent violation, and Task thrashing).
+- **/agent-architecture-audit**: Comprehensive auditing of agent boundaries, state transitions, tool interfaces, and memory models.
+- **/install-anti-slop**: Preflight linting, automated guardrails, and structural quality gating.
+- **/say-no-to-slop**: Categorical refusal of cosmetic fluff, conversational chatter, speculative scaffolding, and unverified artifacts.
+
+*Operational Directive:* The foundational invocation:
+`use: /j-space /deep-digger /deep-research /anti-slop-engineering /get-things-done /openreview /fable-wise /ponytail /agent-architecture-audit /install-anti-slop /say-no-to-slop`
+must govern every inquiry, implementation pass, refactoring, and architectural update across both repositories.
+
+### 5. Core-Outwards Development (Inside-Out Discipline)
 Build strictly from the mathematical core outwards:
 $$\text{Mathematical Core (Agent Mind)} \longrightarrow \text{AST \& Type-Checking Linter} \longrightarrow \text{Vectorized Simulation Runtime} \longrightarrow \text{CLI \& Tooling} \longrightarrow \text{Visual UI}$$
 Never jump to high-level UI, marketing wrappers, or peripheral syntactic sugar while the underlying mathematical or simulation mechanics remain unproven.
 
-### 5. Economic Conservation & Physical Invariants
+### 6. Economic Conservation & Physical Invariants
 Every strategy evaluation and simulation kernel must enforce domain conservation laws:
 - **Audience Mass Balance:** $\sum_{s \in S} N_s(t) = N_{\text{total}}$ (no audience creation or destruction ex nihilo).
 - **Working Capital & Payout Latency:** Never assume revenue is instantaneously liquid. Always model settlement delay $\Delta_{\text{settle}}$. If liquid cash $C(t) \le 0$, the engine must trigger an ad spend halt (`Insolvency`).
 - **Diminishing Returns & Fatigue:** All advertising channels must exhibit saturating margins (Hill function) and decay with repetition ($e^{-\kappa \cdot \text{exposures}}$).
 - **Wallet Bound:** An agent cannot execute a purchase if the effective price exceeds its liquid category wallet balance ($P_{\text{eff}} > w$).
 
-### 6. Multi-Scale Discrete-Event Time Model
+### 7. Multi-Scale Discrete-Event Time Model
 - Never implement continuous busy-loops for multi-timescale events.
 - Ad impressions occur in seconds, session considerations in minutes, cart abandonment in hours, and payout settlements in days.
 - Schedule asynchronous tactical triggers (e.g. cart recovery emails) via discrete timestamps ($\tau$-Event calendar or day/hour discrete steps) to eliminate race conditions.
 
-### 7. Dependency & Tooling Determinism
+### 8. Dependency & Tooling Determinism
 - Use `uv` exclusively for Python environment management, dependency resolution, script running, and testing (`uv run ...`, `uv add ...`).
 - Bun is mandatory for all JavaScript/TypeScript frontend projects (`bun install`, `bun test`, `bun run build`).
 - Never hand-roll dependencies or guess versions; always pin stable releases.
 - Keep core simulation dependencies minimal, modern, and mathematically grounded (`numpy`, `scipy`, `pydantic`, `rich`, `pytest`).
 
-### 8. Zero Hallucinated Badges & 100% Test Discipline
+### 9. Zero Hallucinated Badges & 100% Test Discipline
 - Run tests via `uv run pytest -v` and `bun test`.
 - Never weaken assertions, delete tests, or add skips to bypass failures.
 - Every new feature or decision kernel must include unit tests verifying boundary conditions, float clamping, and falsification scenarios.
 - Only report test results that were executed and verified against real terminal outputs.
 
-### 9. Clean-Code & Anti-Slop Engineering
+### 10. Clean-Code & Anti-Slop Engineering
 - Maintain functions $\le 80$ lines with cohesive, single-responsibility logic.
 - Avoid trivial syntax-narration comments (`# return x`, `# increment count`). High engineering discipline values silence over noise.
 - Complete separation between internal engineering diagnostics and user-facing CLI/UI outputs.
