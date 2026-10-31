@@ -128,10 +128,60 @@ Scaling simulations from $100,000$ agents to entire national populations ($10^7$
 
 ---
 
+## 9. Autonomous Live Marketing Guardrails & Real-Time Error Budgets (OOTB-009)
+
+### The Concept
+When an algorithmic strategy executes in live production, unexpected platform anomalies (e.g. ad exchange auction spikes, tracker pixel failures, sudden API rate limits) can deplete marketing budgets within minutes.
+
+### Proposed Mechanism
+* Borrow the **Error Budget & Circuit Breaker** pattern from Google SRE.
+* The `LiveEffectHandler` continuously measures real-time burn velocity:
+  $$\text{Velocity}(t) = \frac{d\,\text{Spend}}{dt}$$
+* If actual spend velocity exceeds the modeled upper confidence bound $P_{95}(\text{Velocity})$ by $> 2.5\times$, or if conversion tracking fails to record an expected event within a dynamic timeout window, the runtime immediately trips a circuit breaker:
+  * Automatically sets campaign budgets to safety baselines.
+  * Dispatches an emergency webhook alert to the human media buying team.
+  * Preserves working capital before catastrophe occurs.
+* **Future Hypothesis ($H_{\text{guard}}$):** *Autonomous real-time error budgets eliminate 99% of accidental ad-account drain incidents caused by algorithmic misconfigurations or platform tracking outages.*
+
+---
+
+## 10. Effect Intent Static Verification & Capability Sandboxing (OOTB-010)
+
+### The Concept
+Similar to WebAssembly capability models or Deno security permissions, strategies should declare what external side effects they are permitted to emit, and the compiler should statically enforce capability boundaries.
+
+### Proposed Mechanism
+* Introduce explicit capability declarations in the FunnelScript header:
+  ```funnelscript
+  capabilities {
+    effects: [budget.adjust, email.dispatch],
+    max_daily_spend: 5000.00 USD,
+    prohibited: [external.webhook, sms.broadcast]
+  }
+  ```
+* The AST semantic linter verifies that no rule or trigger block emits an `EffectIntent` outside the declared capability set.
+* Third-party community packages downloaded from package registries cannot secretly dispatch unapproved network mutations or exceed financial risk parameters.
+* **Future Hypothesis ($H_{\text{sandbox}}$):** *Static capability sandboxing guarantees that third-party marketing strategy packages can be executed in live production without risk of arbitrary network exfiltration or unauthorized financial mutation.*
+
+---
+
+## 11. Time-Traveling Reversible Shadow Debuggers (OOTB-011)
+
+### The Concept
+When a live marketing campaign underperforms in production, marketing teams debate what went wrong using subjective opinions. FunnelScript can ingest live production telemetry and provide time-traveling deterministic replays for post-mortem debugging.
+
+### Proposed Mechanism
+* Record all inbound live events (webhooks, user clicks, ad spend updates) into an immutable temporal event log.
+* The developer opens the FunnelScript Time-Traveling Debugger and steps backward and forward through the live campaign second by second.
+* The developer can introduce a counterfactual strategy tweak at Day 14 and immediately branch into a simulated alternative universe to see if the tweak would have rescued campaign profitability.
+* **Future Hypothesis ($H_{\text{replay}}$):** *Temporal event log replay reduces the time required to diagnose campaign performance degradation from days to minutes while enabling exact empirical counterfactual testing.*
+
+---
+
 ## Promotion Pipeline & Tracking
 
 | Idea ID | Title | Domain | Maturity | Next Milestone |
-| :---: | :--- | :--- | :---: | :--- |
+| :---: | :--- | :--- | :--- | :---: | :--- |
 | **OOTB-001** | Red-Team Competitors | Game Theory / Multi-Agent RL | Speculative | Draft minimax auction bidding scenario |
 | **OOTB-002** | Viral Memetics | Network Science / SIR Diffusion | Seeded | Formulate Barabási-Albert graph integration |
 | **OOTB-003** | Macroeconomic Shocks | Stress-Testing / System Dynamics | Seeded | Implement inflation wallet decay experiment |
@@ -140,3 +190,6 @@ Scaling simulations from $100,000$ agents to entire national populations ($10^7$
 | **OOTB-006** | Quantum Twin Universes | Causal Inference / Counterfactuals | Methodological | Build twin-seed deterministic runner |
 | **OOTB-007** | Auto-FunnelScript | Evolutionary AI / MCTS | Exploratory | Define grammar mutation operators for AST |
 | **OOTB-008** | WebGPU / Metal Acceleration | High-Performance Computing | Engineering | Prototype WGSL agent transition compute shader |
+| **OOTB-009** | Autonomous Live Guardrails | SRE / Real-Time Circuit Breakers | Architectural | Specify spend velocity threshold formulas |
+| **OOTB-010** | Effect Capability Sandboxing | Language Design / Security Types | Conceptual | Design AST capability declaration grammar |
+| **OOTB-011** | Time-Traveling Shadow Debugger | Event Sourcing / Causal Replay | Seeded | Draft event journal schema for live replays |

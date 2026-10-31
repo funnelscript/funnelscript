@@ -369,6 +369,130 @@ Where:
 
 ---
 
+## Debate 9: Execution Semantics — Discrete-Event Scheduling (DES) vs. Fixed-Tick Progression
+
+### 1. The Multi-Timescale Dilemma in Marketing Realities
+Marketing systems operate across vastly divergent temporal scales:
+* **Sub-second ($10^{-3} - 10^0\text{ s}$):** Real-time ad exchange RTB auctions, clickstream tracking, webhooks.
+* **Minute-scale ($10^1 - 10^2\text{ min}$):** On-site browsing sessions, live chat engagements, payment authorization handshakes.
+* **Hour-scale ($10^0 - 10^1\text{ h}$):** Abandoned cart email automations, transactional notifications, flash-sale countdown expirations.
+* **Day-scale ($10^0 - 10^1\text{ days}$):** Adstock carryover decay ($\lambda$), credit card settlement clearing delays ($\Delta_{\text{settle}}$), retargeting audience membership windows.
+* **Month-scale ($10^1 - 10^2\text{ days}$):** Subscription billing cycles, cohort churn, customer lifetime value (CLV) realization.
+
+If an execution runtime relies solely on a fine-grained fixed-increment tick model ($\Delta t = 1\text{ second}$), simulating a 90-day campaign requires $7,776,000$ loop evaluations per agent. For $10^5$ agents, this results in $> 7.7 \times 10^{11}$ evaluations, 99.99% of which evaluate empty, unchanged states.
+Conversely, if the engine steps at $\Delta t = 1\text{ day}$, it cannot evaluate intraday causal triggers, such as a 2-hour cart abandonment incentive email.
+
+### 2. The Theoretical Synthesis: Zeigler's DEVS Formalism & Vectorized Batching
+To reconcile computational scalability with multi-timescale fidelity, FunnelScript unifies Bernard Zeigler’s **Discrete Event Systems Specification (DEVS)** with SIMD array batching:
+1. **The Event Priority Calendar:** The simulation driver maintains an event priority queue $\mathcal{Q}$ ordered chronologically by execution timestamp $\tau_e$ and tie-break priority $\pi_e$:
+   $$\mathcal{Q} = \{ e_1, e_2, \dots, e_m \}, \quad \tau_{e_k} \le \tau_{e_{k+1}}$$
+2. **Next-Event Time Jump:** The global simulation clock $t$ advances discontinuously to the timestamp of the head event:
+   $$t \leftarrow \tau_{\text{head}} = \min_{e \in \mathcal{Q}} \tau_e$$
+3. **Continuous Process Integration via Analytic Step Functions:** For continuous background phenomena (such as adstock decay or brand affinity depreciation), states are not updated every microsecond. Instead, they are lazily evaluated analytically whenever an agent encounters an active event at time $t$:
+   $$\beta(t) = \beta(t_0) \cdot e^{-\lambda (t - t_0)}$$
+4. **Vectorized Micro-Batching:** When an event affects a macro cohort (e.g. `AdImpressionBatchEvent` affecting $50,000$ synthetic agents simultaneously), the runtime executes vectorized NumPy SIMD operations across the entire slice in a single pass.
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        Discrete-Event Calendar                         │
+│                                                                        │
+│   t=0.0s          t=2.5h            t=24.0h           t=72.0h          │
+│  [Ad Batch] ────> [Cart Recovery] ─> [Settlement] ──> [Cohort Churn]   │
+│     │                    │                 │                 │         │
+│     ▼                    ▼                 ▼                 ▼         │
+│  Vectorized          Targeted           Financial         Absorbing    │
+│  SIMD Slice          Sub-Cohort         Ledger            State        │
+│  (50k agents)        (1,200 agents)     Update            Transition   │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+### 3. The Global World State Transition Equation
+Formally, the FunnelScript execution runtime is governed by the state transition kernel $\mathcal{T}$:
+
+$$W_{t^+} = \mathcal{T}(W_t, e_t, \theta, \xi_t)$$
+
+Where:
+* $W_t \in \mathcal{W}$ is the global world state at time $t$, comprising all entity records $\mathcal{E}$ and agent state vectors $\mathcal{A}$.
+* $e_t = \langle \tau_t, \text{type}, \text{target}, \text{payload} \rangle \in \mathcal{Q}$ is the scheduled event popped from the priority calendar.
+* $\theta \in \Theta$ is the immutable compiled strategy ruleset and parameter vector.
+* $\xi_t \sim \mathcal{D}(\cdot)$ is a cryptographically deterministic pseudo-random innovation drawn from the simulation PRNG stream.
+* $\mathcal{T}: \mathcal{W} \times \mathcal{E}_{\text{event}} \times \Theta \times \Xi \to \mathcal{W}$ is the deterministic transition operator that updates state and schedules future events $\mathbf{E}_{\text{new}} \subset \mathcal{Q}$.
+
+### 4. The Deterministic Replay Invariant
+Every simulation run must satisfy the **Bit-for-Bit Deterministic Replay Invariant**:
+
+$$\text{Trace}(W_0, \mathbf{E}_0, \text{seed}, \theta) \equiv \text{Trace}'(W_0, \mathbf{E}_0, \text{seed}, \theta)$$
+
+Given identical initial state $W_0$, initial event schedule $\mathbf{E}_0$, random seed $\sigma$, and compiled rules $\theta$, two runs on separate compute nodes must produce strictly identical telemetry metrics, cash balances, and agent state distributions. This invariant is essential for debugging, counterfactual sensitivity audits, and cryptographic auditability.
+
+---
+
+## Debate 10: Dual-Mode Execution & The Algebraic Effect System (Simulation vs. Shadow vs. Live)
+
+### 1. The Architectural Dilemma: DSL Purity vs. Production Execution
+A critical tension emerged in the architectural design of FunnelScript:
+* *Position A (Pure Simulation):* FunnelScript should remain strictly an offline modeling language. Live marketing execution should be left entirely to external automation tools (Zapier, Make, custom cron scripts).
+* *Position B (Unified Execution Language):* If FunnelScript only simulates, strategies will suffer from the classic "Simulation-to-Reality Gap" (Sim2Real gap). Marketers will design sophisticated strategies in code, but execute crude, dumbed-down approximations in production ad managers.
+
+### 2. The Peril of Mixed Side-Effects
+If live execution is bolted directly into the language syntax (e.g. statements like `meta.adjust_budget()` or `klaviyo.send_email()`), the language becomes catastrophic to test:
+1. Running a simulation trial risks accidentally firing live webhooks and spending real corporate capital.
+2. In-memory unit tests require complex mocking of external HTTP endpoints.
+3. Live network latencies destroy Monte Carlo simulation throughput (dropping performance from $60\text{M agent-days/sec}$ to $10\text{ ops/sec}$).
+
+### 3. The Algebraic Effect System (Koka-Inspired Intent Architecture)
+To achieve flawless unity without compromising purity or safety, FunnelScript implements an **Algebraic Effect System** separating **Tactical Intent** from **Effect Interpretation**:
+
+```
+┌────────────────────────────────────────────────────────┐
+│             FunnelScript Pure Strategy Logic           │
+│       Emits Pure Declarative Effect Intents Only       │
+└───────────────────────────┬────────────────────────────┘
+                            │
+               emits EffectIntent(type, payload)
+                            │
+                            ▼
+        ┌───────────────────────────────────────┐
+        │       Pluggable Effect Handlers       │
+        └───────┬───────────────┬───────────────┘
+                │               │               │
+  ┌─────────────▼────┐  ┌───────▼───────────┐  ┌▼──────────────────┐
+  │ Simulation Mode  │  │   Shadow Mode     │  │    Live Mode      │
+  │ Mutates in-memory│  │ Ingests live data,│  │ Enforces limits,  │
+  │ synthetic arrays │  │ verifies rules,   │  │ signs payloads,   │
+  │ Zero I/O         │  │ zero side-effects │  │ calls real APIs   │
+  └──────────────────┘  └───────────────────┘  └───────────────────┘
+```
+
+The compiled strategy logic never invokes HTTP clients directly. Instead, when an action rule triggers, it yields a pure, immutable **`EffectIntent`** value:
+* `AdjustBudgetIntent(touchpoint_id, delta_amount, currency)`
+* `DispatchMessageIntent(channel, recipient_cohort, template_id, parameters)`
+* `CreateIncentiveIntent(code, discount_pct, expiration_hours)`
+* `HaltSpendIntent(reason, urgency_level)`
+
+### 4. Tri-Modal Execution Targets
+The runtime environment provides three interchangeable effect handlers:
+
+#### Target 1: Simulation Mode (Pure Functional)
+* **Execution Boundary:** Hermetic, in-memory compute sandbox.
+* **Mechanics:** `SimulatedEffectHandler` captures intents and applies mutations directly to synthetic agent vector arrays, virtual touchpoint counters, and simulated bank balance sheets.
+* **Performance:** Executes at $> 50\text{M agent-days/sec}$ with zero network I/O and zero latency.
+
+#### Target 2: Shadow Execution Mode (Passive Observational Bridge)
+* **Execution Boundary:** Production read-only mirror.
+* **Mechanics:** Subscribes to production event streams via webhooks (Shopify order feeds, Meta spend webhooks, Stripe charge events). Evaluates the FunnelScript strategy state machine against real traffic in real time. Emits zero outbound mutations.
+* **Purpose:** Quantifies divergence between simulated expectations and empirical market dynamics ($\Delta_{\text{actual vs predicted}}$) before granting live execution permissions.
+
+#### Target 3: Live Execution Mode (Imperative with Safety Guardrails)
+* **Execution Boundary:** Production stateful gateway.
+* **Mechanics:** `LiveEffectHandler` intercepts intents, passes them through a **Hard Safety Policy Filter**, attaches cryptographic idempotency keys, and dispatches authenticated payloads via Provider Adapters (Meta Marketing API, Klaviyo API, Shopify Admin API).
+* **Guarantees:**
+  * **Hard Spend Ceilings:** Max daily budget limit ($C_{\text{daily\_cap}}$) enforced at the runtime driver layer, preventing accidental runaway spend regardless of script logic bugs.
+  * **Idempotency Keys:** Every mutation includes a unique hash $\text{Key} = \text{SHA256}(\text{strategy\_id} \parallel \text{event\_id} \parallel t_{\text{sched}})$, preventing double-billing on network retries.
+  * **Compensating Actions:** Because marketing side-effects (e.g. emails, SMS, published ad sets) cannot be rolled back with database `ROLLBACK`, irreversible effects require declared **Compensating Actions** (e.g. immediate discount deactivation or automated correction broadcasts).
+
+---
+
 ## Actionable Operational Checklist
 
 | # | Domain | Actionable Specification | Priority | Status |
@@ -383,4 +507,9 @@ Where:
 | **8** | **Subjective Belief Layer** | Formalize separation of `WorldTruth` and `AgentBelief` to support imperfect consumer heuristics. | P2 | **Roadmap** |
 | **9** | **OmniTwin Memory Adapter** | Develop optional adapter for Tier-2 cognitive agents to conduct narrative copy pre-testing. | P2 | **Roadmap** |
 | **10** | **Empirical Validation** | Backtest simulation outputs against historical incrementality lift tests to measure empirical coverage. | P2 | **Roadmap** |
+| **11** | **DES Calendar Engine** | Implement min-heap priority queue $\mathcal{Q}$ for multi-timescale discrete-event simulation. | P1 | **Next Phase** |
+| **12** | **Algebraic Effect System** | Author pure `EffectIntent` types and pluggable handlers (`SimulatedEffectHandler`, `ShadowEffectHandler`, `LiveEffectHandler`). | P1 | **Next Phase** |
+| **13** | **Shadow Execution Mode** | Build real-time webhook ingestion bridge to track $\Delta_{\text{actual vs predicted}}$ without live mutations. | P2 | **Roadmap** |
+| **14** | **Provider Adapters** | Implement provider abstraction contracts for Meta Marketing API, Klaviyo, and Shopify Admin API. | P2 | **Roadmap** |
+| **15** | **Safety Guardrails** | Implement non-bypassable spend rate-limiters, daily burn ceilings, and SHA-256 idempotency keying. | P1 | **Next Phase** |
 

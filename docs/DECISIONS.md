@@ -19,6 +19,10 @@
 | **DEC-009** | [Decoupling Economic Invariants from Compiler Axioms](#dec-009-decoupling-economic-invariants-from-compiler-axioms) | 2026-10-31 | **Accepted** | Expressive user-defined `constraint` blocks (BNPL, Debt, Churn) |
 | **DEC-010** | [The Ontological Subtyping Principle: Agent ⊂ Entity](#dec-010-the-ontological-subtyping-principle-agent--entity) | 2026-10-31 | **Accepted** | Passive state containers vs. autonomous decision actors |
 | **DEC-011** | [The Living Intellectual Trilogy Mandate](#dec-011-the-living-intellectual-trilogy-mandate) | 2026-10-31 | **Accepted** | Mandatory synchronization of Debates, Decisions, and Out-of-the-Box ledgers |
+| **DEC-012** | [FCM-001: Event-Driven Stochastic State Machine Computational Model](#dec-012-fcm-001-event-driven-stochastic-state-machine-computational-model) | 2026-10-31 | **Accepted** | Zeigler's DEVS formalism; multi-timescale simulation scaling |
+| **DEC-013** | [FCM-002: Dual-Mode Execution Architecture & Koka-Style Effect System](#dec-013-fcm-002-dual-mode-execution-architecture--koka-style-effect-system) | 2026-10-31 | **Accepted** | Separation of pure strategy logic from real-world side-effects |
+| **DEC-014** | [Shadow Execution Mode for Risk-Free Live Observation](#dec-014-shadow-execution-mode-for-risk-free-live-observation) | 2026-10-31 | **Accepted** | Real-world webhook evaluation with zero mutations |
+| **DEC-015** | [Idempotency Keys and Compensating Actions for Irreversible Live Operations](#dec-015-idempotency-keys-and-compensating-actions-for-irreversible-live-operations) | 2026-10-31 | **Accepted** | At-most-once execution & compensating sagas for marketing effects |
 
 ---
 
@@ -140,3 +144,54 @@
   3. [`OUT_OF_THE_BOX.md`](OUT_OF_THE_BOX.md): Speculative, frontier, non-linear ideas revolving around the core vision.
 * **Rationale:** Ensures durable institutional memory, complete traceability, and constant alignment between code and vision.
 * **Consequences:** Enforced as a mandatory rule in `AGENTS.md`.
+
+---
+
+### DEC-012: FCM-001 — Event-Driven Stochastic State Machine Computational Model
+* **Status:** Accepted
+* **Context:** Fixed daily or step-wise tick loops cannot model intraday multi-timescale events (e.g. ad auctions at $t=10^{-3}\text{s}$, sessions at $t=10^1\text{min}$, cart recovery at $t=2\text{h}$, settlement clearing at $t=3\text{d}$) without prohibitive computational overhead.
+* **Decision:** Establish Zeigler’s Discrete Event Systems Specification (DEVS) as the foundational execution model of FunnelScript:
+  $$W_{t^+} = \mathcal{T}(W_t, e_t, \theta, \xi_t)$$
+  * The runtime driver maintains a min-heap priority calendar $\mathcal{Q}$ of discrete events ordered by $(\tau_e, \pi_e)$.
+  * Continuous background phenomena (e.g. adstock carryover, brand decay) are computed lazily via analytic step functions upon event arrival.
+  * Deterministic pseudo-random seeds guarantee bit-for-bit replayability.
+* **Rationale:** Eliminates millions of empty loop iterations while providing exact temporal resolution for asynchronous marketing interventions.
+* **Consequences:** Vectorized cohort batching handles $10^5$ synthetic agents with microsecond event dispatch efficiency.
+
+---
+
+### DEC-013: FCM-002 — Dual-Mode Execution Architecture & Koka-Style Effect System
+* **Status:** Accepted
+* **Context:** Unifying offline simulation and live production deployment within one language without polluting simulation loops with network I/O or risking accidental live ad spend.
+* **Decision:** Decouple tactical strategy logic from side-effect execution via an **Algebraic Effect System**:
+  * Compiled FunnelScript rules yield pure, immutable **`EffectIntent`** values (e.g. `AdjustBudgetIntent`, `DispatchMessageIntent`, `HaltSpendIntent`).
+  * Effects are executed exclusively by interchangeable, pluggable handlers:
+    1. `SimulatedEffectHandler`: Updates in-memory vector arrays with zero network I/O.
+    2. `ShadowEffectHandler`: Passively monitors real webhook traffic without emitting external mutations.
+    3. `LiveEffectHandler`: Validates safety ceilings, computes HMAC signatures, and calls external provider APIs (Meta, Klaviyo, Shopify).
+* **Rationale:** Pure strategies remain 100% testable and side-effect free in simulation, while the identical compiled AST can be safely deployed to live production.
+* **Consequences:** The compiler never links against HTTP clients or API credentials; all side-effects are sandboxed at runtime.
+
+---
+
+### DEC-014: Shadow Execution Mode for Risk-Free Live Observation
+* **Status:** Accepted
+* **Context:** Deploying an algorithmic marketing strategy directly to live execution carries severe financial risk if synthetic consumer assumptions diverge from real consumer behavior.
+* **Decision:** Introduce a first-class **Shadow Execution Mode**:
+  * The runtime ingests real-world event webhooks from live platforms (Shopify orders, Meta spend reports, Stripe webhooks).
+  * The strategy state machine evaluates rules in real time, recording all intended actions and computing predicted metrics.
+  * Outbound network mutations are intercepted and suppressed; divergence metrics ($\Delta_{\text{actual vs predicted}}$) are logged to telemetry.
+* **Rationale:** Provides an empirical burn-in observation period to validate strategy behavior and detect modeling drift before committing real marketing capital.
+* **Consequences:** Establishes a zero-risk bridge between offline simulation and live capital deployment.
+
+---
+
+### DEC-015: Idempotency Keys and Compensating Actions for Irreversible Live Operations
+* **Status:** Accepted
+* **Context:** Unlike relational databases where transactions can be rolled back via `ROLLBACK`, external marketing actions (sent emails, SMS messages, published ad sets) cannot be un-executed. Network retries can also trigger duplicate billing.
+* **Decision:**
+  * Mandate deterministic SHA-256 idempotency keys for all live mutations:
+    $$\text{Key} = \text{SHA256}(\text{strategy\_id} \parallel \text{event\_id} \parallel \tau_e)$$
+  * Require explicit **Compensating Actions** (Saga pattern) for irreversible side effects when a campaign is paused, canceled, or fails mid-execution (e.g. deactivating a leaked discount code or dispatching correction notifications).
+* **Rationale:** Guarantees at-most-once execution semantics and predictable failure recovery across distributed third-party marketing APIs.
+* **Consequences:** `LiveEffectHandler` verifies idempotency state before dispatching any provider API mutation.
