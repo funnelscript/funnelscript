@@ -1016,3 +1016,16 @@ A critical trap in ambitious software projects is delaying release until a massi
 * **Option B, independent repository-specific guides with local link tests (accepted):** Each checkout explains its own paths; the application owns runtime tests and build instructions, while research documents falsifiable contracts. Both explicitly link to the other repository where appropriate.
 * **Trade-off:** Two guides need editorial synchronization. Local link checks cannot validate economic claims, external documentation links, or tutorial semantics; the existing installed-CLI smoke is the separate executable oracle.
 * **Falsification:** H-P5 through H-P7 and test RED/GREEN recorded in FL-018. A future successful link test alongside a reproducibly false local command would refute any stronger claim of documentation correctness.
+
+
+---
+
+## Debate 24: Lightweight Skill Index vs Full Upstream Vendor Repositories
+
+**Problem:** Copying complete upstream skill projects into each FunnelScript repository preserves examples and tooling, but also imports irrelevant release artifacts, duplicated integrations, generated local build outputs and implicit dependencies on non-vendored shared files.
+
+* **Option A, delete entire third-party skills:** Largest short-term diff, but removes scientific and engineering guidance contributors were explicitly promised. Rejected.
+* **Option B, preserve every upstream artifact:** Avoids upstream divergence but leaves redundant ZIPs, invalid discovery paths and misleading assumptions about complete offline support. Rejected.
+* **Option C, bounded curation (accepted):** Preserve 22 primary entrypoints and functional resources; correct verified path defects; remove duplicate archives and ignored generated output; label incomplete upstream dependency closure. Add cheap cross-repository tests.
+* **Trade-off:** The remaining upstream suites still include nonessential docs and nested integrations. Deeper pruning requires tracing nested code references, licensing and behavior contracts before removal. The current test proves entrypoint integrity, not that every vendor pipeline executes without network or external resources.
+* **Falsification:** H-B1 to H-B4, test RED/GREEN and actual disk/Git byte counts in `evals/skill-bundle-v0.md`. During final reconciliation, an independently reproduced missing local link in each checkout refuted the earlier completion claim; the precise entrypoint and registry-relative repairs then passed both full suites (app: 219 tests and 58 subtests; research: 5 tests).

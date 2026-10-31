@@ -2,7 +2,7 @@
 
 Operational and Scientific skill stack for AI agents working on the FunnelScript project.
 
-Each subdirectory under `skills/` contains the canonical `SKILL.md` (and any supporting files) for the foundational skills declared in `AGENTS.md`.
+The 22 primary directories under `skills/` each contain a canonical `SKILL.md` and optional supporting resources. These are repository-bundled instructions for compatible agents; they are not executed by the FunnelScript interpreter.
 
 ## 1. Core Operational & Engineering Skills
 
@@ -24,16 +24,16 @@ Each subdirectory under `skills/` contains the canonical `SKILL.md` (and any sup
 
 | Skill | Role |
 |---|---|
-| `academic-paper` | 12-agent academic paper writing pipeline (LaTeX, Pandoc, citation checks, rebuttal audits) |
+| `academic-paper` | Upstream academic paper pipeline reference; only the default language-pair registry is vendored here. Other upstream shared protocols require separate review before full offline use |
 | `academic-paper-reviewer` | Multi-perspective academic peer review panel (Journal-fit, peer roles, Devil's advocate) |
 | `nature-writing` | Scientific manuscript argumentation, section drafting, structural proof synthesis |
 | `latex-paper-en` | English LaTeX manuscript authoring, bibliography/citation repair, submission readiness |
 | `scholar-evaluation` | Structured scholarly-work evaluation, evidence-anchored rubrics, research quality grading |
 | `literature-review` | Systematic literature review protocol, search planning, source screening, evidence logging |
-| `literature_search_arxiv` | arXiv preprint and scientific publication discovery, BibTeX, full-text PDF parsing |
-| `literature_search_openalex` | OpenAlex global scholarly knowledge graph queries (papers, authors, citations) |
-| `literature_search_europepmc` | Europe PMC open-access technical and scientific literature retrieval |
-| `literature_search_biorxiv` | bioRxiv and medRxiv preprint search, DOI resolution, PDF retrieval |
+| `literature-search-arxiv` | arXiv preprint and scientific publication discovery, BibTeX, full-text PDF parsing |
+| `literature-search-openalex` | OpenAlex global scholarly knowledge graph queries (papers, authors, citations) |
+| `literature-search-europepmc` | Europe PMC open-access technical and scientific literature retrieval |
+| `literature-search-biorxiv` | bioRxiv and medRxiv preprint search, DOI resolution, PDF retrieval |
 | `evaluation-methodology` | Rigorous multidimensional evaluation rubrics, quality methodology, scoring formulas |
 
 ## Usage
@@ -47,7 +47,14 @@ use: /j-space /deep-digger /deep-research /anti-slop-engineering /get-things-don
 For scientific manuscripts, literature review, and formal paper authoring:
 ```
 use: /academic-paper /academic-paper-reviewer /nature-writing /latex-paper-en
-     /scholar-evaluation /literature-review /literature_search_arxiv /evaluation-methodology
+     /scholar-evaluation /literature-review /literature-search-arxiv /evaluation-methodology
 ```
 
-Read the relevant `SKILL.md` before executing any non-trivial task.
+Read the relevant `SKILL.md` before executing any non-trivial task. Discovery uses the hyphenated `name` field, which must match the enclosing directory. Bundled skills are guidance and optional tooling, not an implicit dependency of the installed FunnelScript CLI.
+
+## Verification and scope
+
+- Application: `uv run pytest tests/test_skill_bundle.py -q`.
+- The contract checks 22 primary skill names, indexed paths, explicit file references, and the absence of redundant ZIP archives.
+- `deep-digger/rust/target/` is a generated, ignored Cargo build directory. Compile locally if needed; never commit it.
+- `academic-paper` is a partial upstream vendor snapshot. The default output-language registry is bundled under `skills/academic-paper/references/`; other upstream shared protocols are not packaged or verified for offline use. Consult the [upstream research skills repository](https://github.com/Imbad0202/academic-research-skills) before invoking the complete pipeline.

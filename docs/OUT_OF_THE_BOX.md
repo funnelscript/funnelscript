@@ -456,3 +456,20 @@ Future research previews could optionally package a World source hash, module de
 ### Boundary
 
 Not implemented in v0.2.0a1. The current preview uses explicit Git source revisions, documented CLI inputs, and existing deterministic seeds. No provenance attestation, cross-architecture bitwise floating-point guarantee, causal model validation or real-world forecast certification is claimed.
+
+
+---
+
+## 28. Transitive Skill Resource Closure and Vendor Provenance (OOTB-028)
+
+### Research idea
+
+A future dependency scanner could build a graph of all bundled skill instructions, scripts, references, upstream commit IDs and legal notices, then compute which nested resources are reachable from a supported entrypoint. It could recommend removable vendor artifacts without hiding broken imports or deleting templates required for offline use.
+
+### Future falsifiable hypothesis
+
+**H-O28:** For a preregistered fixture corpus of skill bundles with known missing transitive resources and redundant artifacts, graph-based dependency tracing detects more actionable defects than the current top-level link test without incorrectly removing a required executable. Falsified by unresolved dependencies, incorrect removal proposals or unacceptably high false positives.
+
+### Boundary
+
+Not implemented. DEC-035 currently verifies 22 top-level names, indexed local entrypoints, direct Markdown resource links and obvious duplicate archives. Its 2026-10-31 full-suite GREEN receipt confirms the repaired direct-link boundary, not transitive closure, vendor licenses or independent AI-agent execution.

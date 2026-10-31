@@ -288,6 +288,7 @@ This single-lead journey spends a scenario-defined 2.0, samples a conversion, an
 
 ## Documentation & Community
 
+* **[Developer Agent Skills](agents/README.md):** 22 repository-bundled skills, discovery paths, validation commands and known upstream dependency limits.
 * **[Experimental Developer Preview Guide](docs/EXPERIMENTAL_PREVIEW.md):** Versioned Git install, first World, custom local module and failure boundaries.
 * **[Public Research Preview Readiness](docs/PUBLIC_PREVIEW_READINESS.md):** Evidence-based announcement gates and current limitations.
 * **[Contributing Guide](CONTRIBUTING.md):** Setup, testing standards, and good-first-issue taxonomy.

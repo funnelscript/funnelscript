@@ -9,11 +9,11 @@
 
 ## 1. Product Overview
 
-- **One-Line Description:** The declarative domain-specific language (DSL) and discrete-event simulation runtime that elevates marketing strategies into mathematically verifiable, executable state machines.
+- **One-Line Description:** An experimental language for expressing, type-checking, and executing event-driven marketing-system assumptions as reproducible World scenarios.
 - **Category:** Marketing-as-Code (MaC) / Marketing Systems Engineering (MSE) / Declarative Economic Simulation DSL.
-- **Product Type:** Open-Source Developer Tool & Language Runtime (Python 3.12+, `uv`-managed CLI + `.fnl` Language Specification + WebAssembly/WASM Studio).
-- **Core Value Proposition:** Eliminate uninspected ad capital loss by replacing fragile spreadsheets and ad-hoc Jupyter notebooks with static verification (`funnelscript check`) and stochastic Monte Carlo stress-testing (`funnelscript simulate`) before deploying capital.
-- **Business & Distribution Model:** Open-source core engine (MIT License) with modular package manager (`fpm`), commercial enterprise connectors, and cloud simulation grids.
+- **Product Type:** Experimental Python 3.12+ source language and CLI with a separate Bun Web Studio. A browser WebAssembly runtime has not shipped.
+- **Core Value Proposition:** Catch defined syntax and model-contract errors, then compare assumption-driven simulations before considering real-world experiments. These checks do not guarantee lower spend or predict observed campaign outcomes.
+- **Business & Distribution Model:** MIT-licensed research preview distributed through a verified Git source tag. `fpm`, paid provider connectors, and hosted compute remain business proposals.
 
 ---
 
@@ -39,9 +39,9 @@
 |---|---|---|
 | **Paradigm** | Ad-hoc Spreadsheets & Black-box Dashboards | Declarative `.fnl` Strategy Files under Version Control (Git) |
 | **Verification** | Post-hoc realization of loss (burning real money) | Pre-flight Static Type & Contract Verification (`funnelscript check`) |
-| **Modeling** | Linear point-estimates ($5\times$ ROAS assumption) | Vectorized Stochastic Monte Carlo Simulation ($M=10,000$ trials) |
-| **Safety** | Hope-based media buying | Hard Invariants: Audience Mass Conservation & Bounded Budget Gas |
-| **Reusability** | Copy-pasting rows in Excel | Semantic module imports (`std:marketing/lead_response.fnl`, `fpm`) |
+| **Modeling** | Linear point-estimates ($5\times$ ROAS assumption) | Assumption-driven Monte Carlo scenarios and seeded World transitions |
+| **Safety** | Hope-based media buying | Explicit program contracts, typed events and model-specific safeguards |
+| **Reusability** | Copy-pasting rows in Excel | Source module imports (`std:marketing/lead_response.fnl`); `fpm` remains a proposal |
 
 ### The Elevator Pitch
 > *"Engineers wouldn't deploy infrastructure without Terraform, and financial traders wouldn't execute algorithms without backtesting. Why are marketing teams still risking millions of dollars on fragile spreadsheets? FunnelScript is Marketing-as-Code: a declarative language and simulation engine that tests marketing assumptions in code before spending a single dollar in ad auctions."*

@@ -447,3 +447,20 @@ Resolved as a deliberately test-first feature gap. No unrelated tests were weake
 **Root cause:** Contribution documentation was copied across two repositories with different physical layouts; historical local-machine hyperlinks were retained. The first test's transport-escaped regex validated only that no matches were found, not that the audit ran. A green status without a nonzero observation count was insufficient evidence.
 
 **Prevention:** Each repository verifies its own canonical Markdown links in CI-compatible standard tools. Keep contributor commands tied to present files and real CLIs, refuse `file:` links in application docs, preserve explicit shipped-versus-proposed labels, and verify example outputs separately against installed artifacts. Link presence does **not** verify external URLs, Markdown anchors, truth of prose, or market-model validity.
+
+
+---
+
+## 19. Bundled Skill Name Drift, Missing Shared Contract and Ignored Build Bloat
+
+**Class:** Developer tooling / vendored skill provenance / misleading artifact size. **Status:** Immediate defects resolved, transitive vendor closure explicitly unverified. **Scope:** `agents/skills/`, `agents/README.md`, `.agents/product-marketing.md` and mirrored research skill bundles.
+
+**Observed:** Each checkout contained 22 primary skills, but four literature-search directories used underscores while their own frontmatter declared hyphenated names. The academic-paper entrypoint linked to a missing shared language-pair registry. J-Space carried an unused archive of its already extracted content. Local `du` showed roughly 48 MiB of `agents/` data, although the tracked skill tree was about 5.7 MiB; 38.3 MiB per checkout was ignored Rust `target/` output.
+
+**Hypotheses:** (A) The bundle was heavy because of tracked distribution assets; (B) it was mostly regenerable ignored compiler output. `git ls-files`, `git check-ignore`, direct size measurements and the successful manifest-scoped `cargo clean` corroborated B. A separate path hypothesis predicted skill loaders may reject mismatched directory/frontmatter names, independently confirmed by the official Agent Skills format specification.
+
+**RED -> interim GREEN -> RED -> final GREEN:** New `tests/test_skill_bundle.py` initially reported **six failures** per repository: four name mismatches, one missing file link and one duplicate archive. After directory/index/archive repairs, an interim focused run passed, but an independent full-suite rerun still failed on `academic-paper/SKILL.md:622` in both checkouts. The registry existed under `academic-paper/references/`, while the entrypoint still pointed to absent `../shared/output_language_pair.md`; the registry's guide link also ascended into a non-existent `academic-paper/` level. Correcting the two paths yielded app focused **4 passed, 58 subtests passed**, app full **219 passed, 58 subtests passed**, research full **5 passed**, and Bun Web **1 passed**. No existing test assertion was weakened.
+
+**Remediation:** Moved four tracked skill directories with Git, updated discovery names, removed the duplicate ZIP, and cleaned ignored Cargo artifacts using its exact manifest. Added a narrow registry derived from the original research-skill contract; documented that the broader academic-paper suite still references upstream shared protocols not fully vendored. Corrected the internal product-marketing note's false present-tense WASM, `fpm`, cloud and economic-outcome claims.
+
+**Prevention and limits:** Treat an intermediate GREEN as provisional until the final tree has been retested; validate the entrypoint-to-registry and registry-to-guide edges from their actual containing directories. Assert `name == directory`, a 22-skill index, direct resource existence, and no duplicate ZIP. Distinguish on-disk generated sizes from committed bytes. Do not prune nested tools, legal notices, datasets or tests based only on apparent duplication. The current checker does not validate transitive upstream dependencies, external URLs, license compatibility or actual model-agent behavior; OOTB-028 records that possible future gate.
