@@ -18,6 +18,7 @@ This index categorizes all engineering failures, debugging breakthroughs, and re
 | **FL-008** | [Interactive CLI Subprocess Deadlock](runtime-and-types.md#4-interactive-cli-subprocess-deadlock-in-background-tasks) | DevOps & Tooling | **Resolved** | Interactive terminal prompts inside headless subshells |
 | **FL-009** | [Conflating Model Assumptions with Language Axioms](architecture-and-domain-boundaries.md#1-conflating-model-assumptions-with-language-axioms) | Architecture & Scope | **Resolved** | Hardcoding e-commerce rules as universal compiler constraints |
 | **FL-010** | [GitHub REST API Org Provisioning Block](architecture-and-domain-boundaries.md#2-github-rest-api-prohibition-on-personal-account-org-provisioning) | DevOps & Tooling | **Resolved** | Third-party REST API restricts org creation to web browser UI |
+| **FL-011** | [New Module Collection Failure Before Behavioral RED](testing-and-verification.md#5-new-module-api-causing-pytest-collection-failure-before-behavioral-red) | Testing & Verification | **Resolved** | Bootstrap an executable API contract before counting behavior-level RED |
 
 ---
 
