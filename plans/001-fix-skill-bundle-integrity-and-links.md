@@ -25,7 +25,7 @@ Four skill directory renames and removal of a redundant archive have already bee
 - Four `literature_search_*` directories were staged for Git renames to matching `literature-search-*` names. `agents/skills/j-space/Archive.zip` deletion is staged. `agents/README.md` has local changes.
 - `tests/test_skill_bundle.py` exists as an untracked conformance test. Research `spec/skill-bundle-v0.md` and `evals/skill-bundle-v0.md` also exist as untracked material; preserve, don't regenerate.
 - Research H-B1 through H-B4 and DEC-035 govern the 22-skill primary entrypoint set. Vendor shared files outside this bundle are not implied to be fully available.
-- Fresh app `uv run pytest -q`: **218 passed, 1 failed**. Research `python3 -m unittest discover -s tests -v`: **3 passed, 1 failed**. The one failed subtest in both is `academic-paper` line 622.
+- Pre-repair app `uv run pytest -q`: **218 passed, 1 failed**. Research `python3 -m unittest discover -s tests -v`: **3 passed, 1 failed**. The one failed subtest in both is `academic-paper` line 622.
 - **H-B2:** every concrete local skill entrypoint link resolves to a shipped file. Falsifier: any `destination.is_file()` failure.
 - **Invariant:** primary entrypoint count/names equal index and `name` frontmatter; no deleted script or missing reference from the name cleanup.
 
@@ -40,7 +40,7 @@ Four skill directory renames and removal of a redundant archive have already bee
 1. **Inspect existing work, do not repeat it:** run `git status --short -- agents/skills/ agents/README.md` in each repo. Check all four target directories and all 22 SKILL entrypoints. Expected: staged renames/removal remain intact; no unplanned delete. If another process is actively editing the same files, STOP.
 2. **Fix the actual entrypoint link:** change only the referenced target in `agents/skills/academic-paper/SKILL.md:622` to `references/output_language_pair.md`, relative to the SKILL file. Confirm the referenced registry exists, preserves the intended default, and links to `abstract_writing_guide.md` with a path valid from its own directory. The registry already exists; do not duplicate it under another tree.
 3. **Run focused contract tests:** application `uv run pytest tests/test_skill_bundle.py -v` expected exit 0 with all tests/subtests passing; research `python3 -m unittest discover -s tests -v` expected exit 0 with 4 top-level tests. Record actual totals, not old expected counts.
-4. **Run application full suite:** `uv run pytest -q` expected exit 0. Current known result is one failure, so this must change after the link repair. Ensure `git status --short` has no unrelated changes introduced by this card.
+4. **Run application full suite:** `uv run pytest -q` expected exit 0. The pre-repair baseline had one failure; the final GREEN receipt appears below. Ensure `git status --short` has no unrelated changes introduced by this card.
 5. **Synchronize the existing evidence, not fictional success:** update research `evals/skill-bundle-v0.md` with commands and results if currently stale. The implementation executor should reconcile the existing research trilogy, app `docs/MASTER_PLAN.md`, and `failure-lessons/` if their completion claims contradict observed test state, without overwriting concurrent user writing.
 
 ## Test plan and done criteria

@@ -16,7 +16,7 @@
 
 ## Why this matters
 
-The public tag `v0.2.0a1` was independently installed and tested, but a contributor's clean first-run experience is not yet measured and `plans/001` currently blocks a green local source suite. A credible next preview needs honest docs, reproducible artifacts and failure reports from outside the maintainer's checkout, not an invented confidence score.
+The public tag `v0.2.0a1` was independently installed and tested, and phase 001 now has green local source suites in both repositories. A contributor's independent clean first-run experience is not yet measured. A credible next preview needs honest docs, reproducible artifacts and failure reports from outside the maintainer's checkout, not an invented confidence score.
 
 ## Observed state and hypothesis
 
@@ -53,4 +53,4 @@ The public tag `v0.2.0a1` was independently installed and tested, but a contribu
 
 ## STOP and maintenance
 
-STOP if tests are still failing from 001, the version SHA mismatches documentation, the environment cannot support a clean install, or distribution requires credentials. Do not modify `v0.2.0a1` retroactively; new behavior requires a distinct future version chosen by the maintainer.
+STOP if the verified phase 001 baseline regresses, the version SHA mismatches documentation, the environment cannot support a clean install, or distribution requires credentials. Do not modify `v0.2.0a1` retroactively; new behavior requires a distinct future version chosen by the maintainer.
