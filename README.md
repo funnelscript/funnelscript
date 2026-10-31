@@ -1,0 +1,122 @@
+# FunnelScript
+
+> **FunnelScript:** A Declarative Domain-Specific Language (DSL) and Stochastic Agent-Based Simulation Runtime for Marketing Systems Engineering.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/)
+
+FunnelScript replaces informal marketing spreadsheets and vague whiteboard diagrams with mathematically verified, executable state machines. It compiles campaign topologies into an Abstract Syntax Tree (AST), enforces economic conservation invariants at compile time, and runs multi-scale Monte Carlo agent-based simulations prior to capital deployment.
+
+---
+
+## Key Features
+
+* **Funnel-as-Code (Declarative Syntax):** Write campaigns in high-level declarative syntax or structured JSON intermediate representations.
+* **Compile-Time Static Type-Checking:** Guarantees audience mass balance, budget non-negativity, and unreachable node detection at $t=0$.
+* **Multi-Scale Discrete-Event Engine:** Simulates click interactions in seconds, abandonment latency in hours, and revenue settlement across days without memory race conditions.
+* **Cash Ruin Probability ($P(\text{Insolvency})$):** Identifies working-capital freezes caused by payment processor payout delays ($\Delta_{\text{settle}}$), even for strategies with theoretical high ROAS.
+* **Discount Cannibalization Telemetry:** Detects margin erosion when loyal buyers intentionally abandon carts to harvest automated incentives.
+
+---
+
+## Installation
+
+FunnelScript is built with Python 3.12+ and managed via [`uv`](https://github.com/astral-sh/uv).
+
+```bash
+git clone https://github.com/funnelscript/funnelscript.git
+cd funnelscript
+uv sync
+```
+
+---
+
+## Quick Start
+
+### 1. Validate a Strategy File
+Verify that all audiences, touchpoints, and flow paths satisfy domain invariants:
+
+```bash
+uv run main.py compile examples/black_friday_2026.json
+```
+
+### 2. Run Stochastic Monte Carlo Simulation
+Execute $M=100$ trials across $50,000$ synthetic consumer agents:
+
+```bash
+uv run main.py simulate examples/black_friday_2026.json --trials 100 --agents 50000
+```
+
+---
+
+## Sample Syntax (`.fnl`)
+
+```hcl
+strategy ECommerce_Black_Friday_2026 {
+  metadata {
+    author = "Marketing Engineer";
+    currency = "USD";
+  }
+
+  entities {
+    budget main_budget {
+      total = 25000;
+      max_cpc = 1.20;
+    }
+
+    audience aud_01 {
+      type = "cold";
+      size = 500000;
+      affinity = 0.55;
+      price_sensitivity = 0.40;
+      fomo = 0.70;
+    }
+
+    touchpoint tp_meta_ads {
+      type = "paid_traffic";
+      platform = "Meta";
+      base_cpc = 0.45;
+      creative_score = 0.85;
+    }
+
+    touchpoint tp_landing_page {
+      type = "conversion_surface";
+      conversion_rate = 0.045;
+    }
+
+    touchpoint tp_cart_email {
+      type = "retargeting_channel";
+      medium = "Email";
+    }
+  }
+
+  flow {
+    trigger TrafficDrive from aud_01 via tp_meta_ads to tp_landing_page;
+  }
+
+  simulate {
+    agents = 50000;
+    duration = 14days;
+    trials = 100;
+  }
+}
+```
+
+---
+
+## Running the Test Suite
+
+```bash
+uv run pytest -v
+```
+
+---
+
+## Research & Foundations
+
+For the theoretical paper, formal EBNF grammar, and mathematical proofs, see our sister repository:
+👉 [funnelscript/funnelscript-research](https://github.com/funnelscript/funnelscript-research)
+
+## License
+
+MIT License.
