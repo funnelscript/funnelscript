@@ -29,7 +29,9 @@
 | **DEC-019** | [Domain-Neutral Event Kernel v0 and Inert Effect Intents](#dec-019-domain-neutral-event-kernel-v0-and-inert-effect-intents) | 2026-10-31 | **Accepted** | Executable substrate for DEC-008/012/013 without domain coupling |
 | **DEC-020** | [Dual Distribution Model (Zero-Install NPX/Bunx & Isolated Python Tooling)](#dec-020-dual-distribution-model-zero-install-npxbunx--isolated-python-tooling) | 2026-10-31 | **Accepted** | Frictionless DX across marketing technologists (Node) and ML engineers (Python) |
 | **DEC-021** | [IDE Ecosystem Integration via Language Server Protocol (LSP)](#dec-021-ide-ecosystem-integration-via-language-server-protocol-lsp) | 2026-10-31 | **Accepted** | Real-time in-editor AST linting and red squiggly error detection in VS Code/Cursor |
-| **DEC-020** | [Contextual World Declarations and Strict Primitive State Typing](#dec-020-contextual-world-declarations-and-strict-primitive-state-typing) | 2026-10-31 | **Accepted** | Additive language syntax and typed AST without marketing schema dependency |
+| **DEC-022** | [Contextual World Declarations and Strict Primitive State Typing](#dec-022-contextual-world-declarations-and-strict-primitive-state-typing) | 2026-10-31 | **Accepted** | Additive language syntax and typed AST without marketing schema dependency |
+| **DEC-023** | [Formal 4-Pillar Documentation Architecture (Docs as Code)](#dec-023-formal-4-pillar-documentation-architecture-docs-as-code) | 2026-10-31 | **Accepted** | Knowledge scaffolding across tutorials, specs, Bayesian data, and anti-patterns |
+| **DEC-024** | [The Modular Library, Framework, and Package Manager Ecosystem (fpm)](#dec-024-the-modular-library-framework-and-package-manager-ecosystem-fpm) | 2026-10-31 | **Accepted** | Strategy reusability, business frameworks, industry benchmarks, and fpm registry |
 
 ---
 
@@ -278,7 +280,7 @@
 
 ---
 
-### DEC-020: Contextual World Declarations and Strict Primitive State Typing
+### DEC-022: Contextual World Declarations and Strict Primitive State Typing
 * **Status:** Accepted as an additive compiler milestone implementing the already established DEC-008/010 language-core separation.
 * **Research Anchor:** Cardelli and Wegner (1985) on subtyping; Pierce (2002) on type judgments; Pydantic v2 discriminated AST unions. See `spec/world-declarations-v0.md`.
 * **Falsifiable Hypotheses:** H-W1 neutral parsing; H-W2 exact primitive type/uniqueness checking; H-W3 agent-to-entity AST subtyping; H-W4 backward compatibility and blocked unsupported world simulation.
@@ -286,3 +288,29 @@
 * **Decision:** Support a top-level `world Name { entity ... agent ... }` source form with explicit `state name: type = literal;` fields. Treat the four new declaration words as contextual keywords, retaining their legacy identifier status. Use strict `int`, `float`, `bool`, `string` literal typing without coercion in v0.
 * **Compatibility Boundary:** Keep legacy `strategy` AST and marketing simulator unchanged. A world can be statically checked, but simulation is explicitly unsupported until world transitions and runtime construction exist.
 * **Consequences:** A real, testable syntax-to-AST and type-checking route exists without inventing prebuilt market Worlds. Declaring an agent without behavior is not evidence of autonomy, and static typing is not evidence of predictive accuracy.
+
+---
+
+### DEC-023: Formal 4-Pillar Documentation Architecture (Docs as Code)
+* **Status:** Accepted
+* **Context:** A programming language cannot scale or establish developer adoption without authoritative, structured documentation bridging mathematical modeling and practical growth engineering.
+* **Decision:** Standardize the FunnelScript documentation ecosystem (`docs.funnelscript.org`) into four canonical knowledge pillars:
+  1. **The Getting Started Guide:** Net-new onboarding, CLI installation (`uv tool`, `pipx`, `npx`), IDE setup, and initial campaign compilation.
+  2. **The Language Reference:** Strict syntactic and semantic specifications of all language blocks, types, and temporal keywords.
+  3. **The Bayesian & Simulation Guide:** Mathematical documentation of PyMC-Marketing posterior calibration, adstock decay ($\lambda$), Hill half-saturation ($K$), and Monte Carlo risk interpretation.
+  4. **The Marketing Anti-Patterns Handbook:** Compiler diagnostic manual displaying side-by-side "Bad Code vs. Good Code" comparisons for attribution cycles, audience mass leaks, and liquidity cliffs.
+* **Rationale:** Structures knowledge by distinct user intent and expertise levels while integrating automated docstring generation via modern SSG platforms (Mintlify / Fumadocs / MkDocs Material).
+* **Consequences:** Documentation is maintained as versioned markdown files directly within the repository under continuous CI verification.
+
+---
+
+### DEC-024: The Modular Library, Framework, and Package Manager Ecosystem (fpm)
+* **Status:** Accepted
+* **Context:** Requiring developers to author recurring marketing flows (e.g. SaaS trial-to-paid, abandoned cart recovery, multi-channel attribution) from scratch impairs adoption and development velocity.
+* **Decision:** Establish a multi-tiered package and code-sharing architecture for FunnelScript:
+  1. **Libraries (`libs`):** Modular, plug-and-play components (`fs/channels/meta`, `fs/audiences/saas`) providing pre-modeled kinetics and calibrated psychographic vectors.
+  2. **Frameworks (`frameworks`):** Holistic business-model templates (`GrowthEngine`, `OmniChannel`) enforcing end-to-end structural invariants via Inversion of Control.
+  3. **Package Manager (`fpm`):** The FunnelScript Package Manager managing dependency resolution, semantic versioning, and distribution of verified open-source and commercial strategy libraries.
+  4. **Built-in Industry Benchmarks:** Standardized baseline parameter libraries (`fs/benchmarks/ecommerce/fashion`) enabling Day-1 simulation for organizations lacking proprietary PyMC historical data.
+* **Rationale:** Transforms FunnelScript from a syntax compiler into a global, extensible open-source marketing ecosystem with reusable, composable strategy primitives.
+* **Consequences:** The compiler must support module import resolution (`import "path" as Alias`), dependency lockfiles (`funnelscript.lock`), and decentralized registry publishing.

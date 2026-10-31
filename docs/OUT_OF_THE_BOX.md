@@ -257,6 +257,34 @@ Marketing strategy documents are typically modified in spreadsheets without code
 
 ---
 
+## 17. Algorithmic Strategy Marketplace & Decentralized Strategy Registry (`fpm`) (OOTB-017)
+
+### The Concept
+Top growth hackers, media agencies, and research econometrics labs develop proprietary multi-step marketing architectures (e.g. viral referral loops, high-ticket B2B account acquisition funnels). Currently, these are kept as agency trade secrets or shared via static PDF playbooks.
+
+### Proposed Mechanism
+* Build the **`fpm` Strategy Registry** (`registry.funnelscript.org`).
+* Agencies can publish verified, encrypted FunnelScript libraries and frameworks:
+  * **Open-Source Strategy Libs:** Free community blocks (`fs/channels/meta`, `fs/audiences/ecom`).
+  * **Commercial Strategy Packages:** Paid algorithmic strategies where buyers license access to pre-calibrated behavioral funnels with verified Monte Carlo performance certificates.
+  * **Strategy Verification Badges:** Packages receive automated CI test verification badges confirming zero audience leaks, bounded budget gas consumption, and empirical calibration status.
+* **Future Hypothesis ($H_{\text{marketplace}}$):** *A public package registry accelerates industry-wide campaign iteration velocity by $10\times$, standardizing marketing systems into composable, reusable open-source primitives.*
+
+---
+
+## 18. Interactive In-Doc Simulation Sandboxes (Docs as Executable Labs) (OOTB-018)
+
+### The Concept
+Static documentation websites show code snippets that readers must manually copy and paste into local editors. For FunnelScript, documentation pages should serve as live, executable simulation laboratories.
+
+### Proposed Mechanism
+* Embed client-side WebAssembly (WASM) simulation runners directly inside Fumadocs/Mintlify MDX documentation pages.
+* When a reader reads about "Saturating Ad Margins and Ad Fatigue", the documentation embeds an interactive `.fnl` code block alongside live slider controls (Budget, Creative Quality, Adstock Half-Life $\lambda$).
+* The browser runs $10,000$ synthetic agents in real time via WebAssembly in $< 30\text{ms}$, dynamically plotting live conversion curves, ROAS distributions, and cash survival graphs directly within the documentation page.
+* **Future Hypothesis ($H_{\text{doclab}}$):** *Executable documentation laboratories increase developer comprehension of complex stochastic marketing phenomena by $> 60\%$ compared to static code examples.*
+
+---
+
 ## Promotion Pipeline & Tracking
 
 | Idea ID | Title | Domain | Maturity | Next Milestone |
@@ -277,7 +305,8 @@ Marketing strategy documents are typically modified in spreadsheets without code
 | **OOTB-014** | SMT Formal Verification (Z3) | Formal Methods / SMT Solvers | Conceptual | Model FunnelScript state machine in Z3 |
 | **OOTB-015** | In-Editor Monte Carlo Co-Pilot | IDE Tooling / WebAssembly | Conceptual | Prototype WASM micro-batch runner |
 | **OOTB-016** | Headless CI/CD PR Risk Bot | DevOps / CI Automation | Seeded | Draft GitHub Action workflow contract |
-
+| **OOTB-017** | Algorithmic Strategy Registry | Package Management / Registry | Conceptual | Draft package metadata & registry spec |
+| **OOTB-018** | Executable In-Doc Sandboxes | Documentation / WebAssembly | Conceptual | Prototype WASM simulator embedded in MDX |
 
 ---
 
@@ -289,4 +318,4 @@ The domain-neutral event kernel in `spec/event-kernel-v0.md` establishes only a 
 
 ## Frontier Status Note: Typed Worlds Are Not Autonomous Digital Twins (2026-10-31)
 
-DEC-020 adds only declarative `world`, `entity`, `agent`, and typed `state` AST nodes. It does not generate synthetic populations, cognitive agents, adaptive behavior, or calibrations. The speculative OmniTwin council (OOTB-004), twin-universe testing (OOTB-006), capability sandboxing (OOTB-010), and event replay (OOTB-011) remain future programs. Any claim that type-correct world source predicts the real market must be rejected until empirical out-of-sample validation exists.
+DEC-022 adds only declarative `world`, `entity`, `agent`, and typed `state` AST nodes. It does not generate synthetic populations, cognitive agents, adaptive behavior, or calibrations. The speculative OmniTwin council (OOTB-004), twin-universe testing (OOTB-006), capability sandboxing (OOTB-010), and event replay (OOTB-011) remain future programs. Any claim that type-correct world source predicts the real market must be rejected until empirical out-of-sample validation exists.

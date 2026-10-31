@@ -690,6 +690,120 @@ The centerpiece of modern developer experience is the **Language Server Protocol
 
 ---
 
+## Debate 13: Documentation Architecture — The 4 Knowledge Pillars, Docs as Code, and Modern Developer Portals
+
+### 1. The Critical Role of Documentation in Programming Languages
+A programming language cannot survive, scale, or attract a thriving community without world-class documentation. In programming, code is an abstract medium; developers rely on documentation not merely as an afterthought, but as the primary user interface and instruction manual of the ecosystem.
+
+Because FunnelScript bridges **Mathematical Computer Science** and **Advanced Quantitative Marketing**, its documentation must be unique: it must simultaneously teach software engineers how to model marketing dynamics and teach growth architects how to think in formal state machines.
+
+### 2. The 4-Pillar Documentation Architecture (`docs.funnelscript.org`)
+The official documentation portal must be partitioned into four distinct, self-contained knowledge pillars tailored to specific user personas:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                   FunnelScript Developer Portal                        │
+│                     (docs.funnelscript.org)                            │
+└───────┬───────────────┬────────────────────────┬───────────────┬───────┘
+        │               │                        │               │
+        ▼               ▼                        ▼               ▼
+┌───────────────┐ ┌──────────────────┐ ┌──────────────────┐ ┌───────────────┐
+│ 1. Getting    │ │ 2. Language      │ │ 3. Bayesian &    │ │ 4. Anti-Slop  │
+│    Started    │ │    Reference     │ │    Simulation    │ │    Handbook   │
+├───────────────┤ ├──────────────────┤ ├──────────────────┤ ├───────────────┤
+│ • Onboarding  │ │ • Grammar EBNF   │ │ • PyMC Bridge    │ │ • Mass Leaks  │
+│ • CLI Install │ │ • Block Specs    │ │ • Posteriors (λ) │ │ • Cycle Traps │
+│ • First Hello │ │ • Type System    │ │ • Monte Carlo    │ │ • Bad vs Good │
+│   Campaign    │ │ • Wait(4h) Delays│ │ • VaR / CVaR     │ │   Code Diffs  │
+└───────────────┘ └──────────────────┘ └──────────────────┘ └───────────────┘
+```
+
+#### Pillar 1: The Getting Started Guide (Tutorials & Onboarding)
+* **Audience:** Net-new developers, marketing analysts, growth practitioners.
+* **Content:** Step-by-step installation guides (via `uv tool`, `pipx`, or zero-install `npx`), VS Code / Cursor IDE configuration, and writing the very first `hello_world_campaign.fnl`.
+
+#### Pillar 2: The Language Reference (Core Specifications)
+* **Audience:** Senior software engineers, marketing systems architects, compiler contributors.
+* **Content:** Complete syntactic and semantic breakdown of every keyword and block. Formal definitions for `audience` attributes (bounded $[0, 1]$ floats), touchpoint budgets, transition probability formulas, and temporal delays (e.g. `wait(4h)`).
+
+#### Pillar 3: The Bayesian & Simulation Guide (Data & Statistics)
+* **Audience:** Data scientists, econometricians, performance marketers.
+* **Content:** Exhaustive documentation of the `pymc-marketing` bridge. Details how empirical historical sales data is converted into posterior probability distributions (adstock decay $\lambda$, Hill saturation $K$), and how the vectorized Monte Carlo engine samples synthetic agent populations from these curves.
+
+#### Pillar 4: The Marketing Anti-Patterns Handbook (Linter Specifications)
+* **Audience:** Campaign architects, media buyers, CMOs.
+* **Content:** The compiler's diagnostic dictionary. Details common strategic flaws caught by the static semantic analyzer with side-by-side "Bad Code vs. Good Code" comparisons:
+  * **Infinite Attribution Loops:** Closed routing cycles trapping users indefinitely.
+  * **Audience Mass Leaks:** Missing fallback branches causing synthetic customer evaporation.
+  * **Liquidity Starvation Cliffs:** Misaligned settlement clearance latency ($\Delta_{\text{settle}}$) causing cash burn.
+
+### 3. Static Site Generator (SSG) Tooling & Docs as Code
+The documentation lives directly in the git repository as versioned Markdown/MDX files (`docs/`):
+* **Modern Developer Platforms (Mintlify / Fumadocs):** Recommended for customer-facing documentation portals. Supports interactive code playgrounds, collapsible parameter tables, visual callouts, and dark-mode ergonomics out of the box.
+* **Python-Native Docstring Generation (MkDocs Material / Sphinx):** Used for autogenerating API references directly from Python AST model docstrings during CI builds.
+
+---
+
+## Debate 14: The Modular Package Ecosystem — Libraries, Strategic Frameworks, and the FunnelScript Package Manager (`fpm`)
+
+### 1. The Reusability Invariant: Shifting from Coding to Architectural Assembly
+In traditional software engineering, developers do not write cryptography primitives or HTTP servers from scratch; they import verified libraries (`npm install`, `cargo add`). In marketing systems engineering, developers should not have to write the mathematical logic for a SaaS trial-to-paid funnel or an e-commerce cart abandonment sequence from scratch.
+
+FunnelScript introduces a two-tier package ecosystem:
+1. **Libraries (`libs`):** Modular, plug-and-play building blocks.
+2. **Frameworks (`frameworks`):** Holistic business-model blueprints enforcing structural invariants via Inversion of Control.
+
+```
+┌────────────────────────────────────────────────────────┐
+│     1. Visual GUI Canvas (Drag-and-Drop Studio)        │ (Executives & Marketers)
+├────────────────────────────────────────────────────────┤
+│    2. Frameworks & Libraries (GrowthEngine, fs/meta)   │ (Reusable Strategy Logic)
+├────────────────────────────────────────────────────────┤
+│     3. Core DSL Compiler & Static Semantic Linter      │ (Invariants & Guardrails)
+├────────────────────────────────────────────────────────┤
+│      4. Stochastic Simulation Runtime (SIMD Arrays)    │ (Virtual Population Engine)
+├────────────────────────────────────────────────────────┤
+│        5. PyMC Bayesian Calibration Interface          │ (Empirical Historical Grounding)
+└────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 2. Libraries vs. Frameworks
+
+#### A. FunnelScript Libraries (`libs`)
+Modular packages providing specialized audience profiles, channel kinetics, or behavioral routines:
+* `fs/channels/meta`: Pre-modeled mathematical equations for Meta Ads auction pricing, bidding thresholds, and historical ad fatigue decay rates ($\kappa$).
+* `fs/audiences/saas`: Calibrated psychographic vectors for B2B enterprise buyers (high price sensitivity $\beta$, low FOMO $\gamma$).
+
+```funnelscript
+import "fs/channels/meta" as Meta
+import "fs/audiences/ecom" as EcomAudience
+
+strategy HolidayCampaign {
+  touchpoint ad_channel {
+    use = Meta.ConversionAd
+    creative_quality = 0.88
+  }
+  
+  audience target = EcomAudience.ImpulsiveBuyers(size: 50000)
+}
+```
+
+#### B. FunnelScript Frameworks (`frameworks`)
+Holistic architecture templates that dictate the end-to-end skeleton of a business model, enforcing mandatory stages:
+* `GrowthEngine (B2B SaaS Framework):` Forces the developer to implement `FreeTrial`, `ProductQualifiedLead`, and `EnterpriseSales` stages. Pre-packaged with compile-time linter invariants ensuring trial-to-paid customer mass can never evaporate.
+* `OmniChannel (E-Commerce Scale Framework):` Coordinates multi-touchpoint attribution and dynamically rebalances ad spend across Google, Meta, and TikTok based on real-time marginal returns.
+
+---
+
+### 3. The FunnelScript Package Manager (`fpm`)
+Much like `npm` for Node.js, `cargo` for Rust, and `terraform registry` for cloud modules, FunnelScript introduces **`fpm`**:
+* **Community Strategy Ecosystem:** Allows top growth marketing agencies, researchers, and media buyers to publish, version, and share verified marketing strategies.
+* **Built-in Industry Benchmarks:** Early-stage startups lacking proprietary historical data for PyMC-Marketing can import benchmark libraries (e.g. `fs/benchmarks/ecommerce/fashion`) to populate virtual agents with aggregated industry-standard psychographic distributions, enabling realistic simulation on Day 1.
+
+---
+
 ## Actionable Operational Checklist
 
 | # | Domain | Actionable Specification | Priority | Status |
@@ -717,6 +831,10 @@ The centerpiece of modern developer experience is the **Language Server Protocol
 | **21** | **TextMate Grammar (.tmLanguage)**| Author TextMate grammar syntax highlighter for `.fnl` in VS Code and Cursor. | P2 | **Roadmap** |
 | **22** | **Language Server Protocol (LSP)**| Implement `pygls`-based background language server exposing real-time AST lint diagnostics. | P2 | **Roadmap** |
 | **23** | **VS Code Extension (.vsix)** | Package official VS Code / Cursor extension integrating TextMate grammar, LSP, and snippets. | P2 | **Roadmap** |
+| **24** | **Documentation Portal (Docs as Code)**| Author Fumadocs/Mintlify portal structure covering Getting Started, Specs, Bayesian Guide, and Anti-Patterns. | P2 | **Roadmap** |
+| **25** | **Import Resolution in Parser** | Extend AST parser to support `import "<path>" as <Alias>` module statements. | P1 | **Next Phase** |
+| **26** | **Standard Library Package (`std::marketing`)**| Implement first-party libraries (`fs/channels/meta`, `fs/audiences/ecom`). | P2 | **Roadmap** |
+| **27** | **Package Manager Architecture (`fpm`)**| Specify lockfile (`funnelscript.lock`), registry API, and semantic versioning resolver for `fpm`. | P2 | **Roadmap** |
 
 
 
