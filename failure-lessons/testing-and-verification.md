@@ -376,3 +376,32 @@ When a required development command is not on PATH, resolve a verified local bin
 ### Status
 
 Resolved for this session; no repository runtime or system PATH mutation was necessary.
+
+
+---
+
+## 15. World Import Grammar Rejected Source Modules Before Resolver Tests
+
+### Scope and hypothesis
+
+The first Marketing Standard Library milestone requires the existing World parser to accept contextual source `import` statements while the legacy source paths continue to work. The TDD contract predicts rejection before the parser is extended.
+
+### Observed failure signature
+
+The first `uv run pytest tests/test_world_modules.py -q --tb=short` yielded **20 failed, 1 passed**. Every new import path reached `Parser.parse_world` and failed with `Expected entity or agent declaration` before module resolution or safety validation. The existing language control passed. This is expected **feature-absence RED**, not a regression in the existing World parser.
+
+### Causal mechanism and alternatives
+
+The previous grammar permitted only `entity` and `agent` in a World body. The lexer already classified `import` as an identifier, so introducing a new global token was unnecessary. A file-access or wheel-packaging explanation could not account for a failure at the first declaration keyword, before any import path was examined.
+
+### Intervention
+
+Added contextual import parsing, a bounded path resolver, an alias-based one-export compiler expansion, a packaged `.fnl` marketing module and package-data metadata. The parser still emits standard World AST declarations, preserving the existing runtime.
+
+### Verification and lessons
+
+Focused tests progressed to 21 passing and then 23 after adjacent falsification. Standalone imports, duplicate aliases, invalid paths, symlink traversal, cyclic modules, malformed exports, TypeChecker compatibility, two independent aliases and external-CLI execution were all checked. The package wheel included the library source and the isolated install smoke passed. **Prevention:** for parser extensions, first distinguish a missing grammar production from downstream resolver/runtime failures; do not count many same-signature RED tests as independent root causes.
+
+### Status
+
+Resolved as a deliberately test-first feature gap. No unrelated tests were weakened or removed.

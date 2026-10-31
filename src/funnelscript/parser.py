@@ -28,21 +28,51 @@ class Parser:
 
     @staticmethod
     def from_file(file_path: str | Path) -> StrategyAST | WorldAST:
-        """Loads and parses a legacy strategy or a domain-neutral world."""
-        path = Path(file_path)
-        if not path.exists():
-            raise FileNotFoundError(f"Strategy file not found: {path}")
+        """Load and validate a strategy or compile a World with local imports."""
+        return Parser._load_file(Path(file_path), ())
 
-        content = path.read_text(encoding="utf-8")
-        if path.suffix.lower() == ".json":
+    @staticmethod
+    def _load_file(
+        path: Path, ancestors: tuple[Path, ...]
+    ) -> StrategyAST | WorldAST:
+        resolved = path.resolve()
+        if resolved in ancestors:
+            raise ParserError("Cyclic World module import")
+        if len(ancestors) >= 16:
+            raise ParserError("World module import depth limit exceeded")
+        if not resolved.is_file():
+            raise FileNotFoundError(f"Source file not found: {path}")
+        content = resolved.read_text(encoding="utf-8")
+        if resolved.suffix.lower() == ".json":
             return Parser.from_json_str(content)
-
-        lexer = Lexer(content)
-        tokens = lexer.tokenize()
+        tokens = Lexer(content).tokenize()
         parser = Parser(tokens)
         if tokens[0].type == TokenType.IDENTIFIER and tokens[0].value == "world":
-            return parser.parse_world()
+            return parser.parse_world(
+                source_path=resolved, ancestors=ancestors + (resolved,)
+            )
         return parser.parse_strategy()
+
+    @staticmethod
+    def _module_path(reference: str, source_path: Path) -> Path:
+        if reference.startswith("std:"):
+            root = Path(__file__).resolve().parent / "stdlib"
+            fragment = reference.removeprefix("std:")
+        else:
+            root = source_path.parent
+            fragment = reference
+        relative = Path(fragment)
+        if (
+            not fragment or "\\" in fragment or relative.is_absolute()
+            or ".." in relative.parts or relative.suffix != ".fnl"
+        ):
+            raise ParserError("Invalid World module path")
+        resolved = (root / relative).resolve()
+        if not resolved.is_relative_to(root.resolve()):
+            raise ParserError("World module path escapes the allowed directory")
+        if not resolved.is_file():
+            raise ParserError("World module not found")
+        return resolved
 
     def __init__(self, tokens: list[Token]) -> None:
         self.tokens = tokens
@@ -191,21 +221,34 @@ class Parser:
         return steps
 
 
-    def parse_world(self) -> WorldAST:
-        """Parse a standalone domain-neutral world into a typed declaration AST."""
+    def parse_world(
+        self, *, source_path: Path | None = None,
+        ancestors: tuple[Path, ...] = (),
+    ) -> WorldAST:
+        """Parse a World and compile imported one-declaration modules."""
         start = self.expect(TokenType.IDENTIFIER)
         if start.value != "world":
             raise ParserError("Expected world declaration", start)
         name = str(self.expect(TokenType.IDENTIFIER).value)
         self.expect(TokenType.LBRACE)
         declarations: list[dict[str, Any]] = []
+        imports: list[tuple[str, str]] = []
 
         while self.current().type != TokenType.RBRACE:
             if self.current().type == TokenType.EOF:
                 raise ParserError("Unclosed world declaration", self.current())
             kind = self.expect(TokenType.IDENTIFIER)
+            if kind.value == "import":
+                reference = str(self.expect(TokenType.STRING).value)
+                alias_keyword = self.expect(TokenType.IDENTIFIER)
+                if alias_keyword.value != "as":
+                    raise ParserError("Expected 'as' after module path", alias_keyword)
+                alias = str(self.expect(TokenType.IDENTIFIER).value)
+                self.expect(TokenType.SEMICOLON)
+                imports.append((reference, alias))
+                continue
             if kind.value not in ("entity", "agent"):
-                raise ParserError("Expected entity or agent declaration", kind)
+                raise ParserError("Expected entity, agent or import declaration", kind)
             decl_name = str(self.expect(TokenType.IDENTIFIER).value)
             self.expect(TokenType.LBRACE)
             states, events, rules = self._parse_world_members()
@@ -219,6 +262,18 @@ class Parser:
 
         self.expect(TokenType.RBRACE)
         self.expect(TokenType.EOF, "Unexpected content after world declaration")
+        if imports and source_path is None:
+            raise ParserError("World module imports require a source file path")
+        for reference, alias in imports:
+            path = self._module_path(reference, source_path)
+            module = self._load_file(path, ancestors)
+            if not isinstance(module, WorldAST):
+                raise ParserError("World module must contain a world declaration")
+            if len(module.declarations) != 1:
+                raise ParserError("World module must export exactly one declaration")
+            imported = module.declarations[0].model_copy(deep=True)
+            imported.name = alias
+            declarations.append(imported.model_dump())
         ast = WorldAST.model_validate({"name": name, "declarations": declarations})
         WorldTypeChecker.check(ast)
         return ast

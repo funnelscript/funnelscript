@@ -429,3 +429,20 @@
 * **Research and falsification:** `spec/stochastic-operators-v0.md` H-S1 through H-S4, `evals/stochastic-operators-v0.md`, 25 focused tests and 183 passing Python tests; the existing Bun tests and build were verified.
 * **Rationale:** Precisely scoped, typed sampling makes synthetic decisions expressible in World code without inventing empirical probabilities or weakening seeded replay.
 * **Limits:** Reproducible execution is not validated predictive fidelity; event-order changes can shift the random stream and downstream draws.
+
+
+---
+
+### DEC-032: Source-Imported World Modules and Initial Marketing Standard Library
+
+* **Status:** Accepted (experimental v0 contract, 2026-10-31)
+* **Context:** Domain-neutral World declarations and stochastic rules exist, but without source-level modules community authors cannot reuse standard marketing abstractions across Worlds. Introducing `campaign` or `conversion` as compiler keywords would contradict DEC-008/010.
+* **Decision:**
+  1. Support contextual `import "reference.fnl" as Alias;` statements inside a World, where `reference` is either a confined relative source path or a packaged `std:marketing/...` path. Compile imports into ordinary one-owner World declarations under the alias, then use the existing type checker and event kernel.
+  2. Restrict the first module contract to **exactly one exported entity or agent**, aliased to one unique owner. Reject duplicate names, cycles, depth beyond 16 imports, non-World content, absent modules, absolute paths, parent traversal and symlink escapes before any runtime state transition.
+  3. Distribute the actual `stdlib/marketing/lead_response.fnl` World source inside the Python wheel. No Python execution, network retrieval, separate scheduler, marketing-only compiler semantics, or new core dependencies are introduced.
+  4. Define the first marketing library as a **single-exposure lead-response journey** with typed Impression/Checkout events, seeded Bernoulli conversion, one scheduled Checkout, and scenario-defined spend/revenue. A second Impression is deliberately ignored. It is not a consumer population model or empirical economic account.
+  5. Treat `cpc`, `order_value`, and `conversion_probability` as user-provided assumptions. Existing float typing checks finiteness, but nonnegative money and real conversion fidelity remain explicit unsolved boundaries.
+* **Research and falsification:** `spec/marketing-stdlib-v0.md` (H-M1 to H-M4), `evals/marketing-stdlib-v0.md` and `tests/test_world_modules.py`. Packaged-wheel smoke runs outside the repository.
+* **Rationale:** Makes marketing reuse a library-author decision while preserving the generic language's parser, semantics, scheduler and type system.
+* **Limits:** No multi-export modules, versioned package registry, source-level parameters, multi-agent financial conservation, cross-owner dispatch, real data calibration, or Live execution authorization.

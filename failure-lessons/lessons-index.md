@@ -22,6 +22,7 @@ This index categorizes all engineering failures, debugging breakthroughs, and re
 | **FL-012** | [World AST Incorrectly Sent to Campaign Linter](architecture-and-domain-boundaries.md#3-dispatching-a-new-typed-world-ast-into-the-legacy-campaign-linter) | Architecture & Scope | **Resolved** | Typed AST dispatch before invoking domain-specific compiler stages |
 | **FL-013** | [Forward AST Union Declaration](testing-and-verification.md#13-forward-ast-type-alias-referencing-a-later-runtime-class) | Testing & Verification | **Resolved** | Module-level union evaluated before new class binding |
 | **FL-014** | [Bun Missing from Shell PATH](testing-and-verification.md#14-bun-installed-but-missing-from-noninteractive-shell-path) | DevOps & Tooling | **Resolved** | Installed Bun binary not included in noninteractive zsh PATH |
+| **FL-015** | [World Import Grammar Feature-Absence RED](testing-and-verification.md#15-world-import-grammar-rejected-source-modules-before-resolver-tests) | Testing & Verification | **Resolved** | Parser previously accepted only entity and agent declarations in World blocks |
 
 ---
 

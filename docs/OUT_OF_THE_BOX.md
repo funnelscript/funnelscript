@@ -422,3 +422,20 @@ A prospective World library could derive independent, reproducible RNG substream
 ### Boundary
 
 Not implemented. DEC-031 intentionally uses one seeded event-order stream. Deriving safe stable identifiers, choosing a portable counter-based PRNG, recording private event traces and enforcing reproducible provenance require separate design and privacy/security review. Variance reduction within a simulator does not establish real-market causal validity.
+
+
+---
+
+## 26. Typed Marketing Library Signatures and Calibrated Extensions (OOTB-026)
+
+### Research idea
+
+Define future source-level library signatures which describe exported owner types, input event contracts, constraints such as nonnegative monetary values, assumed behavioral parameters, calibration provenance and target runtime capabilities. Third-party libraries could be type-checked against a stable interface without hardcoding marketing primitives in the World language.
+
+### Future falsifiable hypothesis
+
+**H-O26:** Compared with untyped source imports, versioned typed signatures detect a higher share of incompatible module upgrades and invalid economic parameter contracts in a preregistered module corpus, without silently widening numeric semantics. Falsified by unresolved incompatibilities, false claims of economic conservation, or equivalent failure rates.
+
+### Boundaries
+
+Not implemented under DEC-032. The current import system exports only one declaration per module and has no registry, semver, signature system, static money refinements, calibration integrations or proof of real-market predictive performance.

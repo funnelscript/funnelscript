@@ -106,6 +106,17 @@ funnelscript run-world examples/guarded_world.fnl --event Counter.Tick@0 --max-e
 
 Expected output: `Counter.value = 3`, `processed_events = 4`, and zero pending events. `when (field OP literal)` evaluates typed primitive state before an event's transitions and local emissions. If false, neither action runs, but the input event is counted.
 
+Example using the packaged Marketing Standard Library:
+
+```bash
+funnelscript check examples/marketing_lead_response.fnl
+funnelscript run-world examples/marketing_lead_response.fnl \
+  --event '{"name":"Prospect.Impression","time":0,"payload":{"cpc":2.0,"conversion_probability":0.7,"order_value":100.0}}' \
+  --seed 1
+```
+
+The source `import "std:marketing/lead_response.fnl" as Prospect;` introduces one reusable single-journey agent as `Prospect` without changing the core grammar's domain neutrality. Seed 1 produces revenue 100.0 and spend 2.0; seed 2 produces revenue 0.0 and spend 2.0. This is an assumption-driven demo, not a market forecast.
+
 Example with a three-event causal chain:
 
 ```bash

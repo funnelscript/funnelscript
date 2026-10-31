@@ -6,7 +6,8 @@
 
 ```ebnf
 WorldFile           ::= "world" Identifier "{" WorldDeclaration* "}" ;
-WorldDeclaration    ::= ("entity" | "agent") Identifier "{" WorldMember* "}" ;
+WorldDeclaration    ::= ("entity" | "agent") Identifier "{" WorldMember* "}"
+                     | "import" StringLiteral "as" Identifier ";" ;
 WorldMember         ::= StateField | EventDeclaration | RuleDeclaration ;
 StateField          ::= "state" Identifier ":" PrimitiveType "=" StateLiteral ";" ;
 EventDeclaration    ::= "event" Identifier "(" EventFieldList? ")" ";" ;
@@ -27,7 +28,7 @@ PayloadReference    ::= "payload" "." Identifier ;
 PrimitiveType       ::= "int" | "float" | "bool" | "string" ;
 ```
 
-The complete lexical grammar lives in `funnelscript-research/spec/grammar.ebnf`. `world`, `entity`, `agent`, `state`, `rule`, `on`, `event`, and `transition` are contextual words, not global reserved tokens. This preserves legacy strategy identifiers.
+The complete lexical grammar lives in `funnelscript-research/spec/grammar.ebnf`. `world`, `entity`, `agent`, `state`, `rule`, `on`, `event`, `transition`, `import`, and `as` are contextual words, not global reserved tokens. This preserves legacy strategy identifiers.
 
 ## Execute a minimal World
 
@@ -131,14 +132,39 @@ Both operators consume precisely one `random.Random.random()` draw per active ev
 
 No sampling is permitted in guards, source emissions, initialization, delays or legacy strategy files. The mechanism represents **specified stochastic assumptions**, not verified empirical conversion likelihoods. See [Stochastic Operators v0](https://github.com/funnelscript/funnelscript-research/blob/main/spec/stochastic-operators-v0.md) and DEC-031.
 
+## Source-imported World libraries (experimental)
+
+World source may import a **single exported entity or agent** from another World file:
+
+```funnelscript
+world HolidayExperiment {
+  import "std:marketing/lead_response.fnl" as Prospect;
+}
+```
+
+This introduces `Prospect` as an ordinary agent, with `Prospect.Impression` as its external event. The imported rules still execute through the same neutral `WorldExecutor`; no marketing keyword or separate marketing runtime was added. The shipped module is `src/funnelscript/stdlib/marketing/lead_response.fnl`. The package wheel includes its source file.
+
+```bash
+uv run main.py check examples/marketing_lead_response.fnl
+uv run main.py run-world examples/marketing_lead_response.fnl \
+  --event '{"name":"Prospect.Impression","time":0,"payload":{"cpc":2.0,"conversion_probability":0.7,"order_value":100.0}}' \
+  --seed 1
+```
+
+The reference case produces `spend=2.0`, `converted=true`, `revenue=100.0`, two processed events and no pending events. Changing only `--seed` to `2` produces `converted=false`, `revenue=0.0`. The `Lead` library models **a single exposure/journey per run**: repeated Impressions are ignored; it is not yet a population or repeated-campaign accounting engine.
+
+Local community imports can use `import "./custom.fnl" as Custom;`. Import resolution is confined to the importing file's directory or to the packaged `std:` namespace. Absolute paths, parent traversal, symlink escapes, cycles, unknown modules, duplicates, or modules with anything other than one exported declaration fail before execution. Direct parser calls without a file path cannot resolve imports.
+
+`cpc` and `order_value` must be provided as finite floats, but **nonnegative monetary bounds are not yet enforced by the generic core**; they remain experiment assumptions. This demonstration is neither a calibrated conversion model nor a finance-valid forecast. See the [v0 Research Contract](https://github.com/funnelscript/funnelscript-research/blob/main/spec/marketing-stdlib-v0.md).
+
 ## Scope and safety boundaries
 
-This World interpreter is distinct from the older marketing-specific `simulate` command, which deliberately rejects World files. World rules now support explicit pseudorandom draws, but do **not** model calibrated consumer psychology, economic constraints, empirical uncertainty, PyMC Marketing, OmniTwin, or the business consequences of tactics by default. Those belong in optional, empirical model layers and future standard libraries. Simulation Mode, Shadow Mode and Live Execution Mode require separate effect and safety contracts before integration.
+This World interpreter is distinct from the older marketing-specific `simulate` command, which deliberately rejects World files. World rules now support explicit pseudorandom draws, but do **not** model calibrated consumer psychology, economic constraints, empirical uncertainty, PyMC Marketing, OmniTwin, or the business consequences of tactics by default. The first source-defined marketing library is illustrative only; calibrated economic and behavioral models belong in separately validated libraries and adapters. Simulation Mode, Shadow Mode and Live Execution Mode require separate effect and safety contracts before integration.
 
 ## Verification
 
 ```bash
-uv run pytest -v tests/test_world_rules.py tests/test_world_emissions.py tests/test_world_guards.py tests/test_world_payloads.py tests/test_world_stochastic.py
+uv run pytest -v tests/test_world_rules.py tests/test_world_emissions.py tests/test_world_guards.py tests/test_world_payloads.py tests/test_world_stochastic.py tests/test_world_modules.py
 uv run pytest -v
 ```
 

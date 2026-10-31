@@ -330,3 +330,16 @@ Every step in this plan complies strictly with [`AGENTS.md`](file:///Users/mamdo
 **Verification:** TDD: 21 failing and 1 passing initial focused tests, first integration NameError fixed, then 25 focused tests passing. Complete Python suite: 183 passed, Bun frontend test: 1 passed, frontend Vite/TypeScript build: passed, wheel and sdist built. Example: `examples/stochastic_world.fnl`, with a repeatable `run-world --seed 42` CLI oracle.
 
 **Remaining gates:** Formal marketing standard library and import/extension interface, stable RNG substream identities for paired counterfactual worlds, realistic agent population primitives, empirical calibration/held-out validation, capability-secured Live/Shadow adapters, launch workflow/CI and published research-preview release artifacts. The language has *stochastic execution* but not *predictive market validation*.
+
+
+---
+
+## Language Core Milestone: Source Modules and First Marketing Standard Library (2026-10-31)
+
+**Research gate:** `funnelscript-research/spec/marketing-stdlib-v0.md` defines H-M1 through H-M4, compile-time single-export module aliasing, import path confinement, cycle controls, seed-stable behavior and one-shot causal event semantics. Decision: DEC-032.
+
+**Implementation:** The World parser accepts contextual `import "path.fnl" as Owner;` statements. Local sources are contained beneath the importing file's directory; packaged `std:` paths load `.fnl` resources under `funnelscript/stdlib`. Import cycles, relative escapes, symlink escapes, missing files and ambiguous exports fail before execution. Imported declarations are compiled into the existing AST and run in the unchanged WorldExecutor. The first Marketing Standard Library entry, `marketing/lead_response.fnl`, handles one typed Impression, sampled conversion, one delayed Checkout and scenario spend/revenue. No marketing keywords or another simulator were introduced.
+
+**Verification:** TDD observed 20 expected missing-feature failures and one legacy pass, then 23 focused module tests passed. The complete Python suite passed all 206 tests on 2026-10-31. Source was included in `uv build` wheel; a clean no-project wheel installation executed the CLI from another directory. Example `examples/marketing_lead_response.fnl` yielded `revenue=100.0` for seed 1 and `0.0` for seed 2 with identical input assumptions.
+
+**Next gates:** Module versioning/signatures, documented constraints and economic refinement types, multi-agent population orchestration, calibrated behaviors with held-out data and integration adapters, CI and early preview packaging. No claim of population-scale market prediction or Live execution arises from one reusable lead unit.

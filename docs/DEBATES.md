@@ -978,3 +978,17 @@ A critical trap in ambitious software projects is delaying release until a massi
 * **Guard boundary:** A false guard consumes no draws, while a degenerate Bernoulli or Uniform *does* consume one draw for stable operator accounting. Invalid runtime parameters fail before drawing.
 * **Evidence:** H-S1 through H-S4, official Python `random()` reproducibility guarantee, and test-level explicit expected-draw traces in `tests/test_world_stochastic.py`.
 * **Unresolved:** Identity-stable streams and common random numbers for causal comparison, cross-runtime portable generators, source-effect authorization, and empirical probability calibration. No strong out-of-sample forecasting claim follows from a pseudorandom stream.
+
+
+---
+
+## Debate 21: Domain Keywords vs Source Modules for Marketing Semantics
+
+**Problem:** FunnelScript needs a recognizable Marketing Standard Library but a neutral mathematical core. Compiler-reserved `campaign` and `conversion` would fix one interpretation of marketing into the language.
+
+* **Option A, hardcoded marketing parser branches:** Easy to demo, but makes users' future market domains depend on one central schema. Rejected.
+* **Option B, executable Python helper library:** Compatible with a Python reference implementation, but privileges host-language constructors over source-level reusable abstractions and is not portable to alternative runtimes.
+* **Option C, source World module imports (accepted v0):** `import "std:marketing/lead_response.fnl" as Prospect;` compiles a normal agent under a new name and then executes unchanged World semantics. The syntax works for local community modules too.
+* **Trade-offs:** One exported declaration per file avoids premature module signatures, import scoping and qualification. Restricted paths prevent traversal, but the system has no registry, version lockfile, package namespace ownership or distribution trust chain.
+* **Economic caveat:** Source-typed float values are not proof of nonnegative CPC or order value. The single-journey demonstration is research code, not a truthful ROAS forecaster or full agent economy.
+* **Falsification:** H-M1 to H-M4 cover alias-equivalent execution, wheel portability, import graph/path safety and deterministic single-journey events. No empirical market claims follow.

@@ -15,7 +15,7 @@ FunnelScript is an evolving research language for expressing stateful event-driv
 * **Static Analysis:** Checks World primitive types and rule contracts; the legacy marketing linter reports topology and budget diagnostics. These checks do not prove real-world economic outcomes.
 * **Discrete-Event World Kernel:** Orders model-authored events, evaluates pre-event transitions, preserves typed payloads and provides seeded replay within the experimental interpreter.
 * **Legacy Marketing Simulation:** Includes model-dependent Monte Carlo scenarios for insolvency and payout delay; outputs depend on supplied assumptions, not verified causal estimates.
-* **Extensible Language Direction:** A small neutral core is intended to host marketing standard libraries and independently calibrated business/market models.
+* **Module Imports and First Marketing Library:** Reuse a typed `.fnl` World agent from the shipped `std:marketing/lead_response.fnl` source module or a local module, under a name chosen by the author. Calibration adapters remain future work.
 
 ---
 
@@ -243,6 +243,29 @@ uv run main.py run-world examples/stochastic_world.fnl \
 ```
 
 With seed 42 and the provided event, the reference interpreter returns `converted=false` and `engagement_score=0.025010755222666936`. Repeating the same scenario and seed reproduces that output. `bernoulli` draws a bool, `uniform` draws a float, and both require exact float parameters. The probability must be in [0,1]; uniform bounds must be finite and ordered. These are **model-specified** probabilities, not estimated market response rates. See the [stochastic specification](https://github.com/funnelscript/funnelscript-research/blob/main/spec/stochastic-operators-v0.md).
+
+---
+
+### Import a Marketing Standard Library agent (experimental)
+
+World projects can now import another `.fnl` module. The built-in Marketing library remains ordinary FunnelScript source, rather than a new set of marketing-specific compiler keywords:
+
+```funnelscript
+world HolidayExperiment {
+  import "std:marketing/lead_response.fnl" as Prospect;
+}
+```
+
+Try the [complete example](examples/marketing_lead_response.fnl):
+
+```bash
+uv run main.py check examples/marketing_lead_response.fnl
+uv run main.py run-world examples/marketing_lead_response.fnl \
+  --event '{"name":"Prospect.Impression","time":0,"payload":{"cpc":2.0,"conversion_probability":0.7,"order_value":100.0}}' \
+  --seed 1
+```
+
+This single-lead journey spends a scenario-defined 2.0, samples a conversion, and schedules a typed Checkout. With seed 1 it reports `converted=true` and `revenue=100.0`; with seed 2 it reports `converted=false` and `revenue=0.0`. These inputs are user assumptions; the language does not infer market probabilities, enforce nonnegative money inputs in this module, or model a customer population yet. Local modules are supported with `import "./local.fnl" as Alias;` (one declaration exported per module in v0). See [Module Import and Marketing Standard Library Research](https://github.com/funnelscript/funnelscript-research/blob/main/spec/marketing-stdlib-v0.md).
 
 ---
 
