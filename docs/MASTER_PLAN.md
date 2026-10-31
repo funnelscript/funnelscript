@@ -317,3 +317,16 @@ Every step in this plan complies strictly with [`AGENTS.md`](file:///Users/mamdo
 **TDD evidence:** Initial 29 focused RED cases, 17 RED after compiler support, 29 GREEN after runtime/CLI, followed by adversarial RED cases for nonfinite numbers and invalid pending messages. 37 focused payload tests and 158 full Python tests pass after the final code mutation; `uv build` produced sdist and wheel. Privacy-specific RED tests eliminated raw event echoes and ambiguous duplicate JSON keys. Example: `examples/payload_world.fnl`.
 
 **Next gates:** Source-level payload comparisons and composite typed guards, seeded probability operators, explicit state-space constraints and model calibration interfaces. Future Shadow/Live actions still require independently audited effect capabilities and external authorization.
+
+
+---
+
+## Language Core Milestone: Seeded Stochastic World Transitions (2026-10-31)
+
+**Research gate:** `funnelscript-research/spec/stochastic-operators-v0.md` formally specifies H-S1 through H-S4, exact source types and parameter boundaries, single-draw accounting, and seeded replay. Accepted ADR: DEC-031.
+
+**Implementation:** `sample bernoulli(float)` and `sample uniform(float,float)` are permitted as typed World transition right-hand expressions. Parameters may refer to literal, same-owner float state, or exact-typed event payload fields. Static literal values are checked at compile time; runtime bounds are checked before consuming entropy. An active sample draws once from the `EventMachine`'s single seeded `random.Random` stream. False guards consume zero draws. Snapshot-atomic assignment and source event-emission semantics are retained. No extra simulator, RNG, model dependency, external adapter or Live effect introduced.
+
+**Verification:** TDD: 21 failing and 1 passing initial focused tests, first integration NameError fixed, then 25 focused tests passing. Complete Python suite: 183 passed, Bun frontend test: 1 passed, frontend Vite/TypeScript build: passed, wheel and sdist built. Example: `examples/stochastic_world.fnl`, with a repeatable `run-world --seed 42` CLI oracle.
+
+**Remaining gates:** Formal marketing standard library and import/extension interface, stable RNG substream identities for paired counterfactual worlds, realistic agent population primitives, empirical calibration/held-out validation, capability-secured Live/Shadow adapters, launch workflow/CI and published research-preview release artifacts. The language has *stochastic execution* but not *predictive market validation*.

@@ -20,6 +20,8 @@ This index categorizes all engineering failures, debugging breakthroughs, and re
 | **FL-010** | [GitHub REST API Org Provisioning Block](architecture-and-domain-boundaries.md#2-github-rest-api-prohibition-on-personal-account-org-provisioning) | DevOps & Tooling | **Resolved** | Third-party REST API restricts org creation to web browser UI |
 | **FL-011** | [New Module Collection Failure Before Behavioral RED](testing-and-verification.md#5-new-module-api-causing-pytest-collection-failure-before-behavioral-red) | Testing & Verification | **Resolved** | Bootstrap an executable API contract before counting behavior-level RED |
 | **FL-012** | [World AST Incorrectly Sent to Campaign Linter](architecture-and-domain-boundaries.md#3-dispatching-a-new-typed-world-ast-into-the-legacy-campaign-linter) | Architecture & Scope | **Resolved** | Typed AST dispatch before invoking domain-specific compiler stages |
+| **FL-013** | [Forward AST Union Declaration](testing-and-verification.md#13-forward-ast-type-alias-referencing-a-later-runtime-class) | Testing & Verification | **Resolved** | Module-level union evaluated before new class binding |
+| **FL-014** | [Bun Missing from Shell PATH](testing-and-verification.md#14-bun-installed-but-missing-from-noninteractive-shell-path) | DevOps & Tooling | **Resolved** | Installed Bun binary not included in noninteractive zsh PATH |
 
 ---
 

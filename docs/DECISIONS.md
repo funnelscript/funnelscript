@@ -412,3 +412,20 @@
 * **Research and falsification:** `spec/typed-event-payloads-v0.md` defines H-P1 to H-P4 and exact-record invariants. `evals/typed-event-payloads-v0.md` records RED/GREEN evidence, 37 focused tests, 158 total passing Python tests, CLI smoke checks and package build.
 * **Rationale:** Static message contracts prevent accidental cross-field, wrong-type and nonfinite data propagation while letting communities define arbitrary domain event vocabularies.
 * **Limits:** No composite records, polymorphism, stochastic decision semantics, cross-owner delivery, persistent queues, empirical market fidelity or Live capability authorization is implied.
+
+
+---
+
+### DEC-031: Reproducible Source-Level Stochastic World Transitions
+
+* **Status:** Accepted (experimental v0 contract, 2026-10-31)
+* **Context:** The existing event kernel provides an isolated `random.Random(seed)`, but World source transitions were deterministic and ignored that RNG. Introducing an unsourced or independently seeded draw would destroy replay guarantees and weaken science-grade falsification.
+* **Decision:**
+  1. Add contextual typed expressions `sample bernoulli(p)` returning bool and `sample uniform(low, high)` returning float **only inside transition assignments**. Arguments are exact floats from literals, same-owner state, or declared `payload.field`; no implicit promotion.
+  2. Validate constant arguments statically and dynamic values immediately before drawing: Bernoulli `0 <= p <= 1`, finite numbers; Uniform finite ordered bounds with finite representable span.
+  3. Consume exactly **one `random()` draw** per executed operator, including degenerate ranges. A false rule guard uses none. Draws follow transition source order, and every parameter reads the same pre-event snapshot.
+  4. Reuse the `EventMachine` run RNG, with no new scheduler or entropy source. Keep deterministic `advance` behavior; require caller-supplied `rng` when `advance` executes a sampled transition.
+  5. Explicitly exclude random guards, event arguments/delays, independent per-agent streams, implicit calibration, Market Twin claims, and Live effects until separately studied.
+* **Research and falsification:** `spec/stochastic-operators-v0.md` H-S1 through H-S4, `evals/stochastic-operators-v0.md`, 25 focused tests and 183 passing Python tests; the existing Bun tests and build were verified.
+* **Rationale:** Precisely scoped, typed sampling makes synthetic decisions expressible in World code without inventing empirical probabilities or weakening seeded replay.
+* **Limits:** Reproducible execution is not validated predictive fidelity; event-order changes can shift the random stream and downstream draws.

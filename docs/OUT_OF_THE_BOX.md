@@ -405,3 +405,20 @@ An optional research extension could collect consented, sanitized empirical even
 
 ### Boundaries
 Not implemented. Stored records require provenance, minimization, consent/privacy controls, schema migration policy, retention rules and a separate empirical identification design. Changing a synthetic or historical payload value alone is **not** a causal estimate of a real intervention.
+
+
+---
+
+## 25. Randomness Provenance and Paired Counterfactual Streams (OOTB-025)
+
+### Research idea
+
+A prospective World library could derive independent, reproducible RNG substreams from stable agent identities, decision-site identifiers, explicit run seeds and controlled intervention IDs. It would record draw provenance and use common random numbers across paired policy alternatives, avoiding accidental random-stream shifts when only event scheduling changes.
+
+### Falsifiable future hypothesis
+
+**H-O25:** In a preregistered paired-intervention benchmark, identity-stable keyed streams reduce the variance of simulated *difference* estimates relative to a single event-ordered stream, without introducing cross-agent correlation artifacts. Falsified if estimates become biased, pairing fails after source edits, or matched variance fails to improve.
+
+### Boundary
+
+Not implemented. DEC-031 intentionally uses one seeded event-order stream. Deriving safe stable identifiers, choosing a portable counter-based PRNG, recording private event traces and enforcing reproducible provenance require separate design and privacy/security review. Variance reduction within a simulator does not establish real-market causal validity.

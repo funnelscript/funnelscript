@@ -39,8 +39,15 @@ class BinaryExpression(BaseModel):
     right: LiteralExpression | PayloadFieldExpression
 
 
+class SampleExpression(BaseModel):
+    kind: Literal["sample"] = "sample"
+    distribution: Literal["bernoulli", "uniform"]
+    arguments: list[LiteralExpression | ReferenceExpression | PayloadFieldExpression]
+
+
 StateExpression = Annotated[
-    LiteralExpression | ReferenceExpression | PayloadFieldExpression | BinaryExpression,
+    LiteralExpression | ReferenceExpression | PayloadFieldExpression | BinaryExpression
+    | SampleExpression,
     Field(discriminator="kind"),
 ]
 
@@ -225,6 +232,8 @@ class WorldTypeChecker:
         if missing:
             raise WorldTypeError(f"Missing event arguments: {sorted(missing)}")
         for name, expr in arguments.items():
+            if isinstance(expr, SampleExpression):
+                raise WorldTypeError("Sampling is only permitted in transitions")
             actual = cls._expression_type(expr, state_types, current_payload)
             if actual != schema[name]:
                 raise WorldTypeError(
@@ -263,6 +272,8 @@ class WorldTypeChecker:
             if expr.name not in (payload_types or {}):
                 raise WorldTypeError(f"Unknown payload field '{expr.name}'")
             return payload_types[expr.name]
+        if isinstance(expr, SampleExpression):
+            return cls._sample_type(expr, types, payload_types or {})
         if isinstance(expr, BinaryExpression):
             left_type = cls._expression_type(expr.left, types, payload_types)
             right_type = cls._expression_type(expr.right, types, payload_types)
@@ -274,3 +285,33 @@ class WorldTypeChecker:
                 )
             return left_type
         raise WorldTypeError("Unknown state expression")
+
+    @classmethod
+    def _sample_type(
+        cls, expr: SampleExpression, types: dict[str, str], payload_types: dict[str, str]
+    ) -> str:
+        expected_count = 1 if expr.distribution == "bernoulli" else 2
+        if len(expr.arguments) != expected_count:
+            raise WorldTypeError(
+                f"Invalid {expr.distribution} argument count: expected {expected_count}"
+            )
+        for argument in expr.arguments:
+            if cls._expression_type(argument, types, payload_types) != "float":
+                raise WorldTypeError("Distribution arguments must have exact float type")
+            if isinstance(argument, LiteralExpression) and not math.isfinite(argument.value):
+                raise WorldTypeError("Distribution arguments must be finite")
+        literals = [
+            argument.value if isinstance(argument, LiteralExpression) else None
+            for argument in expr.arguments
+        ]
+        if expr.distribution == "bernoulli":
+            if literals[0] is not None and not 0.0 <= literals[0] <= 1.0:
+                raise WorldTypeError("Bernoulli probability must be in [0, 1]")
+            return "bool"
+        lower, upper = literals
+        if lower is not None and upper is not None:
+            if lower > upper:
+                raise WorldTypeError("Uniform bounds must satisfy low <= high")
+            if not math.isfinite(upper - lower):
+                raise WorldTypeError("Uniform span must be finite")
+        return "float"

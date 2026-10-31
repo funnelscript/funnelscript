@@ -964,3 +964,17 @@ A critical trap in ambitious software projects is delaying release until a massi
 **Unresolved:** Schema version migration, optional and nested fields, union types, cross-owner protocols and adapter-specific serialization remain research topics. The current `run-world` JSON form is only an input encoding, not a distributed wire protocol.
 
 **Falsification:** H-P1 to H-P4 in `spec/typed-event-payloads-v0.md` require static unknown-field rejection, exact shape/type checks even on false guards, pre-enqueue validation of generated records and compatibility with existing empty-payload rules. Passing tests do not show that event contents represent real human behavior.
+
+
+---
+
+## Debate 20: One Event-Ordered RNG Stream vs Stable Per-Agent Random Streams
+
+**Problem:** Should World sampling use the already seeded event reducer's PRNG or allocate one hidden generator per agent, event, or source statement?
+
+* **Option A, a shared event-ordered stream (accepted for v0):** One `random.Random(seed)` from the existing `EventMachine`, exactly one `random()` call per evaluated operator, in transition order. This is easy to reproduce, test, and reconcile with stable calendar order; but adding an event or earlier sample shifts later draws.
+* **Option B, identity-keyed streams:** Per-agent or per-distribution streams could stabilize counterfactual pairing despite event schedule changes, but require precise stable identity semantics, generator derivation, stream correlation rules, and cross-version constraints that the language does not yet define.
+* **Option C, implicit OS entropy:** Convenient but irreproducible and unsuitable for this research interpreter. Rejected.
+* **Guard boundary:** A false guard consumes no draws, while a degenerate Bernoulli or Uniform *does* consume one draw for stable operator accounting. Invalid runtime parameters fail before drawing.
+* **Evidence:** H-S1 through H-S4, official Python `random()` reproducibility guarantee, and test-level explicit expected-draw traces in `tests/test_world_stochastic.py`.
+* **Unresolved:** Identity-stable streams and common random numbers for causal comparison, cross-runtime portable generators, source-effect authorization, and empirical probability calibration. No strong out-of-sample forecasting claim follows from a pseudorandom stream.

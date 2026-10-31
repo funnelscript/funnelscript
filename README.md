@@ -1,21 +1,21 @@
 # FunnelScript
 
-> **FunnelScript:** A Declarative Domain-Specific Language (DSL) and Stochastic Agent-Based Simulation Runtime for Marketing Systems Engineering.
+> **FunnelScript (experimental):** A domain-neutral language foundation for executable marketing-system models, with typed Worlds, seeded stochastic transitions, and a separate legacy marketing simulator.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/)
 
-FunnelScript replaces informal marketing spreadsheets and vague whiteboard diagrams with mathematically verified, executable state machines. It compiles campaign topologies into an Abstract Syntax Tree (AST), enforces economic conservation invariants at compile time, and runs multi-scale Monte Carlo agent-based simulations prior to capital deployment.
+FunnelScript is an evolving research language for expressing stateful event-driven systems and testing their assumptions in reproducible scenarios. Its World reference interpreter supports typed declarations, rules, event records, guards, local event scheduling and stochastic operators. A separate, earlier marketing-specific simulator remains available. Neither implementation has established out-of-sample market forecasting accuracy.
 
 ---
 
 ## Key Features
 
 * **Funnel-as-Code (Declarative Syntax):** Write campaigns in high-level declarative syntax or structured JSON intermediate representations.
-* **Compile-Time Static Type-Checking:** Guarantees audience mass balance, budget non-negativity, and unreachable node detection at $t=0$.
-* **Multi-Scale Discrete-Event Engine:** Simulates click interactions in seconds, abandonment latency in hours, and revenue settlement across days without memory race conditions.
-* **Cash Ruin Probability ($P(\text{Insolvency})$):** Identifies working-capital freezes caused by payment processor payout delays ($\Delta_{\text{settle}}$), even for strategies with theoretical high ROAS.
-* **Discount Cannibalization Telemetry:** Detects margin erosion when loyal buyers intentionally abandon carts to harvest automated incentives.
+* **Static Analysis:** Checks World primitive types and rule contracts; the legacy marketing linter reports topology and budget diagnostics. These checks do not prove real-world economic outcomes.
+* **Discrete-Event World Kernel:** Orders model-authored events, evaluates pre-event transitions, preserves typed payloads and provides seeded replay within the experimental interpreter.
+* **Legacy Marketing Simulation:** Includes model-dependent Monte Carlo scenarios for insolvency and payout delay; outputs depend on supplied assumptions, not verified causal estimates.
+* **Extensible Language Direction:** A small neutral core is intended to host marketing standard libraries and independently calibrated business/market models.
 
 ---
 
@@ -120,7 +120,7 @@ result = EventMachine(step).run(
 assert result.state == 2
 ```
 
-The kernel is experimental and separate from the existing marketing-specific `.fnl` compiler and vectorized simulator. No generic entity syntax, effect handlers, live providers, or empirical calibration is implied by this API. Its falsifiable contract is documented in [the research repository](https://github.com/funnelscript/funnelscript-research/blob/main/spec/event-kernel-v0.md).
+The kernel is experimental and shared by the typed `world` interpreter. The older marketing-specific `strategy` compiler and simulator use a separate code path. Typed source entities and events now exist, but this API does not grant live effects or empirical market calibration. Its falsifiable contract is documented in [the research repository](https://github.com/funnelscript/funnelscript-research/blob/main/spec/event-kernel-v0.md).
 
 ---
 
@@ -220,12 +220,35 @@ uv run main.py run-world examples/payload_world.fnl \
   --event '{"name":"Wallet.Credit","time":0,"payload":{"amount":8}}'
 ```
 
-The runtime validates payload field names, exact primitive types and finite float values before processing or scheduling. See the [Typed Event Payload Research Contract](https://github.com/funnelscript/funnelscript-research/blob/main/spec/typed-event-payloads-v0.md). This is pure, deterministic World behavior, not empirically validated consumer simulation.
+The runtime validates payload field names, exact primitive types and finite float values before processing or scheduling. See the [Typed Event Payload Research Contract](https://github.com/funnelscript/funnelscript-research/blob/main/spec/typed-event-payloads-v0.md). These event-record checks are deterministic; separate World transition expressions now support seeded sampling. Neither constitutes empirically validated consumer simulation.
+
+---
+
+### Seeded stochastic World decisions (experimental)
+
+```funnelscript
+rule Respond on event Impression {
+  transition converted = sample bernoulli(payload.conversion_probability);
+  transition engagement_score = sample uniform(0.0, 1.0);
+}
+```
+
+Run the complete [stochastic World example](examples/stochastic_world.fnl):
+
+```bash
+uv run main.py check examples/stochastic_world.fnl
+uv run main.py run-world examples/stochastic_world.fnl \
+  --event '{"name":"Shopper.Impression","time":0,"payload":{"conversion_probability":0.25}}' \
+  --seed 42
+```
+
+With seed 42 and the provided event, the reference interpreter returns `converted=false` and `engagement_score=0.025010755222666936`. Repeating the same scenario and seed reproduces that output. `bernoulli` draws a bool, `uniform` draws a float, and both require exact float parameters. The probability must be in [0,1]; uniform bounds must be finite and ordered. These are **model-specified** probabilities, not estimated market response rates. See the [stochastic specification](https://github.com/funnelscript/funnelscript-research/blob/main/spec/stochastic-operators-v0.md).
 
 ---
 
 ## Documentation & Community
 
+* **[Public Research Preview Readiness](docs/PUBLIC_PREVIEW_READINESS.md):** Evidence-based announcement gates and current limitations.
 * **[Contributing Guide](CONTRIBUTING.md):** Setup, testing standards, and good-first-issue taxonomy.
 * **[Open-Source Growth Playbook](docs/OPEN_SOURCE_GROWTH_PLAYBOOK.md):** Strategy for community scaling and contributor lifecycle.
 * **[Package Manager Specification (`fpm`)](docs/fpm.md):** Modular libraries, manifests, lockfiles, and commercial incentives.

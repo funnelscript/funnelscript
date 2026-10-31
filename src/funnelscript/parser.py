@@ -349,6 +349,10 @@ class Parser:
 
     def _parse_rule_expression(self) -> dict[str, Any]:
         tok = self.current()
+        if tok.type == TokenType.IDENTIFIER and tok.value == "sample" and (
+            self.peek() is not None and self.peek().type == TokenType.IDENTIFIER
+        ):
+            return self._parse_sample_expression()
         if tok.type == TokenType.IDENTIFIER and tok.value == "payload" and (
             self.peek() is not None and self.peek().type == TokenType.DOT
         ):
@@ -373,6 +377,35 @@ class Parser:
                     else {"kind": "literal", "value": self._parse_world_literal()}
                 ),
             }
+        return {"kind": "literal", "value": self._parse_world_literal()}
+
+    def _parse_sample_expression(self) -> dict[str, Any]:
+        self.expect(TokenType.IDENTIFIER)
+        distribution_token = self.expect(TokenType.IDENTIFIER)
+        distribution = str(distribution_token.value)
+        if distribution not in ("bernoulli", "uniform"):
+            raise ParserError("Unknown sample distribution", distribution_token)
+        self.expect(TokenType.LPAREN)
+        arguments: list[dict[str, Any]] = []
+        if self.current().type != TokenType.RPAREN:
+            while True:
+                arguments.append(self._parse_sample_argument())
+                if not self.match(TokenType.COMMA):
+                    break
+        self.expect(TokenType.RPAREN)
+        return {
+            "kind": "sample", "distribution": distribution, "arguments": arguments
+        }
+
+    def _parse_sample_argument(self) -> dict[str, Any]:
+        token = self.current()
+        if token.type == TokenType.IDENTIFIER and token.value == "payload" and (
+            self.peek() is not None and self.peek().type == TokenType.DOT
+        ):
+            return self._parse_payload_reference()
+        if token.type == TokenType.IDENTIFIER and token.value not in ("true", "false"):
+            self.pos += 1
+            return {"kind": "reference", "name": str(token.value)}
         return {"kind": "literal", "value": self._parse_world_literal()}
 
     def _parse_world_literal(self) -> int | float | bool | str:

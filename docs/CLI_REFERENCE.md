@@ -77,7 +77,7 @@ funnelscript run-world examples/counter_world.fnl \
 
 * `file`: `.fnl` source with a `world` declaration containing `entity` / `agent`, typed `state`, and `rule` definitions.
 * `--event OWNER.EVENT@TIME` or JSON: Provide a qualified event and non-negative finite timestamp; can be repeated. For typed payloads, use a JSON record with `name`, `time`, and `payload`, e.g. `--event '{"name":"Wallet.Credit","time":0,"payload":{"amount":8}}'`. The order of repeated flags is preserved.
-* `--seed <int>`: Deterministic event machine seed (default `0`).
+* `--seed <int>`: Seed for the World run's pseudorandom stream (default `0`). Repeating the same source, ordered events and seed replays the same decisions; other seeds may yield the same result by chance.
 * `--max-events <int>`: Positive processing limit (default `100000`). It also bounds recursive zero-delay source emission.
 
 Example with a source-level typed event payload:
@@ -87,6 +87,16 @@ funnelscript run-world examples/payload_world.fnl --event '{"name":"Wallet.Credi
 ```
 
 An explicit event declaration such as `event Credit(amount: int);` establishes exact field and primitive type checks for both input JSON events and source-emitted arguments. Invalid payloads fail before executing the handler, including when its guard is false. Plain `OWNER.EVENT@TIME` remains available for no-payload events.
+
+Example with seeded stochastic transition expressions:
+
+```bash
+funnelscript run-world examples/stochastic_world.fnl \
+  --event '{"name":"Shopper.Impression","time":0,"payload":{"conversion_probability":0.25}}' \
+  --seed 42
+```
+
+The run produces `Shopper.converted=false` and `Shopper.engagement_score=0.025010755222666936`. The `sample bernoulli(float)` and `sample uniform(float, float)` transition operators each consume one draw from the run's seeded pseudorandom stream; guards that do not match consume none. No built-in probability calibration or Live execution is implied.
 
 Example with a typed, self-terminating event guard:
 

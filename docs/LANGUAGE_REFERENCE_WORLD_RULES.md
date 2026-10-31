@@ -1,6 +1,6 @@
 # Experimental Language Reference: Typed World Rules and Emitted Events
 
-**Status:** Executable, intentionally minimal. Research authority: `funnelscript-research/spec/rule-transitions-v0.md` (H-R1 to H-R4; DEC-027), `funnelscript-research/spec/event-emission-v0.md` (H-E1 to H-E4; DEC-028), `funnelscript-research/spec/world-guards-v0.md` (H-G1 to H-G4; DEC-029), and `funnelscript-research/spec/typed-event-payloads-v0.md` (H-P1 to H-P4; DEC-030). This describes the current implementation, not an autonomous market simulator.
+**Status:** Executable, intentionally minimal. Research authority: `funnelscript-research/spec/rule-transitions-v0.md` (H-R1 to H-R4; DEC-027), `funnelscript-research/spec/event-emission-v0.md` (H-E1 to H-E4; DEC-028), `funnelscript-research/spec/world-guards-v0.md` (H-G1 to H-G4; DEC-029), and `funnelscript-research/spec/typed-event-payloads-v0.md` (H-P1 to H-P4; DEC-030), and `funnelscript-research/spec/stochastic-operators-v0.md` (H-S1 to H-S4; DEC-031). This describes the current implementation, not an autonomous market simulator.
 
 ## Source grammar
 
@@ -15,7 +15,11 @@ RuleDeclaration     ::= "rule" Identifier "on" "event" Identifier GuardClause? "
 GuardClause         ::= "when" "(" Identifier GuardOp StateLiteral ")" ;
 GuardOp             ::= "==" | "!=" | "<" | "<=" | ">" | ">=" ;
 RuleStatement       ::= TransitionStatement | EmitStatement ;
-TransitionStatement ::= "transition" Identifier "=" StateExpression ";" ;
+TransitionStatement ::= "transition" Identifier "=" TransitionExpression ";" ;
+TransitionExpression ::= StateExpression | SampleExpression ;
+SampleExpression     ::= "sample" ("bernoulli" "(" SampleArgument ")"
+                       | "uniform" "(" SampleArgument "," SampleArgument ")") ;
+SampleArgument       ::= SignedNumber | PayloadReference | Identifier ;
 EmitStatement       ::= "emit" Identifier ("(" EventArgList? ")")? "after" SignedNumber ";" ;
 EventArgList        ::= Identifier "=" StateExpression ("," Identifier "=" StateExpression)* ;
 StateExpression     ::= StateLiteral | PayloadReference | Identifier ( ("+" | "-") (StateLiteral | PayloadReference) )? ;
@@ -46,7 +50,7 @@ Expected JSON values: `world = "CounterDemo"`, `state.Counter.count = 2`, `state
 - Each rule may assign a state field at most once, and only fields of its own declaration.
 - A rule may optionally declare a typed `when (field OP literal)` guard. The field must belong to the rule owner, and its primitive type must exactly match the literal. Numeric fields support all six comparison operators; booleans and strings support only `==` and `!=`.
 - Guards inspect the pre-event snapshot. A false guard consumes the input event but performs **no transitions and no source emissions**; the next rule can still process separately scheduled events. Guards do not call functions, sample probability, or invoke external effects.
-- Expressions accept primitive literals, same-owner state references and typed `payload.field` references. Numeric state references may add/subtract a numeric literal or payload field of exactly matching numeric type. No implicit int-to-float conversion, string concatenation, function calls, or cross-owner access.
+- Ordinary deterministic expressions accept primitive literals, same-owner state references and typed `payload.field` references. Numeric state references may add/subtract a numeric literal or payload field of exactly matching numeric type. No implicit int-to-float conversion, string concatenation, function calls, or cross-owner access.
 - **Simultaneous assignments:** all right-hand expressions in a rule read the pre-event snapshot. For `a=1,b=2`, `transition a=b; transition b=a;` produces `a=2,b=1`, not `a=2,b=2`.
 - Previous states remain unmodified. The executor makes a deep copy of checked World definitions at construction, so subsequent mutations to the caller's AST cannot bypass type checking. Runtime returns the next state, processed event list, inert effect-intent list, and pending events.
 - Unknown event handlers fail explicitly. Source `emit Event after Delay;` or `emit Event(field = expr) after Delay;` schedules a local handler. Forward references are valid; target event arguments must match the declared schema exactly, and expressions read the pre-event snapshot. `max_events` bounds zero-delay recursion. Emitted events inherit their parent event priority, including zero-delay emissions. The executor does not emit external effects or reach providers.
@@ -61,7 +65,7 @@ uv run main.py check examples/event_chain_world.fnl
 uv run main.py run-world examples/event_chain_world.fnl --event Worker.Start@1
 ```
 
-It schedules `Worker.Step` at t=3 and `Worker.Stop` at t=6, returning `processed_events=3`, `progress=1`, and `active=false`. Each event is processed through the same stable event calendar; `run-world` still needs an initial externally supplied event. Emission is restricted to the same owner; typed payloads are supported under DEC-030, but stochastic delays and cross-owner effects remain out of scope. A typed rule guard can conditionally suppress emission.
+It schedules `Worker.Step` at t=3 and `Worker.Stop` at t=6, returning `processed_events=3`, `progress=1`, and `active=false`. Each event is processed through the same stable event calendar; `run-world` still needs an initial externally supplied event. Emission is restricted to the same owner; typed payloads are supported under DEC-030 and stochastic transition expressions under DEC-031, but stochastic delays and cross-owner effects remain out of scope. A typed rule guard can conditionally suppress emission.
 
 ## Conditional World rules
 
@@ -103,14 +107,38 @@ uv run main.py run-world examples/payload_world.fnl \
 
 The first run processes a `Start` at t=3 and a `Credit` at t=5, with `balance=10` from the pre-event quota. The second reads an external JSON payload with `balance=8`. Both finish with zero pending events. Old `Owner.Event@Time` input remains valid.
 
+## Reproducible stochastic transitions (experimental)
+
+`examples/stochastic_world.fnl` demonstrates two source-level probability operators. They are only valid in transition assignment expressions:
+
+```funnelscript
+rule Respond on event Impression {
+  transition converted = sample bernoulli(payload.conversion_probability);
+  transition engagement_score = sample uniform(0.0, 1.0);
+}
+```
+
+```bash
+uv run main.py check examples/stochastic_world.fnl
+uv run main.py run-world examples/stochastic_world.fnl \
+  --event '{"name":"Shopper.Impression","time":0,"payload":{"conversion_probability":0.25}}' \
+  --seed 42
+```
+
+`sample bernoulli(p)` produces a bool; `sample uniform(low, high)` produces a float. Each argument must be exactly float: a literal, same-owner state reference, or schema-declared `payload.field`. A probability must be finite and within [0,1]; uniform bounds must be finite and ordered, with a finite representable span. Invalid static arguments fail compilation, while invalid dynamic values fail before the random draw. Source `int` does not implicitly promote to float.
+
+Both operators consume precisely one `random.Random.random()` draw per active evaluation, including zero/one probabilities and equal uniform bounds. A false guard consumes none. Draw order follows transition declaration order; all input references still read the same pre-event snapshot. Repeating the same World, ordered events, seed, and runtime version returns an identical result. Distinct seeds are not guaranteed to yield distinct outcomes. `WorldExecutor.advance` requires a caller-supplied RNG if a sampled transition executes.
+
+No sampling is permitted in guards, source emissions, initialization, delays or legacy strategy files. The mechanism represents **specified stochastic assumptions**, not verified empirical conversion likelihoods. See [Stochastic Operators v0](https://github.com/funnelscript/funnelscript-research/blob/main/spec/stochastic-operators-v0.md) and DEC-031.
+
 ## Scope and safety boundaries
 
-This World interpreter is distinct from the older marketing-specific `simulate` command, which deliberately rejects World files. World rules alone do **not** model consumer psychology, economics, uncertainty, PyMC Marketing, OmniTwin, or the business consequences of tactics. Those belong in optional, empirical model layers and future standard libraries. Simulation Mode, Shadow Mode and Live Execution Mode require separate effect and safety contracts before integration.
+This World interpreter is distinct from the older marketing-specific `simulate` command, which deliberately rejects World files. World rules now support explicit pseudorandom draws, but do **not** model calibrated consumer psychology, economic constraints, empirical uncertainty, PyMC Marketing, OmniTwin, or the business consequences of tactics by default. Those belong in optional, empirical model layers and future standard libraries. Simulation Mode, Shadow Mode and Live Execution Mode require separate effect and safety contracts before integration.
 
 ## Verification
 
 ```bash
-uv run pytest -v tests/test_world_rules.py tests/test_world_emissions.py tests/test_world_guards.py tests/test_world_payloads.py
+uv run pytest -v tests/test_world_rules.py tests/test_world_emissions.py tests/test_world_guards.py tests/test_world_payloads.py tests/test_world_stochastic.py
 uv run pytest -v
 ```
 

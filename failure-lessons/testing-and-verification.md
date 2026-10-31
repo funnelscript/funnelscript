@@ -323,3 +323,56 @@ Resolved; see `tests/test_world_guards.py` and `funnelscript-research/evals/worl
 **Evidence:** 37 focused payload tests now pass. A privacy RED probe caught raw malformed event arguments echoed to stderr; the CLI now emits a non-echoing syntax message. A separate JSON RED probe caught duplicate field names silently overriding earlier values; strict duplicate-key rejection now applies to nested payloads. Final fresh verification: 158 Python tests pass, package sdist and wheel build successfully, and source compilation passes. The example CLI input and source-generated event both produce the expected final states; `uv build` succeeds. See `funnelscript-research/evals/typed-event-payloads-v0.md` for the red-green timeline and H-P probes.
 
 **Preventive invariant:** For every World event (external or generated), `keys(payload) = keys(schema)`, all keys are strings, `type(value) = declared primitive type`, and float values satisfy `isfinite`, **before** the event is applied or enters a future calendar slot. This does not yet enforce general finite arithmetic on all state updates or validate calibrated market behavior.
+
+
+---
+
+## 13. Forward AST Type Alias Referencing a Later Runtime Class
+
+### Context and falsifiable expectation
+
+Adding an explicit typed `SampleExpression` to the World AST after RED tests established the previous parser's incompatibility. The module must import successfully for runtime tests to execute.
+
+### Observed failure
+
+`uv run pytest tests/test_world_stochastic.py -q --tb=short` failed during collection with `NameError: name 'SampleExpression' is not defined` in the `StateExpression = Annotated[...]` union.
+
+### Root cause and mechanism
+
+**Confirmed by source inspection and re-run:** The new class was introduced *below* a module-level union that evaluated `SampleExpression` immediately. `from __future__ import annotations` defers function/class annotations, but does not defer arbitrary module-level expressions. This was a declaration-order defect, not an RNG/runtime/pytest defect.
+
+### Intervention, verification and prevention
+
+Moved `SampleExpression` above `StateExpression`. Focused test collection resumed and the full 25 focused tests passed; 183 full Python tests passed after all source edits. **Preventive invariant:** A runtime-evaluated discriminated union must only reference classes defined earlier in module initialization. Test import/collection after adding AST variants before diagnosing behavioral failures.
+
+### Status
+
+Resolved. No skipped or weakened tests. This collection failure is separate from the original expected 21 behavioral RED cases.
+
+---
+
+## 14. Bun Installed But Missing from Noninteractive Shell PATH
+
+### Context and falsifiable expectation
+
+Run existing frontend validation, `bun test` and `bun run build`, after core-language edits. An unavailable executable does not establish a test failure.
+
+### Observed failure
+
+Both commands exited `127` with `zsh:1: command not found: bun` from noninteractive Mac shell invocations.
+
+### Competing hypotheses and discriminating probe
+
+Either Bun was not installed, or the current shell's PATH omitted its binary. Direct read-only checks found executable `/Users/mamdouhaboammar/.bun/bin/bun` and a Homebrew-managed symlink.
+
+### Intervention and verification
+
+Executed the installed binary by absolute path without changing shell initialization or installing dependencies. `bun test` passed (1 test, 0 failures); `bun run build` completed `tsc -b && vite build` successfully. The initial failure was **tool discovery**, not a frontend regression.
+
+### Prevention
+
+When a required development command is not on PATH, resolve a verified local binary before claiming inability to test. Preserve the initial environment failure and the replacement verification command in evidence.
+
+### Status
+
+Resolved for this session; no repository runtime or system PATH mutation was necessary.
