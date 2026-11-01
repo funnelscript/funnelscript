@@ -66,9 +66,27 @@ class ProvenancedSale:
 
 
 @dataclass(frozen=True)
+class DeclaredFinancialAction:
+    """An author-asserted external authorization, never a World event witness."""
+
+    entry: LedgerEntry
+    actor_id: str
+    authorization_id: str
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.entry, LedgerEntry):
+            raise TypeError("financial action requires a LedgerEntry")
+        if self.entry.kind == "sale":
+            raise ValueError("World event sales cannot use external authorization")
+        _identity(self.actor_id, "actor_id")
+        _identity(self.authorization_id, "authorization_id")
+
+
+@dataclass(frozen=True)
 class ProvenancedTrial:
     sales: tuple[ProvenancedSale, ...]
     ledger: MarketingLedger
+    financial_actions: tuple[DeclaredFinancialAction, ...] = ()
 
 
 def _validate_trace(population: PopulationResult) -> None:
@@ -170,3 +188,41 @@ def post_provenanced_trial(
                              horizon, settlement_delay, entries)
     ledger.evaluate()
     return ProvenancedTrial(tuple(sorted(seen.values(), key=lambda s: s.entry.tx_id)), ledger)
+
+
+def post_authorized_trial(
+    population: PopulationResult, sales: Sequence[ProvenancedSale],
+    policy: DeclaredSalePolicy, *, actions: Sequence[DeclaredFinancialAction],
+    cash_initial: Decimal, settlement_delay: int, horizon: int,
+) -> ProvenancedTrial:
+    """Post a trial with complete *declared* provenance for every non-sale entry.
+
+    Authorization here is an author assertion, not externally authenticated evidence.
+    Identical delivery retries are idempotent within this supplied input batch.
+    """
+    if not isinstance(actions, Sequence):
+        raise TypeError("actions must be a replayable sequence")
+    by_tx: dict[str, DeclaredFinancialAction] = {}
+    by_authorization: dict[str, str] = {}
+    for action in actions:
+        if not isinstance(action, DeclaredFinancialAction):
+            raise TypeError("external financial entries require declared authorization")
+        tx_id = action.entry.tx_id
+        previous = by_tx.get(tx_id)
+        if previous is not None:
+            if previous != action:
+                raise ValueError("conflicting duplicate financial transaction identity")
+            continue
+        if action.authorization_id in by_authorization:
+            raise ValueError("authorization identity reused for distinct transactions")
+        by_authorization[action.authorization_id] = tx_id
+        by_tx[tx_id] = action
+    ordered = tuple(sorted(
+        by_tx.values(), key=lambda a: (a.entry.day, _ORDER[a.entry.kind], a.entry.tx_id),
+    ))
+    linked = post_provenanced_trial(
+        population, sales, policy,
+        external_entries=tuple(action.entry for action in ordered),
+        cash_initial=cash_initial, settlement_delay=settlement_delay, horizon=horizon,
+    )
+    return ProvenancedTrial(linked.sales, linked.ledger, ordered)
