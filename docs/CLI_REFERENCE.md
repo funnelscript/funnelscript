@@ -167,3 +167,7 @@ funnelscript schema --output spec/schema.json
 | **0** | `SUCCESS` | Strategy compiled, checked, or simulated without invariant violations. |
 | **1** | `VALIDATION_OR_RUNTIME_ERROR` | Syntax/invariant failures or, for `run-world`, invalid World input, unknown event, missing file, or processing-limit error. |
 | **2** | `IO_ERROR` | Target file does not exist or cannot be read/written, including failed simulation exports. |
+
+### Phase 003 arithmetic and EOF diagnostic boundary
+
+World rules support one exact-typed binary `+`, `-`, `*`, or `/` expression (`state OP literal|state|payload.field`); `/` returns float, zero divisors and non-finite float arithmetic are rejected, and `//` remains a comment. Missing operands and exhausted parser streams raise deliberate parser errors. Use `--event Counter.Pulse@0` for `examples/counter_world.fnl`: `Counter.Tick@0` belongs to `examples/guarded_world.fnl` and is not declared in that counter example. See [World Rules Language Reference](LANGUAGE_REFERENCE_WORLD_RULES.md).

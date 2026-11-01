@@ -79,7 +79,11 @@ class Parser:
         self.pos = 0
 
     def current(self) -> Token:
-        return self.tokens[self.pos] if self.pos < len(self.tokens) else self.tokens[-1]
+        if self.pos < len(self.tokens):
+            return self.tokens[self.pos]
+        if self.tokens and self.tokens[-1].type == TokenType.EOF:
+            return self.tokens[-1]
+        raise ParserError("Unexpected end of token stream", self.tokens[-1] if self.tokens else None)
 
     def peek(self) -> Token | None:
         if self.pos + 1 < len(self.tokens):
@@ -415,22 +419,29 @@ class Parser:
         if tok.type == TokenType.IDENTIFIER and tok.value not in ("true", "false"):
             self.pos += 1
             reference = {"kind": "reference", "name": str(tok.value)}
-            if self.match(TokenType.PLUS):
-                operator = "+"
-            elif self.match(TokenType.MINUS):
-                operator = "-"
-            else:
+            operators = {
+                TokenType.PLUS: "+", TokenType.MINUS: "-",
+                TokenType.STAR: "*", TokenType.SLASH: "/",
+            }
+            operation = self.current()
+            if operation.type not in operators:
                 return reference
+            self.pos += 1
+            right_token = self.current()
+            if right_token.type == TokenType.IDENTIFIER and right_token.value == "payload" and (
+                self.peek() is not None and self.peek().type == TokenType.DOT
+            ):
+                right = self._parse_payload_reference()
+            elif right_token.type == TokenType.IDENTIFIER and right_token.value not in ("true", "false"):
+                self.pos += 1
+                right = {"kind": "reference", "name": str(right_token.value)}
+            else:
+                right = {"kind": "literal", "value": self._parse_world_literal()}
+            if self.current().type in operators:
+                raise ParserError("Chained binary operators are not supported", self.current())
             return {
-                "kind": "binary",
-                "operator": operator,
-                "left": reference,
-                "right": (
-                    self._parse_payload_reference()
-                    if self.current().value == "payload"
-                    and self.peek() is not None and self.peek().type == TokenType.DOT
-                    else {"kind": "literal", "value": self._parse_world_literal()}
-                ),
+                "kind": "binary", "operator": operators[operation.type],
+                "left": reference, "right": right,
             }
         return {"kind": "literal", "value": self._parse_world_literal()}
 

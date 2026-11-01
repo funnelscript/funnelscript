@@ -28,6 +28,8 @@ This index categorizes all engineering failures, debugging breakthroughs, and re
 | **FL-018** | [Docs Copy Drift, Broken Links and False-Green Matcher](testing-and-verification.md#18-documentation-copy-drift-broken-links-and-a-false-green-matcher) | Documentation & Verification | **Resolved** | Cross-repo template drift, local file URLs and a zero-match regex |
 | **FL-019** | [Bundled Skill Name Drift and Build Bloat](testing-and-verification.md#19-bundled-skill-name-drift-missing-shared-contract-and-ignored-build-bloat) | Developer Tooling | **Verified with full suites; vendor closure unverified** | Skill path metadata mismatch, entrypoint/registry link drift and ignored Cargo artifacts |
 
+| **FL-020** | [Premature Finite-State Initializer Rejection](runtime-and-types.md#6-premature-finite-state-initialization-rejection-during-arithmetic-hardening-fl-020) | Runtime & Types | **Resolved** | New arithmetic finiteness guard accidentally changed existing initializer/payload validation timing |
+
 ---
 
 ## Rules We Now Enforce

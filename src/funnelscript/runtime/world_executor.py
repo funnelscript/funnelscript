@@ -73,7 +73,26 @@ class WorldExecutor:
         if isinstance(expr, BinaryExpression):
             left = snapshot[expr.left.name]
             right = WorldExecutor._evaluate(expr.right, snapshot, payload, rng)
-            return left + right if expr.operator == "+" else left - right
+            if type(left) is not type(right) or type(left) not in (int, float):
+                raise WorldExecutionError("Arithmetic operands must have matching numeric types")
+            if type(left) is float and (not math.isfinite(left) or not math.isfinite(right)):
+                raise WorldExecutionError("Non-finite arithmetic operand")
+            if expr.operator == "/" and right == 0:
+                raise WorldExecutionError("Division by zero")
+            try:
+                if expr.operator == "+":
+                    result = left + right
+                elif expr.operator == "-":
+                    result = left - right
+                elif expr.operator == "*":
+                    result = left * right
+                else:
+                    result = left / right
+            except OverflowError as exc:
+                raise WorldExecutionError("Non-finite arithmetic result") from exc
+            if type(result) is float and not math.isfinite(result):
+                raise WorldExecutionError("Non-finite arithmetic result")
+            return result
         raise WorldExecutionError("Unknown expression type")
 
     @staticmethod
