@@ -7,6 +7,11 @@
 :root {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   color-scheme: dark;
+  --fs-violet: #725CFF;
+  --fs-violet-strong: #6D54F5;
+  --fs-graphite: #121525;
+  --fs-mint: #61E7C3;
+  --fs-cloud: #F6F7FB;
 }
 
 body {
@@ -15,16 +20,16 @@ body {
   overflow: hidden;
   height: 100vh;
   width: 100vw;
-  background-color: #0b0f19;
+  background-color: #121525;
 }
 
 /* React Flow custom dark overrides */
 .react-flow__pane {
-  background: #090d16;
+  background: #121525;
 }
 
 .react-flow__background-pattern line {
-  stroke: #1f293d !important;
+  stroke: #30354A !important;
 }
 
 .react-flow__edge-path {
@@ -33,12 +38,12 @@ body {
 }
 
 .react-flow__edge.selected .react-flow__edge-path {
-  stroke: #3b82f6 !important;
+  stroke: #725CFF !important;
 }
 
 .react-flow__handle {
   width: 10px;
   height: 10px;
-  background: #3b82f6;
-  border: 2px solid #090d16;
+  background: #725CFF;
+  border: 2px solid #121525;
 }

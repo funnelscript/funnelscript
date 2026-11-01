@@ -194,23 +194,20 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#090d16] text-slate-100 overflow-hidden font-sans">
+    <div className="flex flex-col h-screen w-screen bg-[#121525] text-slate-100 overflow-hidden font-sans">
       {/* Top Navbar */}
       <header className="h-14 border-b border-slate-800 bg-slate-900/80 backdrop-blur px-4 flex items-center justify-between z-30">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/20">
-            FS
-          </div>
+          <img src="/funnelscript-icon.svg" alt="FunnelScript" className="w-8 h-8 shrink-0" />
           <div>
             <div className="flex items-center space-x-2">
-              <span className="font-bold text-sm tracking-wide text-white">{ast.strategy_name}</span>
-              <span className="text-[10px] bg-blue-950 text-blue-400 px-1.5 py-0.5 rounded border border-blue-800">
-                v1.2 DSL
+              <span className="font-bold text-sm tracking-wide text-white">FunnelScript</span>
+              <span className="text-[10px] bg-[#211C45] text-[#C8BEFF] px-1.5 py-0.5 rounded border border-[#463C88]">
+                Experimental Studio
               </span>
             </div>
             <span className="text-[11px] text-slate-400">
-              {ast.entities.audiences.length} Audiences · {ast.entities.touchpoints.length} Touchpoints · $
-              {ast.entities.budgets.total_budget.toLocaleString()} Cap
+              {ast.strategy_name} · {ast.entities.audiences.length} Audiences · {ast.entities.touchpoints.length} Touchpoints
             </span>
           </div>
         </div>
@@ -220,7 +217,7 @@ export default function App() {
           <button
             onClick={() => setShowControls(!showControls)}
             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded text-xs font-medium transition border ${
-              showControls ? 'bg-slate-800 border-blue-500 text-blue-400' : 'bg-slate-900 border-slate-700 text-slate-300 hover:bg-slate-800'
+              showControls ? 'bg-slate-800 border-brand text-[#B5A9FF]' : 'bg-slate-900 border-slate-700 text-slate-300 hover:bg-slate-800'
             }`}
           >
             <Sliders className="w-3.5 h-3.5" />
@@ -230,7 +227,7 @@ export default function App() {
           <button
             onClick={() => setShowCode(!showCode)}
             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded text-xs font-medium transition border ${
-              showCode ? 'bg-slate-800 border-blue-500 text-blue-400' : 'bg-slate-900 border-slate-700 text-slate-300 hover:bg-slate-800'
+              showCode ? 'bg-slate-800 border-brand text-[#B5A9FF]' : 'bg-slate-900 border-slate-700 text-slate-300 hover:bg-slate-800'
             }`}
           >
             <Code className="w-3.5 h-3.5" />
@@ -240,7 +237,7 @@ export default function App() {
           <button
             onClick={() => runSimulation(ast)}
             disabled={isSimulating}
-            className="flex items-center space-x-1.5 px-4 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition shadow-lg shadow-blue-600/30 disabled:opacity-50"
+            className="flex items-center space-x-1.5 px-4 py-1.5 rounded bg-brandStrong hover:bg-[#6248E6] text-white font-semibold text-xs transition shadow-lg shadow-[#725CFF]/20 disabled:opacity-50"
           >
             <Play className={`w-3.5 h-3.5 ${isSimulating ? 'animate-spin' : ''}`} />
             <span>{isSimulating ? 'Simulating...' : 'Run Simulation'}</span>
@@ -260,9 +257,9 @@ export default function App() {
               step="0.05"
               value={ast.entities.budgets.max_cpc_limit}
               onChange={(e) => handleBudgetChange('max_cpc_limit', parseFloat(e.target.value))}
-              className="w-24 accent-blue-500 cursor-pointer"
+              className="w-24 accent-brand cursor-pointer"
             />
-            <span className="text-blue-400 font-bold">${ast.entities.budgets.max_cpc_limit.toFixed(2)}</span>
+            <span className="text-[#B5A9FF] font-bold">${ast.entities.budgets.max_cpc_limit.toFixed(2)}</span>
           </div>
 
           <div className="flex items-center space-x-2">
@@ -274,7 +271,7 @@ export default function App() {
               step="500"
               value={ast.entities.budgets.initial_cash}
               onChange={(e) => handleBudgetChange('initial_cash', parseFloat(e.target.value))}
-              className="w-28 accent-blue-500 cursor-pointer"
+              className="w-28 accent-brand cursor-pointer"
             />
             <span className="text-emerald-400 font-bold">${ast.entities.budgets.initial_cash.toLocaleString()}</span>
           </div>
@@ -288,7 +285,7 @@ export default function App() {
               step="1"
               value={ast.entities.budgets.settlement_delay_days}
               onChange={(e) => handleBudgetChange('settlement_delay_days', parseInt(e.target.value, 10))}
-              className="w-20 accent-blue-500 cursor-pointer"
+              className="w-20 accent-brand cursor-pointer"
             />
             <span className={`font-bold ${ast.entities.budgets.settlement_delay_days > 4 ? 'text-red-400' : 'text-slate-200'}`}>
               {ast.entities.budgets.settlement_delay_days} days

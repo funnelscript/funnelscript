@@ -1,0 +1,11 @@
+/* FunnelScript visual identity v1.0 — reusable CSS tokens */
+:root {
+  --fs-violet: #725CFF;
+  --fs-violet-strong: #6D54F5;
+  --fs-graphite: #121525;
+  --fs-mint: #61E7C3;
+  --fs-cloud: #F6F7FB;
+  --fs-white: #FFFFFF;
+  --fs-font-ui: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --fs-font-code: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+}

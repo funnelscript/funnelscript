@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/brand/funnelscript-wordmark-light.svg" alt="FunnelScript programming language" width="540"/>
+</p>
+
 # FunnelScript
 
 > **FunnelScript (experimental):** A domain-neutral language foundation for executable marketing-system models, with typed Worlds, seeded stochastic transitions, and a separate legacy marketing simulator.
@@ -6,6 +10,8 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/)
 
 FunnelScript is an evolving research language for expressing stateful event-driven systems and testing their assumptions in reproducible scenarios. Its World reference interpreter supports typed declarations, rules, event records, guards, local event scheduling and stochastic operators. A separate, earlier marketing-specific simulator remains available. Neither implementation has established out-of-sample market forecasting accuracy.
+
+The [FunnelScript visual identity guide](docs/brand/README.md) defines its official logo lockups, color tokens, typography and usage rules.
 
 ---
 
