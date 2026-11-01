@@ -88,7 +88,7 @@ class WorldExecutor:
         if isinstance(expr, PayloadFieldExpression):
             return (payload or {})[expr.name]
         if isinstance(expr, BinaryExpression):
-            left = snapshot[expr.left.name]
+            left = WorldExecutor._evaluate(expr.left, snapshot, payload, rng)
             right = WorldExecutor._evaluate(expr.right, snapshot, payload, rng)
             if type(left) is not type(right) or type(left) not in (int, float):
                 raise WorldExecutionError("Arithmetic operands must have matching numeric types")

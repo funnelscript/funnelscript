@@ -1,0 +1,7 @@
+{
+  "schema": "funnelscript-event-playbook-v1",
+  "events": [
+    {"name": "Balance.Tick", "time": 1, "payload": {}},
+    {"name": "Lead.Tick", "time": 0, "payload": {"increment": 3}}
+  ]
+}

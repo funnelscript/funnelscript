@@ -37,6 +37,9 @@ from funnelscript.runtime.exporters import (
 console = Console()
 
 MAX_EVENT_JSON_BYTES = 64 * 1024
+MAX_PLAYBOOK_BYTES = 1024 * 1024
+MAX_PLAYBOOK_EVENTS = 10_000
+PLAYBOOK_SCHEMA = "funnelscript-event-playbook-v1"
 
 WORLD_STARTER = """world MarketingPreview {
   import "std:marketing/lead_response.fnl" as Prospect;
@@ -166,23 +169,46 @@ def _parse_world_input_event(spec: str) -> Event:
     return Event(time=float(when), name=name)
 
 
+def _load_event_playbook(file_path: str) -> list[Event]:
+    source = Path(file_path)
+    with source.open("rb") as stream:
+        data = stream.read(MAX_PLAYBOOK_BYTES + 1)
+    if len(data) > MAX_PLAYBOOK_BYTES:
+        raise ValueError("Event playbook exceeds the 1 MiB input limit")
+    raw = json.loads(data.decode("utf-8"), object_pairs_hook=_unique_json_object)
+    if type(raw) is not dict or set(raw) != {"schema", "events"}:
+        raise ValueError("Event playbook must have exactly schema and events")
+    if raw["schema"] != PLAYBOOK_SCHEMA:
+        raise ValueError("Unsupported event playbook schema")
+    if type(raw["events"]) is not list or len(raw["events"]) > MAX_PLAYBOOK_EVENTS:
+        raise ValueError("Invalid event playbook event count (maximum 10000)")
+    events = []
+    for record in raw["events"]:
+        if type(record) is not dict:
+            raise ValueError("Event playbook entries must be objects")
+        events.append(_parse_world_input_event(json.dumps(record, allow_nan=False)))
+    return events
+
+
 def run_world_command(
     file_path: str,
     event_specs: list[str],
     *,
     seed: int = 0,
     max_events: int = 100_000,
+    events_file: str | None = None,
 ) -> int:
     """Execute qualified events against a statically checked World source file."""
     try:
         ast = Parser.from_file(file_path)
         if not isinstance(ast, WorldAST):
             raise ValueError("run-world requires a world declaration, not a strategy")
-        events: list[Event] = []
-        for spec in event_specs:
-            events.append(_parse_world_input_event(spec))
+        if events_file is not None and event_specs:
+            raise ValueError("--event and --events-file are mutually exclusive")
+        events = (_load_event_playbook(events_file) if events_file is not None
+                  else [_parse_world_input_event(spec) for spec in event_specs])
         result = WorldExecutor(ast).run(events, seed=seed, max_events=max_events)
-    except (FileNotFoundError, LexerError, ParserError, ValueError, TypeError, RuntimeError) as exc:
+    except (OSError, UnicodeError, LexerError, ParserError, ValueError, TypeError, RuntimeError, RecursionError) as exc:
         print(f"World execution error: {exc}", file=sys.stderr)
         return 1
 
@@ -487,6 +513,8 @@ def main() -> None:
         "--event", action="append", default=[], metavar="OWNER.EVENT@TIME",
         help="Timestamped OWNER.EVENT@TIME or JSON event with typed payload (repeatable)",
     )
+    world_p.add_argument("--events-file", type=str, default=None,
+                         help="Versioned strict UTF-8 JSON event playbook (exclusive with --event)")
     world_p.add_argument("--seed", type=int, default=0)
     world_p.add_argument("--max-events", type=int, default=100_000)
 
@@ -521,8 +549,7 @@ def main() -> None:
         exit_code = run_world_command(
             args.file,
             args.event,
-            seed=args.seed,
-            max_events=args.max_events,
+            seed=args.seed, max_events=args.max_events, events_file=args.events_file,
         )
     elif args.command == "simulate":
         exit_code = simulate_command(

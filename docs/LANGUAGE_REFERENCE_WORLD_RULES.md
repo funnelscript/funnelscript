@@ -7,7 +7,8 @@
 ```ebnf
 WorldFile           ::= "world" Identifier "{" WorldDeclaration* "}" ;
 WorldDeclaration    ::= ("entity" | "agent") Identifier "{" WorldMember* "}"
-                     | "import" StringLiteral "as" Identifier ";" ;
+                     | "import" StringLiteral ("as" Identifier | "{" NamedImport ("," NamedImport)* "}") ";" ;
+NamedImport          ::= Identifier ("as" Identifier)? ;
 WorldMember         ::= StateField | EventDeclaration | RuleDeclaration ;
 StateField          ::= "state" Identifier ":" PrimitiveType "=" StateLiteral ";" ;
 EventDeclaration    ::= "event" Identifier "(" EventFieldList? ")" ";" ;
@@ -17,13 +18,16 @@ GuardClause         ::= "when" "(" Identifier GuardOp StateLiteral ")" ;
 GuardOp             ::= "==" | "!=" | "<" | "<=" | ">" | ">=" ;
 RuleStatement       ::= TransitionStatement | EmitStatement ;
 TransitionStatement ::= "transition" Identifier "=" TransitionExpression ";" ;
-TransitionExpression ::= StateExpression | SampleExpression ;
+TransitionExpression ::= StateExpression ;
 SampleExpression     ::= "sample" ("bernoulli" "(" SampleArgument ")"
                        | "uniform" "(" SampleArgument "," SampleArgument ")") ;
 SampleArgument       ::= SignedNumber | PayloadReference | Identifier ;
 EmitStatement       ::= "emit" Identifier ("(" EventArgList? ")")? "after" SignedNumber ";" ;
 EventArgList        ::= Identifier "=" StateExpression ("," Identifier "=" StateExpression)* ;
-StateExpression     ::= StateLiteral | PayloadReference | Identifier ( ("+" | "-") (StateLiteral | PayloadReference) )? ;
+StateExpression     ::= AdditiveExpression ;
+AdditiveExpression   ::= MultiplicativeExpression (("+" | "-") MultiplicativeExpression)* ;
+MultiplicativeExpression ::= PrimaryExpression (("*" | "/") PrimaryExpression)* ;
+PrimaryExpression    ::= StateLiteral | PayloadReference | Identifier | "(" StateExpression ")" | SampleExpression ;
 PayloadReference    ::= "payload" "." Identifier ;
 PrimitiveType       ::= "int" | "float" | "bool" | "string" ;
 ```
@@ -46,12 +50,13 @@ Expected JSON values: `world = "CounterDemo"`, `state.Counter.count = 2`, `state
 
 - Each declaration name is unique within a World. Fields have unique names and exactly typed primitive initializers; `bool` is not an `int`.
 - Optional source `event EventName(field: type, ...)` declarations define a same-owner record schema. Event declaration names and field names must be unique. An undeclared, legacy handler accepts only empty payloads.
-- `payload.field` can be read in a rule transition, as a value or the right operand in single-operator numeric `state +|-|*|/ payload.field` expressions. The field must exist in the current input event schema and match the assigned type without coercion.
+- `payload.field` can be read in a rule transition or as any numeric operand in a typed composable arithmetic expression. The field must exist in the current input event schema and match the assigned type without coercion.
 - Within each entity or agent, rule names and listened-to event names must be unique.
 - Each rule may assign a state field at most once, and only fields of its own declaration.
 - A rule may optionally declare a typed `when (field OP literal)` guard. The field must belong to the rule owner, and its primitive type must exactly match the literal. Numeric fields support all six comparison operators; booleans and strings support only `==` and `!=`.
 - Guards inspect the pre-event snapshot. A false guard consumes the input event but performs **no transitions and no source emissions**; the next rule can still process separately scheduled events. Guards do not call functions, sample probability, or invoke external effects.
-- Ordinary deterministic expressions accept primitive literals, same-owner state references and typed `payload.field` references. Numeric state references may use exactly one `+`, `-`, `*`, or `/` with a numeric literal, same-owner state reference, or payload field of matching exact numeric type. `+`, `-`, and `*` preserve that type; `/` always produces `float`, including `int / int`. Literal zero divisors are rejected during type checking; dynamic zero divisors, non-finite float operands/results, and integer-division conversion overflow fail with controlled execution diagnostics. `//` retains line-comment precedence. No chained expressions, implicit int-to-float conversion, string concatenation, precedence rules, function calls, parentheses, or cross-owner access.
+- Ordinary expressions accept primitive literals, same-owner state references, typed payload references and bounded binary trees. Standard precedence is multiplication/division before addition/subtraction; both levels are left-associative, and parentheses override precedence. Arithmetic operands require matching exact numeric types with no implicit cast. Addition, subtraction and multiplication preserve the operand type; division yields `float`. A literal zero divisor is rejected statically; dynamic zero, non-finite float operands/results and conversion overflow fail with controlled execution diagnostics. Parse complexity is bounded to 24 expression levels and 256 tokens. `//` retains its line-comment meaning. No arbitrary function calls, cross-owner reads or Python execution.
+
 - **Simultaneous assignments:** all right-hand expressions in a rule read the pre-event snapshot. For `a=1,b=2`, `transition a=b; transition b=a;` produces `a=2,b=1`, not `a=2,b=2`.
 - Previous states remain unmodified. The executor makes a deep copy of checked World definitions at construction, so subsequent mutations to the caller's AST cannot bypass type checking. Runtime returns the next state, processed event list, inert effect-intent list, and pending events.
 - Unknown event handlers fail explicitly. Source `emit Event after Delay;` or `emit Event(field = expr) after Delay;` schedules a local handler. Forward references are valid; target event arguments must match the declared schema exactly, and expressions read the pre-event snapshot. `max_events` bounds zero-delay recursion. Emitted events inherit their parent event priority, including zero-delay emissions. The executor does not emit external effects or reach providers.
@@ -153,7 +158,7 @@ uv run main.py run-world examples/marketing_lead_response.fnl \
 
 The reference case produces `spend=2.0`, `converted=true`, `revenue=100.0`, two processed events and no pending events. Changing only `--seed` to `2` produces `converted=false`, `revenue=0.0`. The `Lead` library models **a single exposure/journey per run**: repeated Impressions are ignored; it is not yet a population or repeated-campaign accounting engine.
 
-Local community imports can use `import "./custom.fnl" as Custom;`. Import resolution is confined to the importing file's directory or to the packaged `std:` namespace. Absolute paths, parent traversal, symlink escapes, cycles, unknown modules, duplicates, or modules with anything other than one exported declaration fail before execution. Direct parser calls without a file path cannot resolve imports.
+Legacy one-export imports use `import "./custom.fnl" as Custom;` and still require exactly one exported declaration. Multi-declaration modules use explicit named selection such as `import "./bundle.fnl" { Counter as Balance, Visitor as Lead };`. Unselected module owners are not imported. Import resolution remains confined to the importing file's directory or the packaged `std:` namespace. Absolute paths, parent traversal, symlink escapes, cycles, unknown names and duplicate local bindings fail before execution. Direct parser calls without a file path cannot resolve imports.
 
 `cpc` and `order_value` must be provided as finite floats, but **nonnegative monetary bounds are not yet enforced by the generic core**; they remain experiment assumptions. This demonstration is neither a calibrated conversion model nor a finance-valid forecast. See the [v0 Research Contract](https://github.com/funnelscript/funnelscript-research/blob/main/spec/marketing-stdlib-v0.md).
 
@@ -169,3 +174,8 @@ uv run pytest -v
 ```
 
 The tests exercise type rejection, state snapshot semantics, calendar order and replay, CLI boundaries, and compatibility with existing strategy tests. Passing tests establish interpreter correctness for this subset, not predictive validity.
+
+
+## Reproducible event playbooks (Phase 007G)
+
+The CLI accepts `run-world example.fnl --events-file example.json --seed 42`, with strict UTF-8 JSON `{"schema":"funnelscript-event-playbook-v1","events":[{"name":"Owner.Event","time":0,"payload":{}}]}`. It reuses the existing validated inline-event schema, event priority ordering and exact primitive payload typing. Duplicate JSON keys, unknown fields, negative/non-finite timestamps, wrong priorities, oversized files (over 1 MiB) and more than 10,000 records are rejected. Mixed `--events-file` and `--event` is not supported in this version. The example `examples/phase007g_world.fnl` with `examples/phase007g_events.json` exercises composable numeric expressions, two named imports and two events.

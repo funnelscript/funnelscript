@@ -187,7 +187,7 @@ uv run main.py run-world examples/counter_world.fnl \
   --event Counter.Pulse@0 --event Counter.Pulse@1 --seed 42
 ```
 
-The second command returns JSON with `Counter.count = 2`. Events are supplied explicitly as `Owner.Event@Time` and handled in timestamp order. Assignment expressions are deliberately restricted to primitive literals, same-owner state references, or numeric state plus/minus numeric literal of exactly the same type. Multiple assignments in one rule read the same pre-event state. No provider calls or predictions are produced. See [World rules reference](docs/LANGUAGE_REFERENCE_WORLD_RULES.md).
+The second command returns JSON with `Counter.count = 2`. Events are supplied explicitly as `Owner.Event@Time` and handled in timestamp order. World assignments now support typed, bounded and parenthesized arithmetic expressions with standard precedence, same-owner state references and event payload references. Multiple assignments in one rule read the same pre-event state. No provider calls or predictions are produced. See [World rules reference](docs/LANGUAGE_REFERENCE_WORLD_RULES.md).
 
 ---
 
@@ -324,3 +324,17 @@ For the theoretical paper, formal EBNF grammar, and mathematical proofs, see our
 ## License
 
 MIT License.
+
+
+### Phase 007G — composable World modules and event playbooks
+
+The versioned expression grammar now accepts nested numeric formulas with `*`/`/` preceding `+`/`-`, left associativity, and parentheses; exact `int`/`float` checking remains mandatory. A valid reusable module can export multiple entities and agents, selected explicitly by name and optional alias: `import "./phase007g_bundle.fnl" { Counter as Balance, Visitor as Lead };`. The former single-export `as Alias` form remains supported without change.
+
+Use the bundled reproducible example:
+
+```bash
+uv run main.py run-world examples/phase007g_world.fnl \
+  --events-file examples/phase007g_events.json --seed 42
+```
+
+The UTF-8 file is a strict `funnelscript-event-playbook-v1` JSON object with exact top-level `schema` and `events` keys. Each event uses the existing validated JSON `name`, `time`, optional `payload`, and optional `priority` fields. File size is capped at 1 MiB and event count at 10,000. `--events-file` cannot be mixed with `--event`. No providers, network actions or external effects are executed. See the research companion `spec/phase-007g-composable-language-v1.md` for the explicit boundaries.
