@@ -1,0 +1,22 @@
+{
+  "id": "P-RNG-ORDER-1",
+  "seed": 1,
+  "event_time": 0,
+  "first": [
+    "A.Tick",
+    "B.Tick"
+  ],
+  "reversed": [
+    "B.Tick",
+    "A.Tick"
+  ],
+  "expected_first": {
+    "A": 0.13436424411240122,
+    "B": 0.8474337369372327
+  },
+  "expected_reversed": {
+    "A": 0.8474337369372327,
+    "B": 0.13436424411240122
+  },
+  "provenance": "First two CPython random.Random(1).random() values, fixed independently in Phase 006; this fixture demonstrates global RNG order coupling, NOT population identity or keyed independence."
+}

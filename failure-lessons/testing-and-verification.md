@@ -492,3 +492,13 @@ Resolved as a deliberately test-first feature gap. No unrelated tests were weake
 **Correction:** Authored explicit floating-point JSON literals in the independent golden state and used two separately observable arithmetic boundaries: NaN operand rejection and `1e308 * 1e308` output overflow. The focused suite then passed 49 cases, and an equal-priority input-order perturbation check raised coverage to 50. Full application verification subsequently passed 336 tests plus 58 subtests; research verification passed five tests. Source interpreter modules were unchanged.
 
 **Invariant learned:** Oracle fixtures must preserve primitive number kinds at serialization boundaries and validate mathematical counterexamples independently of the implementation under test. RED from a mistaken fixture is not evidence of an interpreter defect; do not weaken the intended semantic rejection test to gain a green result.
+
+---
+
+## 22. Stable Agent RNG Cannot Be Claimed from a Shared Event Stream
+
+**Class:** Population-contract / reproducibility boundary. **Status:** BLOCKED, not a defect under accepted DEC-019/031. **Scope:** Phase 007, tests/test_population_reference.py and research spec/population-reference-v0.md.
+
+**Falsifier:** At seed 1, two equal-time source-named World owners each consume one uniform draw. Inserting A.Tick before B.Tick gives A=0.13436424411240122 and B=0.8474337369372327; reversing insertion order swaps these values. Both event orders replay under the same seed, but stable named-owner trajectories do not survive order perturbation. An explicit desired-invariant assertion produced exit 1; two passing boundary tests pin the current semantics without falsely claiming H-POP2 support.
+
+**Lesson and STOP:** Seeded replay is not stable identity-keyed random substreams. Do not produce a third test-only agent simulator, silently modify default World RNG semantics or declare a population benchmark based on source-named owners. An accepted future population identity, event-routing and keyed RNG contract is required before Phase 007 can verify H-POP1/H-POP2 or measure 10, 100 and 1,000 agents. Monetary conservation is a domain-level ledger obligation, not a compiler axiom. See research evals/population-reference-v0.md.
