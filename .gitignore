@@ -15,5 +15,7 @@ apps/web/dist/
 apps/web/node_modules/
 
 # Agent workspaces and plans
+/plans
+/.agents
 /plans/
 /.agents/
