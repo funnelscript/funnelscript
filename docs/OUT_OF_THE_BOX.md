@@ -480,3 +480,7 @@ Not implemented. DEC-035 currently verifies 22 top-level names, indexed local en
 ### Phase 002 frontier boundary (2026-11-01)
 
 DEC-036 introduces only a finite per-event JSON input cap and explicit CLI error classes. General-purpose recursive JSON depth quotas, transactional multi-export writes and process-level isolation remain **unimplemented**. These would require distinct benchmarks and failure contracts; they are not silently promoted into the current CLI milestone or claimed as security guarantees.
+
+## Phase 007E — Future audit capability frontier
+
+Separately approved options include an operator-managed key hierarchy, independently anchored checkpoint digests and serializable shared-budget coordination. Hash chaining alone cannot authenticate a producer; multiple-writer arbitration needs a real ownership/scheduling contract and adversarial tests. All are deferred, not implemented.
