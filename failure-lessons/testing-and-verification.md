@@ -520,3 +520,24 @@ The negative two-source-owner P-RNG-ORDER-1 fixture remains authoritative and un
 **Correction:** Validate finite, bounded Decimal amounts to the supported two-minor-unit exponent and magnitude, then convert the explicit Decimal coefficient, sign and exponent directly into a Python integer number of minor units. Cash, receivables, payments and writeoffs aggregate exclusively with Python integer arithmetic; output Decimal values are reconstructed as explicit decimal strings. Ratios use a separate explicit local Decimal precision=28. Identical formerly failing test passed with exit 0, and the complete new ledger/population corpus passed 56 tests.
 
 **Prevention invariant:** Do not assume Decimal operations like `scaleb` and addition are context-precision invariant merely because inputs are Decimal rather than float. For exact bounded money, use integer minor units or an explicitly justified fixed-precision and trapped context, including adversarial reduced-precision tests. Claims of arbitrary-precision external financial accounting are not established by this v0 model.
+
+
+---
+
+## 24. Post-Execution Event Lists Do Not Prove Financial Causality (FL-024)
+
+**Class:** Event execution provenance and domain boundary. **Status:** RESOLVED for opt-in independent-world reference adapter in Phase 007C.
+
+**Observed RED:** `tests/test_transaction_provenance.py` initially failed an explicit assertion that `PopulationResult.steps` was present. The previously available `RunResult.processed` listed delivered events only, without proving whether a guard fired or which actual state transition occurred. A second assertion failed because marketing event-to-transaction recognition did not exist. Simply pairing a terminal population label with a matching sale would have concealed this missing evidence.
+
+**Correction:** A read-only, opt-in trace is recorded at the actual `WorldExecutor` reducer invocation, including guard, source state, destination state, event and processed occurrence. The domain sale adapter then requires an explicitly authored source-to-target policy, matches all submitted sales to actual execution evidence and forwards financial movements to the established exact ledger. False guards, duplicate delivered events, missing or forged source records, and reordered agent enrollment are executable adversarial fixtures. No compiler or default World changes.
+
+**Boundary:** Local indices are not kernel heap ordinals; event histories can shift them. An in-process trace is reproducible evidence, not signed provenance or a real-world cause-and-effect study. No remote reviewer certification was obtained.
+
+## 25. Reused Trace Sink Can Contaminate Event Occurrence IDs (FL-025)
+
+**Class:** Replay identity and mutable caller output. **Status:** RESOLVED.
+
+**Observed RED:** A trace sink passed through two `WorldExecutor.run` calls appended the second run after the first. The per-run processed occurrence counter would begin at the pre-existing list length, creating false source identities. The explicit regression raised `Failed: DID NOT RAISE ValueError` before the fix.
+
+**Correction:** The opt-in trace sink must be a fresh empty list; reuse or incompatible containers raise `ValueError` before event processing. A subsequent focused `uv run pytest -q tests/test_transaction_provenance.py` passed 24 tests (later expanded to 28). This prevents accidental inter-run mixing, not deliberate mutation of an already returned in-memory trace.

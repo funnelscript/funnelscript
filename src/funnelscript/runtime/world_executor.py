@@ -6,7 +6,8 @@ Research: funnelscript-research/spec/rule-transitions-v0.md (H-R1 to H-R4).
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import dataclass
+from copy import deepcopy
+from dataclasses import dataclass, field
 import hashlib
 import json
 import math
@@ -33,6 +34,18 @@ WorldState = dict[str, dict[str, object]]
 
 class WorldExecutionError(ValueError):
     """A supplied event cannot be dispatched to a declared World rule."""
+
+
+@dataclass(frozen=True)
+class WorldEventStep:
+    """Observed World transition; index is processed order, not heap ordinal."""
+
+    occurrence_index: int
+    event: Event
+    owner: str
+    guard_matched: bool
+    before: dict[str, object]
+    after: dict[str, object]
 
 
 class WorldExecutor:
@@ -232,9 +245,25 @@ class WorldExecutor:
         seed: int = 0,
         until: float | None = None,
         max_events: int = 100_000,
+        trace: list[WorldEventStep] | None = None,
     ) -> RunResult[WorldState]:
-        """Lower source rules to a pure reducer using the existing event calendar."""
-        machine = EventMachine(self._step)
+        """Lower source rules without changing the default event calendar."""
+        if trace is not None and (type(trace) is not list or trace):
+            raise ValueError("trace sink must be a fresh empty list")
+
+        def observed_step(state: WorldState, event: Event, rng: random.Random) -> Transition[WorldState]:
+            handler = self.handlers.get(event.name)
+            transition = self._step(state, event, rng)
+            if trace is not None and handler is not None:
+                owner, rule = handler
+                trace.append(WorldEventStep(
+                    len(trace), deepcopy(event), owner,
+                    self._guard_matches(rule.guard, state[owner]),
+                    deepcopy(state[owner]), deepcopy(transition.state[owner]),
+                ))
+            return transition
+
+        machine = EventMachine(observed_step if trace is not None else self._step)
         return machine.run(
             self.initial_state(), events, seed=seed, until=until, max_events=max_events
         )
@@ -274,6 +303,7 @@ class PopulationResult:
     partitions: dict[str, frozenset[str]]
     segments: dict[str, frozenset[str]]
     cohorts: dict[str, frozenset[str]]
+    steps: dict[str, tuple[WorldEventStep, ...]] = field(default_factory=dict)
 
 
 class PopulationExecutor:
@@ -326,6 +356,7 @@ class PopulationExecutor:
         self, events_by_agent: Mapping[str, Iterable[Event]], *,
         stream_role: str = "world-transitions",
         until: float | None = None, max_events: int = 100_000,
+        trace: bool = False,
     ) -> PopulationResult:
         """Replay each agent-local event calendar; no cross-agent causal interactions."""
         _valid_identity(stream_role, "stream_role")
@@ -339,15 +370,20 @@ class PopulationExecutor:
         if len(set(seeds.values())) != len(seeds):
             raise ValueError("keyed stream seed collision")
         results: dict[str, RunResult[WorldState]] = {}
+        steps: dict[str, tuple[WorldEventStep, ...]] = {}
         partitions: dict[str, set[str]] = {state: set() for state in self.states}
         segments: dict[str, set[str]] = {}
         cohorts: dict[str, set[str]] = {}
         for agent in self.agents:
             aid = agent.agent_id
+            observed: list[WorldEventStep] = []
             output = self.world.run(
                 events_by_agent.get(aid, ()), seed=seeds[aid],
                 until=until, max_events=max_events,
+                trace=observed if trace else None,
             )
+            if trace:
+                steps[aid] = tuple(observed)
             state = output.state[self.owner][self.state_field]
             if state not in partitions:
                 raise ValueError(f"agent {aid} has an invalid checkpoint state")
@@ -363,4 +399,5 @@ class PopulationExecutor:
             partitions={k: frozenset(v) for k, v in partitions.items()},
             segments={k: frozenset(v) for k, v in segments.items()},
             cohorts={k: frozenset(v) for k, v in cohorts.items()},
+            steps=steps,
         )
