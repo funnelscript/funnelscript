@@ -10,9 +10,14 @@ from .provenance import (
     recognize_sales, post_provenanced_trial, post_authorized_trial,
 )
 
+from .audit import (AUDIT_SCHEMA, export_audit, restore_audit, replay_audit,
+                    write_audit_checkpoint, read_audit_checkpoint)
+
 __all__ = [
     "LedgerEntry", "LedgerSnapshot", "MarketingLedger",
     "TrialReferenceMetrics", "RiskReferenceMetrics", "evaluate_trial", "evaluate_risk",
     "DeclaredSalePolicy", "DeclaredFinancialAction", "EventProvenance", "ProvenancedSale", "ProvenancedTrial",
     "recognize_sales", "post_provenanced_trial", "post_authorized_trial",
+    "AUDIT_SCHEMA", "export_audit", "restore_audit", "replay_audit",
+    "write_audit_checkpoint", "read_audit_checkpoint",
 ]

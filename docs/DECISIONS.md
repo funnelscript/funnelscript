@@ -489,3 +489,7 @@
 * **Invariants:** In `check`/`compile`/`simulate`, known parser/lexer/type/JSON validation failures return 1, source-file read and export OSErrors return 2, and unexpected implementation faults propagate. Existing `run-world` runtime/error exit code 1 remains unchanged. The JSON byte bound includes whitespace and is applied per JSON `--event` argument, not to legacy `OWNER.EVENT@TIME` strings. `Event` retains sole responsibility for finite, nonnegative timestamps; user-supplied absolute export paths remain valid.
 * **Scope and rationale:** Narrow classification and failure reporting in the existing CLI; no parser grammar, event semantics, simulation economics, path sandbox, new dependency, or prediction claim. Export notices are delayed until all requested exports have succeeded; this is not multi-file atomicity.
 * **Verification boundary:** `tests/test_cli.py` contains direct falsification tests. A local green test run does not certify this behavior in the existing `v0.2.0a1` published tag.
+
+## Phase 007E — Implementation record, not an Accepted ADR (2026-11-01)
+
+An opt-in audit format (`funnelscript-financial-audit-v1`) and narrow single-writer checkpoint were implemented around `MarketingLedger`, with restore requiring independently supplied World execution trace and policy. Existing accepted decisions remain unchanged; no Accepted ADR is created. Unavailable trust roots, external authorization and multiple financial writers remain approval gates. See `docs/DEBATES.md` and the research spec.
