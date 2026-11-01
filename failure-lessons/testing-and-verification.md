@@ -507,3 +507,16 @@ Resolved as a deliberately test-first feature gap. No unrelated tests were weake
 ### Phase 007A follow-up (2026-11-01): opt-in independent-instance capability
 
 The negative two-source-owner P-RNG-ORDER-1 fixture remains authoritative and unchanged for default World execution. A narrowly scoped `PopulationExecutor` now delegates independent stable-ID instances to the *same* WorldExecutor/EventMachine, each with a versioned, SHA-256-derived explicit seed. Separate identity partitions include inactive/terminal agents. The first missing-API RED assertion and the separate one-shot-generator replay RED were both observed before implementation; 36 new focused cases then passed. Input events are restricted to replayable ordered sequences. Two segments at N=10/100/1000 and two named trials produced exact set partitions and order-invariant matched local outcomes. This does not address causally coupled agents, dynamic interaction, role separation inside one handler, or financial correctness. See research `evals/population-identity-rng-v0.md`. The **historical Phase 007 STOP remains valid for the original World API**, while H-POP2's independent-instance dependency is met by the explicit opt-in path.
+
+
+---
+
+## 23. Ambient Decimal Context Silently Corrupted Financial Minor Units (FL-023)
+
+**Class:** Financial precision and runtime environmental reproducibility. **Status:** RESOLVED in bounded Phase 007B. **Scope:** `src/funnelscript/stdlib/marketing/ledger.py` and `tests/test_financial_ledger.py`.
+
+**Observed behavioral RED:** Under `with decimal.localcontext() as ctx: ctx.prec=5`, the initial ledger implementation used `int(amount.scaleb(2))` to convert `Decimal("1234567.89")` into cents. The general Decimal arithmetic context rounded it to `Decimal("1234600.00")`. The failing reference test observed that actual result instead of the independently specified `1234567.89` gross recognized revenue and receivables, with exit 1. This is a production financial error, not merely formatting.
+
+**Correction:** Validate finite, bounded Decimal amounts to the supported two-minor-unit exponent and magnitude, then convert the explicit Decimal coefficient, sign and exponent directly into a Python integer number of minor units. Cash, receivables, payments and writeoffs aggregate exclusively with Python integer arithmetic; output Decimal values are reconstructed as explicit decimal strings. Ratios use a separate explicit local Decimal precision=28. Identical formerly failing test passed with exit 0, and the complete new ledger/population corpus passed 56 tests.
+
+**Prevention invariant:** Do not assume Decimal operations like `scaleb` and addition are context-precision invariant merely because inputs are Decimal rather than float. For exact bounded money, use integer minor units or an explicitly justified fixed-precision and trapped context, including adversarial reduced-precision tests. Claims of arbitrary-precision external financial accounting are not established by this v0 model.

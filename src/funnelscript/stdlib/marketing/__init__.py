@@ -1,0 +1,12 @@
+"""Opt-in domain-owned marketing reference accounting.
+
+No automatic compiler or World runtime policy.
+"""
+
+from .ledger import LedgerEntry, LedgerSnapshot, MarketingLedger
+from .metrics import RiskReferenceMetrics, TrialReferenceMetrics, evaluate_risk, evaluate_trial
+
+__all__ = [
+    "LedgerEntry", "LedgerSnapshot", "MarketingLedger",
+    "TrialReferenceMetrics", "RiskReferenceMetrics", "evaluate_trial", "evaluate_risk",
+]

@@ -31,6 +31,7 @@ This index categorizes all engineering failures, debugging breakthroughs, and re
 | **FL-020** | [Premature Finite-State Initializer Rejection](runtime-and-types.md#6-premature-finite-state-initialization-rejection-during-arithmetic-hardening-fl-020) | Runtime & Types | **Resolved** | New arithmetic finiteness guard accidentally changed existing initializer/payload validation timing |
 | **FL-021** | [Conformance Oracle Float Serialization and Invalid Overflow Probe](testing-and-verification.md#21-conformance-oracle-float-serialization-and-invalid-overflow-probe) | Testing & Verification | **Resolved** | Decimal-kind erasure in independent JSON golden and a mathematically finite negative probe |
 | **FL-022** | [Stable Agent RNG Cannot Be Claimed from a Shared Event Stream](testing-and-verification.md#22-stable-agent-rng-cannot-be-claimed-from-a-shared-event-stream) | Architecture & Verification | **Historical STOP; opt-in instance streams verified in 007A** | One default World run RNG remains coupled to event insertion order; isolated population instance streams are separately keyed |
+| **FL-023** | [Ambient Decimal Context Corrupted Monetary Minor Units](testing-and-verification.md#23-ambient-decimal-context-silently-corrupted-financial-minor-units-fl-023) | Financial Precision | **Resolved in 007B** | Decimal scaleb obeyed ambient precision and silently rounded monetary amounts |
 
 ---
 
