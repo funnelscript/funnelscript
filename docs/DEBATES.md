@@ -1029,3 +1029,16 @@ A critical trap in ambitious software projects is delaying release until a massi
 * **Option C, bounded curation (accepted):** Preserve 22 primary entrypoints and functional resources; correct verified path defects; remove duplicate archives and ignored generated output; label incomplete upstream dependency closure. Add cheap cross-repository tests.
 * **Trade-off:** The remaining upstream suites still include nonessential docs and nested integrations. Deeper pruning requires tracing nested code references, licensing and behavior contracts before removal. The current test proves entrypoint integrity, not that every vendor pipeline executes without network or external resources.
 * **Falsification:** H-B1 to H-B4, test RED/GREEN and actual disk/Git byte counts in `evals/skill-bundle-v0.md`. During final reconciliation, an independently reproduced missing local link in each checkout refuted the earlier completion claim; the precise entrypoint and registry-relative repairs then passed both full suites (app: 219 tests and 58 subtests; research: 5 tests).
+
+
+---
+
+## Debate 25: Transparent CLI Faults vs. Catch-All Error Suppression
+
+**Problem:** Should a CLI treat every exception raised during parsing as malformed user input and permit unbounded event JSON payloads?
+
+**Option A (rejected):** Catch `Exception` under a friendly "Parse Error" label and decode arbitrary event inputs. This hides developer defects, obscures filesystem faults, and leaves per-argument resource usage undefined.
+
+**Option B (accepted as DEC-036):** Catch known lexical, syntactic, type and JSON validation errors explicitly, separate filesystem failures as I/O status 2, and let unanticipated implementation faults surface. Enforce a 64 KiB UTF-8 cap before event JSON decoding while preserving the Event dataclass's existing timestamp invariant and documented absolute export paths.
+
+**Trade-offs and falsification:** A fixed byte limit can reject an intentionally large but valid JSON event; the limit is documented and can be reevaluated with measured workloads. Export status is not transactional if an earlier file was already written. H-CLI1 to H-CLI3 use regression tests to separate expected user failures from internal faults; none establish defense against arbitrary nested JSON complexity or externally supplied malicious filesystem environments.

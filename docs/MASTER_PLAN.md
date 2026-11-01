@@ -369,3 +369,10 @@ The published `v0.2.0a1` Git-source preview is unchanged. This documentation-onl
 ## Developer Skill Bundle Hygiene Milestone (2026-10-31)
 
 Repository-bundled contributor skills remain a separate, optional tooling layer, not part of the FunnelScript source interpreter. Each checkout retains 22 primary SKILL.md entrypoints; four research-search directory names now match their frontmatter and the index. A missing academic-paper language-pair registry was narrowly restored, with other upstream shared protocols explicitly flagged as unresolved. One unreferenced J-Space ZIP was removed. Generated Deep Digger Rust target outputs, ignored by Git, were cleaned with cargo in each checkout, removing 38.3 MiB per checkout without touching source. Conformance tests initially found six defects per repository. An interim green report was invalidated by a fresh failing entrypoint-link test in both checkouts; correcting the SKILL-to-registry and registry-to-abstract-guide relative paths yielded final app **219 passed, 58 subtests passed** and research **5 passed**. Research specification and evaluation: `spec/skill-bundle-v0.md` and `evals/skill-bundle-v0.md`. The release-critical World runtime and public v0.2.0a1 source tag are unchanged.
+
+
+---
+
+### Phase 002 CLI Boundary Hardening (2026-11-01)
+
+An implementation slice of the existing Developer Tooling phase now explicitly separates user-level parser failures (exit 1), input/export filesystem failures (exit 2), and unexpected internal exceptions (not mislabeled as syntax). JSON-form `--event` arguments are capped at 65,536 UTF-8 bytes before parsing, and export success notices are deferred until requested writes succeed. These adjustments do not revise parser grammar, World scheduling, engine calibration, or the experimental-release evidence boundary. See DEC-036 and `tests/test_cli.py`.

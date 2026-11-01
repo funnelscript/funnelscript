@@ -473,3 +473,10 @@ A future dependency scanner could build a graph of all bundled skill instruction
 ### Boundary
 
 Not implemented. DEC-035 currently verifies 22 top-level names, indexed local entrypoints, direct Markdown resource links and obvious duplicate archives. Its 2026-10-31 full-suite GREEN receipt confirms the repaired direct-link boundary, not transitive closure, vendor licenses or independent AI-agent execution.
+
+
+---
+
+### Phase 002 frontier boundary (2026-11-01)
+
+DEC-036 introduces only a finite per-event JSON input cap and explicit CLI error classes. General-purpose recursive JSON depth quotas, transactional multi-export writes and process-level isolation remain **unimplemented**. These would require distinct benchmarks and failure contracts; they are not silently promoted into the current CLI milestone or claimed as security guarantees.

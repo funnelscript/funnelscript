@@ -464,3 +464,16 @@ Resolved as a deliberately test-first feature gap. No unrelated tests were weake
 **Remediation:** Moved four tracked skill directories with Git, updated discovery names, removed the duplicate ZIP, and cleaned ignored Cargo artifacts using its exact manifest. Added a narrow registry derived from the original research-skill contract; documented that the broader academic-paper suite still references upstream shared protocols not fully vendored. Corrected the internal product-marketing note's false present-tense WASM, `fpm`, cloud and economic-outcome claims.
 
 **Prevention and limits:** Treat an intermediate GREEN as provisional until the final tree has been retested; validate the entrypoint-to-registry and registry-to-guide edges from their actual containing directories. Assert `name == directory`, a 22-skill index, direct resource existence, and no duplicate ZIP. Distinguish on-disk generated sizes from committed bytes. Do not prune nested tools, legal notices, datasets or tests based only on apparent duplication. The current checker does not validate transitive upstream dependencies, external URLs, license compatibility or actual model-agent behavior; OOTB-028 records that possible future gate.
+
+
+---
+
+## 19. Broad CLI Parser Catches and Premature Export Success
+
+**Class:** Diagnostic ambiguity / unbounded input / partial-export reporting. **Scope:** `src/funnelscript/cli.py` and `tests/test_cli.py`. **Research:** DEC-036, H-CLI1 to H-CLI3.
+
+**Baseline falsifier:** Seven focused tests failed before implementation: injected `AttributeError` was displayed as a parser fault in two entrypoints, two injected `PermissionError` read failures returned validation status, two oversized JSON inputs reached `json.loads`, and a second export failure escaped after a CSV success message.
+
+**Correction:** Catch only declared parser/lexer/type/JSON failures and explicit source I/O errors; reject >64 KiB JSON event arguments before decoding; catch export `OSError` and postpone all success notices. Keep timestamp rules with `Event` and permit user-selected absolute output paths.
+
+**Limit:** Output files can still be partially created before a later export fails; this correction prevents false success reporting, not partial writes. Compiler semantics and real-world prediction claims are unchanged.

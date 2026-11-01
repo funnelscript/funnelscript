@@ -18,9 +18,10 @@ from pathlib import Path
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
+from pydantic import ValidationError
 
 from funnelscript.compiler.linter import FunnelLinter, LintSeverity
-from funnelscript.compiler.world_ast import WorldAST
+from funnelscript.compiler.world_ast import WorldAST, WorldTypeError
 from funnelscript.compiler.schema import export_json_schema
 from funnelscript.parser import Parser, ParserError
 from funnelscript.tokens import LexerError
@@ -34,6 +35,8 @@ from funnelscript.runtime.exporters import (
 )
 
 console = Console()
+
+MAX_EVENT_JSON_BYTES = 64 * 1024
 
 WORLD_STARTER = """world MarketingPreview {
   import "std:marketing/lead_response.fnl" as Prospect;
@@ -57,10 +60,13 @@ def check_command(file_path: str, quiet: bool = False) -> int:
 
     try:
         ast = Parser.from_file(str(path))
-    except Exception as e:
+    except (LexerError, ParserError, WorldTypeError, ValidationError, json.JSONDecodeError) as exc:
         if not quiet:
-            console.print(Panel(f"[bold red]❌ Parse Error:[/bold red]\n{e}", border_style="red"))
+            console.print(Panel(f"[bold red]❌ Parse Error:[/bold red]\n{exc}", border_style="red"))
         return 1
+    except (OSError, UnicodeError) as exc:
+        print(f"Input I/O error: {exc}", file=sys.stderr)
+        return 2
 
     if isinstance(ast, WorldAST):
         if not quiet:
@@ -137,7 +143,9 @@ def _unique_json_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
 
 def _parse_world_input_event(spec: str) -> Event:
     """Accept legacy qualified timestamps or a JSON-encoded event record."""
-    if spec.lstrip().startswith("{"):
+    if spec.lstrip().startswith(("{", "[")):
+        if len(spec.encode("utf-8")) > MAX_EVENT_JSON_BYTES:
+            raise ValueError("JSON event exceeds the 64 KiB UTF-8 input limit")
         data = json.loads(spec, object_pairs_hook=_unique_json_object)
         if type(data) is not dict:
             raise ValueError("JSON event must be an object")
@@ -214,10 +222,13 @@ def simulate_command(
 
     try:
         ast = Parser.from_file(str(path))
-    except Exception as e:
+    except (LexerError, ParserError, WorldTypeError, ValidationError, json.JSONDecodeError) as exc:
         if not as_json:
-            console.print(Panel(f"[bold red]❌ Parse Error:[/bold red]\n{e}", border_style="red"))
+            console.print(Panel(f"[bold red]❌ Parse Error:[/bold red]\n{exc}", border_style="red"))
         return 1
+    except (OSError, UnicodeError) as exc:
+        print(f"Input I/O error: {exc}", file=sys.stderr)
+        return 2
 
     if isinstance(ast, WorldAST):
         if not as_json:
@@ -230,14 +241,19 @@ def simulate_command(
     engine = SimulationEngine(ast)
     report = engine.run(num_trials=trials, agents_count=agents, record_trajectories=True)
 
-    if export_csv:
-        export_trials_to_csv(report, export_csv)
-        if not as_json:
-            console.print(f"[bold green]✔ Monte Carlo trials exported to CSV:[/bold green] {export_csv}")
+    try:
+        if export_csv:
+            export_trials_to_csv(report, export_csv)
+        if export_json_path:
+            export_report_to_json(report, export_json_path)
+    except OSError as exc:
+        print(f"Export I/O error: {exc}", file=sys.stderr)
+        return 2
 
-    if export_json_path:
-        export_report_to_json(report, export_json_path)
-        if not as_json:
+    if not as_json:
+        if export_csv:
+            console.print(f"[bold green]✔ Monte Carlo trials exported to CSV:[/bold green] {export_csv}")
+        if export_json_path:
             console.print(f"[bold green]✔ Simulation Report exported to JSON:[/bold green] {export_json_path}")
 
     if as_json:
