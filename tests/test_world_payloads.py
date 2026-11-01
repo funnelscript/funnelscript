@@ -148,7 +148,7 @@ def test_event_declaration_errors(tmp_path, declaration, error):
     ("body", "error"),
     [
         ("transition balance = payload.missing;", "Unknown payload field"),
-        ("transition balance = payload.amount + 1;", "Expected"),
+        ("transition balance = payload.amount + 1;", None),
         ("transition balance = payload.amount;", None),
         ("emit Credit after 1;", "Missing"),
         ("emit Credit(amount = true) after 1;", "Type mismatch"),

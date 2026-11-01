@@ -156,7 +156,6 @@ def test_checker_rejects_ambiguous_handlers(tmp_path, fragment, error):
     "source",
     [
         "world W { entity E { state n: int = 1; rule R event Go { transition n = 2; } } }",
-        "world W { entity E { state n: int = 1; rule R on event Go { transition n = n * 2 + 3; } } }",
         "world W { entity E { state n: int = 1; rule R on event Go { transition n = 2 } } }",
     ],
 )
@@ -365,9 +364,27 @@ def test_slash_comment_precedence_and_binary_tokenization(tmp_path):
     assert result.state["Math"]["result"] == 4.0
 
 
-@pytest.mark.parametrize("expression", ["n * d + 2", "n / d / 2", "n + d * 2", "n *", "n / (d)", "n / sample uniform(1.0, 2.0)"])
-def test_chained_or_malformed_arithmetic_is_rejected(tmp_path, expression):
+@pytest.mark.parametrize("expression", ["n *", "n + (d", "n / )"])
+def test_malformed_arithmetic_is_rejected(tmp_path, expression):
     with pytest.raises(ParserError):
+        parse_source(tmp_path, arithmetic_world(expression))
+
+
+@pytest.mark.parametrize(("expression", "result_type", "expected"), [
+    ("n * d + 2", "int", 38), ("n + d * 2", "int", 18),
+    ("n / (d)", "float", 4.0),
+])
+def test_newly_supported_arithmetic_is_semantically_checked(tmp_path, expression, result_type, expected):
+    from funnelscript.runtime.world_executor import WorldExecutor
+    model = WorldExecutor(parse_source(tmp_path, arithmetic_world(expression, result_type=result_type)))
+    result = model.run([Event(0, "Math.Calculate")])
+    assert result.state["Math"]["result"] == expected
+
+
+@pytest.mark.parametrize("expression", ["n / d / 2", "n / sample uniform(1.0, 2.0)"])
+def test_chained_arithmetic_does_not_silently_coerce_mixed_numeric_types(tmp_path, expression):
+    from funnelscript.compiler.world_ast import WorldTypeError
+    with pytest.raises(WorldTypeError, match="Type mismatch"):
         parse_source(tmp_path, arithmetic_world(expression))
 
 

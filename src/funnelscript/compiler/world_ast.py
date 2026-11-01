@@ -35,8 +35,8 @@ class ReferenceExpression(BaseModel):
 class BinaryExpression(BaseModel):
     kind: Literal["binary"] = "binary"
     operator: Literal["+", "-", "*", "/"]
-    left: ReferenceExpression
-    right: LiteralExpression | PayloadFieldExpression | ReferenceExpression
+    left: StateExpression
+    right: StateExpression
 
 
 class SampleExpression(BaseModel):
@@ -277,6 +277,8 @@ class WorldTypeChecker:
         if isinstance(expr, SampleExpression):
             return cls._sample_type(expr, types, payload_types or {})
         if isinstance(expr, BinaryExpression):
+            if cls._expression_depth(expr) > 24:
+                raise WorldTypeError("Arithmetic expression depth limit exceeded")
             left_type = cls._expression_type(expr.left, types, payload_types)
             right_type = cls._expression_type(expr.right, types, payload_types)
             if left_type not in ("int", "float") or right_type not in ("int", "float"):
@@ -291,6 +293,13 @@ class WorldTypeChecker:
                 return "float"
             return left_type
         raise WorldTypeError("Unknown state expression")
+
+    @staticmethod
+    def _expression_depth(expr: StateExpression) -> int:
+        if not isinstance(expr, BinaryExpression):
+            return 1
+        return 1 + max(WorldTypeChecker._expression_depth(expr.left),
+                       WorldTypeChecker._expression_depth(expr.right))
 
     @classmethod
     def _sample_type(

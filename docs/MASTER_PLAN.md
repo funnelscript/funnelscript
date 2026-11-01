@@ -456,3 +456,8 @@ Domain-only APIs: `marketing.export_audit(population, policy, linked)`, `restore
 ### Phase 007F — Bounded financial commit/recovery contract (implementation checkpoint)
 
 Opt-in `marketing.commit_financial_checkpoint`, `recover_financial_checkpoint` and `verify_financial_receipt` use the existing Phase 007E canonical audit, exact `MarketingLedger`, and single-writer atomic checkpoint to issue versioned deterministic checksum receipts after verified publication. Changed checkpoints require the previous trusted receipt; ambiguous write failures require recovery rather than success. Six actual World integration/restart configurations and adversarial fault injections are recorded in the companion research repository (`spec/financial-commit-recovery-007f.md`, `evals/financial-commit-recovery-007f.md`). The protocol neither authenticates external authority, prevents an independently unanchored older image rollback, nor serializes multiple writers. Not a new accepted ADR or compiler/World semantic change.
+
+
+### Phase 007G — Bounded composable World language (proposed implementation record)
+
+Typed nested arithmetic with precedence and source-level parenthesization, named imports from multi-export modules, and strict versioned JSON event playbooks are opt-in syntax/input extensions. Snapshot-atomic transitions, keyed RNG, the legacy SimulationEngine, and Phase 007A–007F financial semantics remain untouched. Do not interpret parser test parity as scientific equivalence between legacy and World runtimes. See companion spec `phase-007g-composable-language-v1.md` and corresponding reproducible event playbook tests. No new accepted ADR.

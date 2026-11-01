@@ -236,7 +236,7 @@ class Parser:
         name = str(self.expect(TokenType.IDENTIFIER).value)
         self.expect(TokenType.LBRACE)
         declarations: list[dict[str, Any]] = []
-        imports: list[tuple[str, str]] = []
+        imports: list[tuple[str, list[tuple[str | None, str]]]] = []
 
         while self.current().type != TokenType.RBRACE:
             if self.current().type == TokenType.EOF:
@@ -244,12 +244,9 @@ class Parser:
             kind = self.expect(TokenType.IDENTIFIER)
             if kind.value == "import":
                 reference = str(self.expect(TokenType.STRING).value)
-                alias_keyword = self.expect(TokenType.IDENTIFIER)
-                if alias_keyword.value != "as":
-                    raise ParserError("Expected 'as' after module path", alias_keyword)
-                alias = str(self.expect(TokenType.IDENTIFIER).value)
+                selected = self._parse_import_bindings()
                 self.expect(TokenType.SEMICOLON)
-                imports.append((reference, alias))
+                imports.append((reference, selected))
                 continue
             if kind.value not in ("entity", "agent"):
                 raise ParserError("Expected entity, agent or import declaration", kind)
@@ -268,19 +265,45 @@ class Parser:
         self.expect(TokenType.EOF, "Unexpected content after world declaration")
         if imports and source_path is None:
             raise ParserError("World module imports require a source file path")
-        for reference, alias in imports:
+        for reference, selected in imports:
             path = self._module_path(reference, source_path)
             module = self._load_file(path, ancestors)
             if not isinstance(module, WorldAST):
                 raise ParserError("World module must contain a world declaration")
-            if len(module.declarations) != 1:
+            if selected[0][0] is None and len(module.declarations) != 1:
                 raise ParserError("World module must export exactly one declaration")
-            imported = module.declarations[0].model_copy(deep=True)
-            imported.name = alias
-            declarations.append(imported.model_dump())
+            exported = {item.name: item for item in module.declarations}
+            for symbol, alias in selected:
+                export_name = next(iter(exported)) if symbol is None and exported else symbol
+                if export_name not in exported:
+                    raise ParserError(f"Unknown World module export '{export_name}'")
+                imported = exported[export_name].model_copy(deep=True)
+                imported.name = alias
+                declarations.append(imported.model_dump())
         ast = WorldAST.model_validate({"name": name, "declarations": declarations})
         WorldTypeChecker.check(ast)
         return ast
+
+    def _parse_import_bindings(self) -> list[tuple[str | None, str]]:
+        if self.match(TokenType.LBRACE):
+            selected: list[tuple[str | None, str]] = []
+            if self.current().type == TokenType.RBRACE:
+                raise ParserError("Named World module import cannot be empty", self.current())
+            while True:
+                symbol = str(self.expect(TokenType.IDENTIFIER).value)
+                alias = symbol
+                if self.current().type == TokenType.IDENTIFIER and self.current().value == "as":
+                    self.pos += 1
+                    alias = str(self.expect(TokenType.IDENTIFIER).value)
+                selected.append((symbol, alias))
+                if not self.match(TokenType.COMMA):
+                    break
+            self.expect(TokenType.RBRACE)
+            return selected
+        alias_keyword = self.expect(TokenType.IDENTIFIER)
+        if alias_keyword.value != "as":
+            raise ParserError("Expected 'as' after module path", alias_keyword)
+        return [(None, str(self.expect(TokenType.IDENTIFIER).value))]
 
     def _parse_world_members(
         self,
@@ -407,42 +430,44 @@ class Parser:
         }
 
     def _parse_rule_expression(self) -> dict[str, Any]:
-        tok = self.current()
-        if tok.type == TokenType.IDENTIFIER and tok.value == "sample" and (
+        start = self.pos
+        result = self._parse_arithmetic(0, 0)
+        if self.pos - start > 256:
+            raise ParserError("Arithmetic expression token limit exceeded", self.current())
+        return result
+
+    def _parse_arithmetic(self, minimum: int, depth: int) -> dict[str, Any]:
+        if depth > 24:
+            raise ParserError("Arithmetic expression depth limit exceeded", self.current())
+        left = self._parse_primary(depth + 1)
+        precedence = {TokenType.PLUS: (1, "+"), TokenType.MINUS: (1, "-"),
+                      TokenType.STAR: (2, "*"), TokenType.SLASH: (2, "/")}
+        while self.current().type in precedence:
+            level, operator = precedence[self.current().type]
+            if level < minimum:
+                break
+            self.pos += 1
+            right = self._parse_arithmetic(level + 1, depth + 1)
+            left = {"kind": "binary", "operator": operator, "left": left, "right": right}
+        return left
+
+    def _parse_primary(self, depth: int) -> dict[str, Any]:
+        token = self.current()
+        if self.match(TokenType.LPAREN):
+            expression = self._parse_arithmetic(0, depth)
+            self.expect(TokenType.RPAREN, "Missing closing expression parenthesis")
+            return expression
+        if token.type == TokenType.IDENTIFIER and token.value == "sample" and (
             self.peek() is not None and self.peek().type == TokenType.IDENTIFIER
         ):
             return self._parse_sample_expression()
-        if tok.type == TokenType.IDENTIFIER and tok.value == "payload" and (
+        if token.type == TokenType.IDENTIFIER and token.value == "payload" and (
             self.peek() is not None and self.peek().type == TokenType.DOT
         ):
             return self._parse_payload_reference()
-        if tok.type == TokenType.IDENTIFIER and tok.value not in ("true", "false"):
+        if token.type == TokenType.IDENTIFIER and token.value not in ("true", "false"):
             self.pos += 1
-            reference = {"kind": "reference", "name": str(tok.value)}
-            operators = {
-                TokenType.PLUS: "+", TokenType.MINUS: "-",
-                TokenType.STAR: "*", TokenType.SLASH: "/",
-            }
-            operation = self.current()
-            if operation.type not in operators:
-                return reference
-            self.pos += 1
-            right_token = self.current()
-            if right_token.type == TokenType.IDENTIFIER and right_token.value == "payload" and (
-                self.peek() is not None and self.peek().type == TokenType.DOT
-            ):
-                right = self._parse_payload_reference()
-            elif right_token.type == TokenType.IDENTIFIER and right_token.value not in ("true", "false"):
-                self.pos += 1
-                right = {"kind": "reference", "name": str(right_token.value)}
-            else:
-                right = {"kind": "literal", "value": self._parse_world_literal()}
-            if self.current().type in operators:
-                raise ParserError("Chained binary operators are not supported", self.current())
-            return {
-                "kind": "binary", "operator": operators[operation.type],
-                "left": reference, "right": right,
-            }
+            return {"kind": "reference", "name": str(token.value)}
         return {"kind": "literal", "value": self._parse_world_literal()}
 
     def _parse_sample_expression(self) -> dict[str, Any]:
