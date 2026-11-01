@@ -1,0 +1,23 @@
+{
+  "id": "P-KEYED-1",
+  "algorithm": "population-rng-v1/sha256-mt19937",
+  "seed": 1,
+  "stream_role": "world-transitions",
+  "source": "identity-rng.fnl",
+  "canonical_preimage": "[\"population-rng-v1\",1,\"trial-1\",\"agent-000\",\"world-transitions\"]",
+  "trial-1": {
+    "agent-000": {
+      "digest": "8f4f6d5087da7bf410bb3d4387ae4b0efeef21b78730df44d42fbd90f658f8da",
+      "draws": [0.15311003683137503, 0.8942108333437118]
+    },
+    "agent-001": {
+      "digest": "f5f018cc6446f20be5c771834216afcc5d2532fb20f33b4264ef0c96ca11da61",
+      "draws": [0.7905505363492208, 0.9135983467787107]
+    }
+  },
+  "trial-2": {
+    "agent-000": {"first": 0.38727023169593455},
+    "agent-001": {"first": 0.12862839062877407}
+  },
+  "provenance": "Independent Python standard-library one-off reference computation, SHA-256 of specified JSON tuple then random.Random(full_digest_integer); these numbers were NOT computed with PopulationExecutor."
+}

@@ -36,6 +36,8 @@ class TokenType(Enum):
     COLON = auto()
     MINUS = auto()
     PLUS = auto()
+    STAR = auto()
+    SLASH = auto()
     DOTDOT = auto()
     DOT = auto()
     LBRACE = auto()
@@ -159,6 +161,8 @@ class Lexer:
                 ":": TokenType.COLON,
                 "-": TokenType.MINUS,
                 "+": TokenType.PLUS,
+                "*": TokenType.STAR,
+                "/": TokenType.SLASH,
                 ">": TokenType.GT,
                 "<": TokenType.LT,
                 ".": TokenType.DOT,

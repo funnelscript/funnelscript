@@ -1,0 +1,1 @@
+world Broken { import "../outside.fnl" as Outside; }

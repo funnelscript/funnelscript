@@ -131,3 +131,22 @@ def test_existing_strategy_parser_remains_compatible():
     ast = Parser.from_file("examples/black_friday_2026.fnl")
     assert ast.strategy_name
     assert len(ast.entities.touchpoints) >= 1
+
+
+@pytest.mark.parametrize("method", ["parse_world", "parse_strategy", "current"])
+def test_empty_parser_tokens_fail_with_deliberate_diagnostic(method):
+    with pytest.raises(ParserError, match="Unexpected end of token stream"):
+        getattr(Parser([]), method)()
+
+
+@pytest.mark.parametrize("source", ["", "  # comment only\n // another comment\n", "world", "world X { entity E { state x: int ="])
+def test_empty_or_truncated_source_fails_without_index_error(tmp_path, source):
+    with pytest.raises(ParserError):
+        parse_world(tmp_path, source)
+
+
+def test_exhausted_non_eof_token_stream_has_deliberate_diagnostic():
+    from funnelscript.tokens import Token, TokenType
+
+    with pytest.raises(ParserError, match="Unexpected end of token stream"):
+        Parser([Token(TokenType.IDENTIFIER, "world", 1, 1)]).parse_world()

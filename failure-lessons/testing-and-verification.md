@@ -464,3 +464,80 @@ Resolved as a deliberately test-first feature gap. No unrelated tests were weake
 **Remediation:** Moved four tracked skill directories with Git, updated discovery names, removed the duplicate ZIP, and cleaned ignored Cargo artifacts using its exact manifest. Added a narrow registry derived from the original research-skill contract; documented that the broader academic-paper suite still references upstream shared protocols not fully vendored. Corrected the internal product-marketing note's false present-tense WASM, `fpm`, cloud and economic-outcome claims.
 
 **Prevention and limits:** Treat an intermediate GREEN as provisional until the final tree has been retested; validate the entrypoint-to-registry and registry-to-guide edges from their actual containing directories. Assert `name == directory`, a 22-skill index, direct resource existence, and no duplicate ZIP. Distinguish on-disk generated sizes from committed bytes. Do not prune nested tools, legal notices, datasets or tests based only on apparent duplication. The current checker does not validate transitive upstream dependencies, external URLs, license compatibility or actual model-agent behavior; OOTB-028 records that possible future gate.
+
+
+---
+
+## 19. Broad CLI Parser Catches and Premature Export Success
+
+**Class:** Diagnostic ambiguity / unbounded input / partial-export reporting. **Scope:** `src/funnelscript/cli.py` and `tests/test_cli.py`. **Research:** DEC-036, H-CLI1 to H-CLI3.
+
+**Baseline falsifier:** Seven focused tests failed before implementation: injected `AttributeError` was displayed as a parser fault in two entrypoints, two injected `PermissionError` read failures returned validation status, two oversized JSON inputs reached `json.loads`, and a second export failure escaped after a CSV success message.
+
+**Correction:** Catch only declared parser/lexer/type/JSON failures and explicit source I/O errors; reject >64 KiB JSON event arguments before decoding; catch export `OSError` and postpone all success notices. Keep timestamp rules with `Event` and permit user-selected absolute output paths.
+
+**Limit:** Output files can still be partially created before a later export fails; this correction prevents false success reporting, not partial writes. Compiler semantics and real-world prediction claims are unchanged.
+
+
+---
+
+## 21. Conformance Oracle Float Serialization and Invalid Overflow Probe
+
+**Class:** Golden-trace provenance / negative-test construction. **Status:** Corrected within Phase 006. **Scope:** `tests/fixtures/world-conformance/cases.json`, `tests/test_world_conformance.py`.
+
+**Observed:** The first focused oracle run yielded 47 passes and two failures. The arithmetic golden fixture encoded `9.0`, `3.0` and `3.0` as JSON integers because an intermediate JavaScript JSON serializer erased the decimal spelling. The non-finite-result test incorrectly assumed that `1e308 / 1e308` overflows; it actually produces finite `1.0`.
+
+**Discrimination:** The first diff showed correct runtime float output versus wrongly integer-encoded expected JSON. The second reported `DID NOT RAISE` for a mathematically finite quotient. Neither result established a production semantic defect.
+
+**Correction:** Authored explicit floating-point JSON literals in the independent golden state and used two separately observable arithmetic boundaries: NaN operand rejection and `1e308 * 1e308` output overflow. The focused suite then passed 49 cases, and an equal-priority input-order perturbation check raised coverage to 50. Full application verification subsequently passed 336 tests plus 58 subtests; research verification passed five tests. Source interpreter modules were unchanged.
+
+**Invariant learned:** Oracle fixtures must preserve primitive number kinds at serialization boundaries and validate mathematical counterexamples independently of the implementation under test. RED from a mistaken fixture is not evidence of an interpreter defect; do not weaken the intended semantic rejection test to gain a green result.
+
+---
+
+## 22. Stable Agent RNG Cannot Be Claimed from a Shared Event Stream
+
+**Class:** Population-contract / reproducibility boundary. **Status:** BLOCKED, not a defect under accepted DEC-019/031. **Scope:** Phase 007, tests/test_population_reference.py and research spec/population-reference-v0.md.
+
+**Falsifier:** At seed 1, two equal-time source-named World owners each consume one uniform draw. Inserting A.Tick before B.Tick gives A=0.13436424411240122 and B=0.8474337369372327; reversing insertion order swaps these values. Both event orders replay under the same seed, but stable named-owner trajectories do not survive order perturbation. An explicit desired-invariant assertion produced exit 1; two passing boundary tests pin the current semantics without falsely claiming H-POP2 support.
+
+**Lesson and STOP:** Seeded replay is not stable identity-keyed random substreams. Do not produce a third test-only agent simulator, silently modify default World RNG semantics or declare a population benchmark based on source-named owners. An accepted future population identity, event-routing and keyed RNG contract is required before Phase 007 can verify H-POP1/H-POP2 or measure 10, 100 and 1,000 agents. Monetary conservation is a domain-level ledger obligation, not a compiler axiom. See research evals/population-reference-v0.md.
+
+
+### Phase 007A follow-up (2026-11-01): opt-in independent-instance capability
+
+The negative two-source-owner P-RNG-ORDER-1 fixture remains authoritative and unchanged for default World execution. A narrowly scoped `PopulationExecutor` now delegates independent stable-ID instances to the *same* WorldExecutor/EventMachine, each with a versioned, SHA-256-derived explicit seed. Separate identity partitions include inactive/terminal agents. The first missing-API RED assertion and the separate one-shot-generator replay RED were both observed before implementation; 36 new focused cases then passed. Input events are restricted to replayable ordered sequences. Two segments at N=10/100/1000 and two named trials produced exact set partitions and order-invariant matched local outcomes. This does not address causally coupled agents, dynamic interaction, role separation inside one handler, or financial correctness. See research `evals/population-identity-rng-v0.md`. The **historical Phase 007 STOP remains valid for the original World API**, while H-POP2's independent-instance dependency is met by the explicit opt-in path.
+
+
+---
+
+## 23. Ambient Decimal Context Silently Corrupted Financial Minor Units (FL-023)
+
+**Class:** Financial precision and runtime environmental reproducibility. **Status:** RESOLVED in bounded Phase 007B. **Scope:** `src/funnelscript/stdlib/marketing/ledger.py` and `tests/test_financial_ledger.py`.
+
+**Observed behavioral RED:** Under `with decimal.localcontext() as ctx: ctx.prec=5`, the initial ledger implementation used `int(amount.scaleb(2))` to convert `Decimal("1234567.89")` into cents. The general Decimal arithmetic context rounded it to `Decimal("1234600.00")`. The failing reference test observed that actual result instead of the independently specified `1234567.89` gross recognized revenue and receivables, with exit 1. This is a production financial error, not merely formatting.
+
+**Correction:** Validate finite, bounded Decimal amounts to the supported two-minor-unit exponent and magnitude, then convert the explicit Decimal coefficient, sign and exponent directly into a Python integer number of minor units. Cash, receivables, payments and writeoffs aggregate exclusively with Python integer arithmetic; output Decimal values are reconstructed as explicit decimal strings. Ratios use a separate explicit local Decimal precision=28. Identical formerly failing test passed with exit 0, and the complete new ledger/population corpus passed 56 tests.
+
+**Prevention invariant:** Do not assume Decimal operations like `scaleb` and addition are context-precision invariant merely because inputs are Decimal rather than float. For exact bounded money, use integer minor units or an explicitly justified fixed-precision and trapped context, including adversarial reduced-precision tests. Claims of arbitrary-precision external financial accounting are not established by this v0 model.
+
+
+---
+
+## 24. Post-Execution Event Lists Do Not Prove Financial Causality (FL-024)
+
+**Class:** Event execution provenance and domain boundary. **Status:** RESOLVED for opt-in independent-world reference adapter in Phase 007C.
+
+**Observed RED:** `tests/test_transaction_provenance.py` initially failed an explicit assertion that `PopulationResult.steps` was present. The previously available `RunResult.processed` listed delivered events only, without proving whether a guard fired or which actual state transition occurred. A second assertion failed because marketing event-to-transaction recognition did not exist. Simply pairing a terminal population label with a matching sale would have concealed this missing evidence.
+
+**Correction:** A read-only, opt-in trace is recorded at the actual `WorldExecutor` reducer invocation, including guard, source state, destination state, event and processed occurrence. The domain sale adapter then requires an explicitly authored source-to-target policy, matches all submitted sales to actual execution evidence and forwards financial movements to the established exact ledger. False guards, duplicate delivered events, missing or forged source records, and reordered agent enrollment are executable adversarial fixtures. No compiler or default World changes.
+
+**Boundary:** Local indices are not kernel heap ordinals; event histories can shift them. An in-process trace is reproducible evidence, not signed provenance or a real-world cause-and-effect study. No remote reviewer certification was obtained.
+
+## 25. Reused Trace Sink Can Contaminate Event Occurrence IDs (FL-025)
+
+**Class:** Replay identity and mutable caller output. **Status:** RESOLVED.
+
+**Observed RED:** A trace sink passed through two `WorldExecutor.run` calls appended the second run after the first. The per-run processed occurrence counter would begin at the pre-existing list length, creating false source identities. The explicit regression raised `Failed: DID NOT RAISE ValueError` before the fix.
+
+**Correction:** The opt-in trace sink must be a fresh empty list; reuse or incompatible containers raise `ValueError` before event processing. A subsequent focused `uv run pytest -q tests/test_transaction_provenance.py` passed 24 tests (later expanded to 28). This prevents accidental inter-run mixing, not deliberate mutation of an already returned in-memory trace.

@@ -1,0 +1,21 @@
+{
+  "id": "P-LEDGER-1",
+  "trial_id": "trial-1",
+  "currency": "SAR",
+  "time_unit": "day",
+  "horizon": 3,
+  "minimum_settlement_delay": 2,
+  "cash_initial": "100.00",
+  "insolvency_threshold": "0.00",
+  "journal": [
+    {"trial_id": "trial-1", "tx_id": "ad-1", "day": 0, "kind": "ad_spend", "amount": "20.00", "currency": "SAR", "source_tx_id": null},
+    {"trial_id": "trial-1", "tx_id": "cost-1", "day": 0, "kind": "other_cost", "amount": "5.00", "currency": "SAR", "source_tx_id": null},
+    {"trial_id": "trial-1", "tx_id": "sale-1", "day": 1, "kind": "sale", "amount": "60.00", "currency": "SAR", "source_tx_id": null},
+    {"trial_id": "trial-1", "tx_id": "settle-1", "day": 3, "kind": "settlement", "amount": "30.00", "currency": "SAR", "source_tx_id": "sale-1"}
+  ],
+  "expected_at_horizon_1": {"cash": "75.00", "receivables": "60.00", "revenue": "60.00", "settled": "0.00"},
+  "expected_at_horizon_3": {"cash": "105.00", "receivables": "30.00", "revenue": "60.00", "settled": "30.00", "ads": "20.00", "other_costs": "5.00", "profit": "35.00"},
+  "population": {"eligible": 10, "converted": 3, "north": {"eligible": 4, "converted": 1}, "south": {"eligible": 6, "converted": 2}},
+  "expected_metrics": {"conversion_rate": "0.3", "cac_decimal_28": "6.666666666666666666666666667", "roas": "3"},
+  "provenance": "Hand-specified book arithmetic and fractional-rank examples from research population-reference-v0.md; not generated using production ledger."
+}

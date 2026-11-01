@@ -85,7 +85,7 @@ funnelscript run-world examples/counter_world.fnl \
 ```
 
 * `file`: `.fnl` source with a `world` declaration containing `entity` / `agent`, typed `state`, and `rule` definitions.
-* `--event OWNER.EVENT@TIME` or JSON: Provide a qualified event and non-negative finite timestamp; can be repeated. For typed payloads, use a JSON record with `name`, `time`, and `payload`, e.g. `--event '{"name":"Wallet.Credit","time":0,"payload":{"amount":8}}'`. The order of repeated flags is preserved.
+* `--event OWNER.EVENT@TIME` or JSON: Provide a qualified event and non-negative finite timestamp; can be repeated. For typed payloads, use a JSON object with `name`, `time`, and `payload`, e.g. `--event '{"name":"Wallet.Credit","time":0,"payload":{"amount":8}}'`. The order of repeated flags is preserved. Each JSON event argument is limited to **64 KiB (65,536 UTF-8 bytes)**, including whitespace; oversized inputs fail before JSON decoding. This limit does not apply to the short `OWNER.EVENT@TIME` form. Duplicate or unexpected JSON fields, non-object JSON, invalid event times, and wrong typed payloads are rejected.
 * `--seed <int>`: Seed for the World run's pseudorandom stream (default `0`). Repeating the same source, ordered events and seed replays the same decisions; other seeds may yield the same result by chance.
 * `--max-events <int>`: Positive processing limit (default `100000`). It also bounds recursive zero-delay source emission.
 
@@ -166,4 +166,8 @@ funnelscript schema --output spec/schema.json
 | :---: | :--- | :--- |
 | **0** | `SUCCESS` | Strategy compiled, checked, or simulated without invariant violations. |
 | **1** | `VALIDATION_OR_RUNTIME_ERROR` | Syntax/invariant failures or, for `run-world`, invalid World input, unknown event, missing file, or processing-limit error. |
-| **2** | `IO_ERROR` | Target file does not exist or cannot be read/written. |
+| **2** | `IO_ERROR` | Target file does not exist or cannot be read/written, including failed simulation exports. |
+
+### Phase 003 arithmetic and EOF diagnostic boundary
+
+World rules support one exact-typed binary `+`, `-`, `*`, or `/` expression (`state OP literal|state|payload.field`); `/` returns float, zero divisors and non-finite float arithmetic are rejected, and `//` remains a comment. Missing operands and exhausted parser streams raise deliberate parser errors. Use `--event Counter.Pulse@0` for `examples/counter_world.fnl`: `Counter.Tick@0` belongs to `examples/guarded_world.fnl` and is not declared in that counter example. See [World Rules Language Reference](LANGUAGE_REFERENCE_WORLD_RULES.md).

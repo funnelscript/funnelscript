@@ -1,0 +1,28 @@
+{
+  "id": "P-PROV-1",
+  "source": "tests/fixtures/population-reference/identity-rng.fnl",
+  "trial_id": "trial-1",
+  "seed": 11,
+  "time_unit": "day",
+  "event": {"time": 1, "name": "Visitor.Tick", "priority": 0, "payload": null},
+  "converted_agent_ids": ["agent-0000", "agent-0004", "agent-0005"],
+  "unconverted_agent_ids": ["agent-0001", "agent-0002", "agent-0003", "agent-0006", "agent-0007", "agent-0008", "agent-0009"],
+  "segments": {"north": 4, "south": 6},
+  "event_digest": "25db46724a54dc5ac72716a594a7d1e26d4b8d60b41852809865f788b7cbea8b",
+  "transaction_ids": {
+    "agent-0000": "sale-v1-50be4bda4581cfe42865579edf23b9177af122690360cdf00b0d339cc31673e8",
+    "agent-0004": "sale-v1-e324b80ee3e131fa84d6e28e6a8cce3c2515b9ccce9be3fe1cac6b5201addd83",
+    "agent-0005": "sale-v1-fc277ace51eef80252555b3d1c3067721917db9e1c3649b52aceedd61d5a9982"
+  },
+  "financial_oracle": {
+    "cash_initial": "100.00",
+    "ad_spend_day0": "20.00",
+    "other_cost_day0": "5.00",
+    "sale_amount_each_day1": "20.00",
+    "settlement_each_day3": "10.00",
+    "minimum_settlement_delay": 2,
+    "expected_day1": {"cash": "75.00", "receivables": "60.00", "recognized": "60.00"},
+    "expected_day3": {"cash": "105.00", "receivables": "30.00", "recognized": "60.00", "profit": "35.00"}
+  },
+  "oracle_origin": "Independent hand-chosen cohort/events/financial arithmetic; transaction IDs separately calculated from specification using bare stdlib hashlib and JSON, not the production adapter."
+}

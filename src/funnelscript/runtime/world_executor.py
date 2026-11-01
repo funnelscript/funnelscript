@@ -5,9 +5,14 @@ Research: funnelscript-research/spec/rule-transitions-v0.md (H-R1 to H-R4).
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping, Sequence
+from copy import deepcopy
+from dataclasses import dataclass, field
+import hashlib
+import json
 import math
 import random
+import re
 
 from funnelscript.compiler.world_ast import (
     BinaryExpression,
@@ -29,6 +34,18 @@ WorldState = dict[str, dict[str, object]]
 
 class WorldExecutionError(ValueError):
     """A supplied event cannot be dispatched to a declared World rule."""
+
+
+@dataclass(frozen=True)
+class WorldEventStep:
+    """Observed World transition; index is processed order, not heap ordinal."""
+
+    occurrence_index: int
+    event: Event
+    owner: str
+    guard_matched: bool
+    before: dict[str, object]
+    after: dict[str, object]
 
 
 class WorldExecutor:
@@ -73,7 +90,26 @@ class WorldExecutor:
         if isinstance(expr, BinaryExpression):
             left = snapshot[expr.left.name]
             right = WorldExecutor._evaluate(expr.right, snapshot, payload, rng)
-            return left + right if expr.operator == "+" else left - right
+            if type(left) is not type(right) or type(left) not in (int, float):
+                raise WorldExecutionError("Arithmetic operands must have matching numeric types")
+            if type(left) is float and (not math.isfinite(left) or not math.isfinite(right)):
+                raise WorldExecutionError("Non-finite arithmetic operand")
+            if expr.operator == "/" and right == 0:
+                raise WorldExecutionError("Division by zero")
+            try:
+                if expr.operator == "+":
+                    result = left + right
+                elif expr.operator == "-":
+                    result = left - right
+                elif expr.operator == "*":
+                    result = left * right
+                else:
+                    result = left / right
+            except OverflowError as exc:
+                raise WorldExecutionError("Non-finite arithmetic result") from exc
+            if type(result) is float and not math.isfinite(result):
+                raise WorldExecutionError("Non-finite arithmetic result")
+            return result
         raise WorldExecutionError("Unknown expression type")
 
     @staticmethod
@@ -209,9 +245,159 @@ class WorldExecutor:
         seed: int = 0,
         until: float | None = None,
         max_events: int = 100_000,
+        trace: list[WorldEventStep] | None = None,
     ) -> RunResult[WorldState]:
-        """Lower source rules to a pure reducer using the existing event calendar."""
-        machine = EventMachine(self._step)
+        """Lower source rules without changing the default event calendar."""
+        if trace is not None and (type(trace) is not list or trace):
+            raise ValueError("trace sink must be a fresh empty list")
+
+        def observed_step(state: WorldState, event: Event, rng: random.Random) -> Transition[WorldState]:
+            handler = self.handlers.get(event.name)
+            transition = self._step(state, event, rng)
+            if trace is not None and handler is not None:
+                owner, rule = handler
+                trace.append(WorldEventStep(
+                    len(trace), deepcopy(event), owner,
+                    self._guard_matches(rule.guard, state[owner]),
+                    deepcopy(state[owner]), deepcopy(transition.state[owner]),
+                ))
+            return transition
+
+        machine = EventMachine(observed_step if trace is not None else self._step)
         return machine.run(
             self.initial_state(), events, seed=seed, until=until, max_events=max_events
+        )
+
+
+RNG_DERIVATION_VERSION = "population-rng-v1/sha256-mt19937"
+_ID_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:-]*", re.ASCII)
+
+
+def _valid_identity(value: object, name: str) -> str:
+    if type(value) is not str or _ID_PATTERN.fullmatch(value) is None:
+        raise ValueError(f"{name} must be a nonempty canonical ASCII identity")
+    return value
+
+
+@dataclass(frozen=True)
+class PopulationAgent:
+    """One explicitly enrolled instance of a source-defined World agent template."""
+
+    agent_id: str
+    cohort_id: str
+    segment_id: str
+
+    def __post_init__(self) -> None:
+        for field in ("agent_id", "cohort_id", "segment_id"):
+            _valid_identity(getattr(self, field), field)
+
+
+@dataclass(frozen=True)
+class PopulationResult:
+    """Complete identity-indexed, terminal-inclusive snapshot for one trial."""
+
+    trial_id: str
+    stream_role: str
+    rng_version: str
+    results: dict[str, RunResult[WorldState]]
+    partitions: dict[str, frozenset[str]]
+    segments: dict[str, frozenset[str]]
+    cohorts: dict[str, frozenset[str]]
+    steps: dict[str, tuple[WorldEventStep, ...]] = field(default_factory=dict)
+
+
+class PopulationExecutor:
+    """Opt-in isolated World runs with stable enrolled identity, not a scheduler."""
+
+    def __init__(
+        self, world: WorldExecutor, agents: Sequence[PopulationAgent], *,
+        seed: int, trial_id: str, state_field: str, states: Sequence[str],
+    ) -> None:
+        if not isinstance(world, WorldExecutor):
+            raise TypeError("world must be a WorldExecutor")
+        if len(world.world.declarations) != 1 or world.world.declarations[0].kind != "agent":
+            raise ValueError("Population execution requires one World agent template")
+        if type(seed) is not int or not 0 <= seed < 2**64:
+            raise ValueError("seed must be an unsigned 64-bit integer")
+        self.trial_id = _valid_identity(trial_id, "trial_id")
+        self.seed = seed
+        self.owner = world.world.declarations[0].name
+        self.world = world
+        if not isinstance(agents, Sequence) or not agents:
+            raise ValueError("population must be a nonempty finite sequence")
+        self.agents = tuple(agents)
+        if any(not isinstance(item, PopulationAgent) for item in self.agents):
+            raise TypeError("population entries must be PopulationAgent")
+        self.ids = frozenset(item.agent_id for item in self.agents)
+        if len(self.ids) != len(self.agents):
+            raise ValueError("duplicate agent_id")
+        self.state_field = _valid_identity(state_field, "state_field")
+        self.states = tuple(_valid_identity(value, "state") for value in states)
+        if not self.states or len(set(self.states)) != len(self.states):
+            raise ValueError("states must be nonempty and unique")
+        field = next(
+            (item for item in world.world.declarations[0].states
+             if item.name == state_field), None
+        )
+        if field is None or field.type_name != "string" or field.value not in self.states:
+            raise ValueError("state_field must have a declared, valid initial string state")
+
+    def stream_seed(self, agent_id: str, *, stream_role: str = "world-transitions") -> int:
+        """Return the fully specified, versioned identity-derived MT seed."""
+        _valid_identity(agent_id, "agent_id")
+        _valid_identity(stream_role, "stream_role")
+        if agent_id not in self.ids:
+            raise ValueError("unknown agent_id")
+        identity = ["population-rng-v1", self.seed, self.trial_id, agent_id, stream_role]
+        encoded = json.dumps(identity, ensure_ascii=True, separators=(",", ":")).encode()
+        return int.from_bytes(hashlib.sha256(encoded).digest(), "big")
+
+    def run(
+        self, events_by_agent: Mapping[str, Iterable[Event]], *,
+        stream_role: str = "world-transitions",
+        until: float | None = None, max_events: int = 100_000,
+        trace: bool = False,
+    ) -> PopulationResult:
+        """Replay each agent-local event calendar; no cross-agent causal interactions."""
+        _valid_identity(stream_role, "stream_role")
+        if not isinstance(events_by_agent, Mapping):
+            raise TypeError("events_by_agent must map agent IDs to ordered events")
+        if set(events_by_agent) - self.ids:
+            raise ValueError("unknown event owner")
+        if any(not isinstance(events, Sequence) for events in events_by_agent.values()):
+            raise TypeError("agent events must be ordered, replayable sequences")
+        seeds = {aid: self.stream_seed(aid, stream_role=stream_role) for aid in self.ids}
+        if len(set(seeds.values())) != len(seeds):
+            raise ValueError("keyed stream seed collision")
+        results: dict[str, RunResult[WorldState]] = {}
+        steps: dict[str, tuple[WorldEventStep, ...]] = {}
+        partitions: dict[str, set[str]] = {state: set() for state in self.states}
+        segments: dict[str, set[str]] = {}
+        cohorts: dict[str, set[str]] = {}
+        for agent in self.agents:
+            aid = agent.agent_id
+            observed: list[WorldEventStep] = []
+            output = self.world.run(
+                events_by_agent.get(aid, ()), seed=seeds[aid],
+                until=until, max_events=max_events,
+                trace=observed if trace else None,
+            )
+            if trace:
+                steps[aid] = tuple(observed)
+            state = output.state[self.owner][self.state_field]
+            if state not in partitions:
+                raise ValueError(f"agent {aid} has an invalid checkpoint state")
+            partitions[state].add(aid)
+            segments.setdefault(agent.segment_id, set()).add(aid)
+            cohorts.setdefault(agent.cohort_id, set()).add(aid)
+            results[aid] = output
+        if set(results) != self.ids or set().union(*partitions.values()) != self.ids:
+            raise RuntimeError("population identity partition violation")
+        return PopulationResult(
+            trial_id=self.trial_id, stream_role=stream_role,
+            rng_version=RNG_DERIVATION_VERSION, results=results,
+            partitions={k: frozenset(v) for k, v in partitions.items()},
+            segments={k: frozenset(v) for k, v in segments.items()},
+            cohorts={k: frozenset(v) for k, v in cohorts.items()},
+            steps=steps,
         )

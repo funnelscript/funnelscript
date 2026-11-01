@@ -477,3 +477,15 @@
 * **Provenance:** Agent Skills format specification; research H-B1 through H-B4 (`spec/skill-bundle-v0.md`) and conformance evaluations. App and research checkouts retain separate ownership while mirroring the 22 primary skill directories.
 * **Risk boundary:** The vendored `academic-paper` pipeline refers to upstream shared protocols not fully bundled. A narrow default language-pair registry is included for the observed broken link, but complete offline agent-pipeline behavior is not claimed. Do not erase vendor evidence/scripts simply to reduce line counts.
 * **Observed impact:** Four naming mismatches and one entrypoint-link failure were corrected; the registry's own abstract-guide link now resolves relative to its actual location. A redundant J-Space archive was removed; ignored Cargo build output was cleaned without changing tracked Rust code. Final full regression: application 219 passed (58 subtests), research 5 passed. No FunnelScript World or marketing simulation semantics change.
+
+
+---
+
+### DEC-036: Explicit CLI Failure Taxonomy and Bounded JSON Event Inputs
+
+* **Status:** Accepted as an experimental CLI boundary contract (2026-11-01).
+* **Research anchor:** Fail-fast parser contracts, bounded untrusted input parsing, and the existing exact-typed event and finite-time semantics of DEC-030.
+* **Falsifiable hypotheses:** H-CLI1 unexpected parser implementation faults must not be reported as user syntax errors; H-CLI2 an event JSON input exceeding 65,536 UTF-8 bytes must fail before decoding; H-CLI3 an exporter filesystem failure must return I/O status 2 without an earlier export-success report.
+* **Invariants:** In `check`/`compile`/`simulate`, known parser/lexer/type/JSON validation failures return 1, source-file read and export OSErrors return 2, and unexpected implementation faults propagate. Existing `run-world` runtime/error exit code 1 remains unchanged. The JSON byte bound includes whitespace and is applied per JSON `--event` argument, not to legacy `OWNER.EVENT@TIME` strings. `Event` retains sole responsibility for finite, nonnegative timestamps; user-supplied absolute export paths remain valid.
+* **Scope and rationale:** Narrow classification and failure reporting in the existing CLI; no parser grammar, event semantics, simulation economics, path sandbox, new dependency, or prediction claim. Export notices are delayed until all requested exports have succeeded; this is not multi-file atomicity.
+* **Verification boundary:** `tests/test_cli.py` contains direct falsification tests. A local green test run does not certify this behavior in the existing `v0.2.0a1` published tag.

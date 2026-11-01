@@ -34,9 +34,9 @@ class ReferenceExpression(BaseModel):
 
 class BinaryExpression(BaseModel):
     kind: Literal["binary"] = "binary"
-    operator: Literal["+", "-"]
+    operator: Literal["+", "-", "*", "/"]
     left: ReferenceExpression
-    right: LiteralExpression | PayloadFieldExpression
+    right: LiteralExpression | PayloadFieldExpression | ReferenceExpression
 
 
 class SampleExpression(BaseModel):
@@ -260,6 +260,8 @@ class WorldTypeChecker:
         payload_types: dict[str, str] | None = None,
     ) -> str:
         if isinstance(expr, LiteralExpression):
+            if type(expr.value) is float and not math.isfinite(expr.value):
+                raise WorldTypeError("Non-finite float literal")
             for name, value_type in cls.PRIMITIVES.items():
                 if type(expr.value) is value_type:
                     return name
@@ -283,6 +285,10 @@ class WorldTypeChecker:
                 raise WorldTypeError(
                     f"Type mismatch in arithmetic: {left_type} versus {right_type}"
                 )
+            if expr.operator == "/":
+                if isinstance(expr.right, LiteralExpression) and expr.right.value == 0:
+                    raise WorldTypeError("Division by literal zero")
+                return "float"
             return left_type
         raise WorldTypeError("Unknown state expression")
 

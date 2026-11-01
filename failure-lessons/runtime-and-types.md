@@ -219,3 +219,15 @@ N/A (Scaffolding process)
 
 ### Status
 **Resolved**
+
+---
+
+## 6. Premature Finite-State Initialization Rejection During Arithmetic Hardening (FL-020)
+
+**Symptom:** First Phase 003 `uv run pytest -q` returned 1 failed / 282 passed / 58 subtests because `test_outbound_payload_is_checked_before_entering_pending_calendar` uses an externally constructed infinity state to prove a later outbound record validation boundary.
+
+**Root cause:** Applying finite-float arithmetic safety indiscriminately to state initializers altered an existing independent error-timing contract. The required invariant was only that arithmetic operands and produced floating-point values be finite; it did not authorize a change to all World initial states.
+
+**Correction:** Remove the new initializer finiteness rule while retaining exact primitive initializer typing. Runtime arithmetic rejects non-finite operands and outputs explicitly; existing payload emission validation still fails when trying to publish an invalid float. Re-run the existing regression and the complete application suite.
+
+**Evidence:** Focused existing regression 1 passed (exit 0); final 283 Python tests and 58 subtests passed (exit 0). Keep compiler changes narrow and preserve error precedence across components.
