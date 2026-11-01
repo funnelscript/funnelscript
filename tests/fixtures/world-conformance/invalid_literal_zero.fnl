@@ -1,0 +1,1 @@
+world Broken { entity A { state n: float = 0.0; state d: float = 2.0; rule R on event Go { transition n = d / 0.0; } } }

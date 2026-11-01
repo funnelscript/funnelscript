@@ -1,0 +1,1 @@
+world Broken { entity A { state n: int = 0; rule R on event Go { transition n = missing; } } }

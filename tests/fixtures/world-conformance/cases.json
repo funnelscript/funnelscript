@@ -1,0 +1,597 @@
+{
+  "schema": "world-conformance/v0",
+  "cases": [
+    {
+      "id": "C-SNAPSHOT",
+      "source": "snapshot.fnl",
+      "events": [
+        {
+          "time": 0,
+          "priority": 0,
+          "name": "Pair.Go",
+          "payload": null
+        }
+      ],
+      "seed": 1,
+      "expected": {
+        "state": {
+          "Pair": {
+            "left": 2,
+            "right": 1
+          }
+        },
+        "processed": [
+          {
+            "time": 0,
+            "priority": 0,
+            "name": "Pair.Go",
+            "payload": null
+          }
+        ],
+        "pending": [],
+        "intents": []
+      }
+    },
+    {
+      "id": "C-ORDER",
+      "source": "ordering.fnl",
+      "events": [
+        {
+          "time": 1,
+          "priority": 0,
+          "name": "Log.Trigger",
+          "payload": null
+        },
+        {
+          "time": 1,
+          "priority": 0,
+          "name": "Log.Mark",
+          "payload": {
+            "digit": 1
+          }
+        },
+        {
+          "time": 1,
+          "priority": -1,
+          "name": "Log.Mark",
+          "payload": {
+            "digit": 2
+          }
+        },
+        {
+          "time": 1,
+          "priority": 0,
+          "name": "Log.Mark",
+          "payload": {
+            "digit": 3
+          }
+        }
+      ],
+      "seed": 7,
+      "expected": {
+        "state": {
+          "Log": {
+            "sum": 10
+          }
+        },
+        "processed": [
+          {
+            "time": 1,
+            "priority": -1,
+            "name": "Log.Mark",
+            "payload": {
+              "digit": 2
+            }
+          },
+          {
+            "time": 1,
+            "priority": 0,
+            "name": "Log.Trigger",
+            "payload": null
+          },
+          {
+            "time": 1,
+            "priority": 0,
+            "name": "Log.Mark",
+            "payload": {
+              "digit": 1
+            }
+          },
+          {
+            "time": 1,
+            "priority": 0,
+            "name": "Log.Mark",
+            "payload": {
+              "digit": 3
+            }
+          },
+          {
+            "time": 1,
+            "priority": 0,
+            "name": "Log.Mark",
+            "payload": {
+              "digit": 4
+            }
+          }
+        ],
+        "pending": [],
+        "intents": []
+      }
+    },
+    {
+      "id": "C-RNG-SEED-1",
+      "source": "stochastic.fnl",
+      "events": [
+        {
+          "time": 0,
+          "priority": 0,
+          "name": "A.Skip",
+          "payload": null
+        },
+        {
+          "time": 1,
+          "priority": 0,
+          "name": "A.Tick",
+          "payload": null
+        }
+      ],
+      "seed": 1,
+      "expected": {
+        "state": {
+          "A": {
+            "enabled": false,
+            "first": 0.13436424411240122,
+            "second": false,
+            "count": 1
+          }
+        },
+        "processed": [
+          {
+            "time": 0,
+            "priority": 0,
+            "name": "A.Skip",
+            "payload": null
+          },
+          {
+            "time": 1,
+            "priority": 0,
+            "name": "A.Tick",
+            "payload": null
+          }
+        ],
+        "pending": [],
+        "intents": []
+      }
+    },
+    {
+      "id": "C-RNG-SEED-2",
+      "source": "stochastic.fnl",
+      "events": [
+        {
+          "time": 0,
+          "priority": 0,
+          "name": "A.Skip",
+          "payload": null
+        },
+        {
+          "time": 1,
+          "priority": 0,
+          "name": "A.Tick",
+          "payload": null
+        }
+      ],
+      "seed": 2,
+      "expected": {
+        "state": {
+          "A": {
+            "enabled": false,
+            "first": 0.9560342718892494,
+            "second": false,
+            "count": 1
+          }
+        },
+        "processed": [
+          {
+            "time": 0,
+            "priority": 0,
+            "name": "A.Skip",
+            "payload": null
+          },
+          {
+            "time": 1,
+            "priority": 0,
+            "name": "A.Tick",
+            "payload": null
+          }
+        ],
+        "pending": [],
+        "intents": []
+      }
+    },
+    {
+      "id": "C-RNG-NO-SKIP",
+      "source": "stochastic.fnl",
+      "events": [
+        {
+          "time": 1,
+          "priority": 0,
+          "name": "A.Tick",
+          "payload": null
+        }
+      ],
+      "seed": 1,
+      "expected": {
+        "state": {
+          "A": {
+            "enabled": false,
+            "first": 0.13436424411240122,
+            "second": false,
+            "count": 1
+          }
+        },
+        "processed": [
+          {
+            "time": 1,
+            "priority": 0,
+            "name": "A.Tick",
+            "payload": null
+          }
+        ],
+        "pending": [],
+        "intents": []
+      }
+    },
+    {
+      "id": "C-TYPED",
+      "source": "typed.fnl",
+      "events": [
+        {
+          "time": 0,
+          "priority": 0,
+          "name": "Sink.Apply",
+          "payload": {
+            "n": 3
+          }
+        }
+      ],
+      "seed": 4,
+      "expected": {
+        "state": {
+          "Sink": {
+            "seen": 6
+          }
+        },
+        "processed": [
+          {
+            "time": 0,
+            "priority": 0,
+            "name": "Sink.Apply",
+            "payload": {
+              "n": 3
+            }
+          },
+          {
+            "time": 1,
+            "priority": 0,
+            "name": "Sink.Follow",
+            "payload": {
+              "n": 3
+            }
+          }
+        ],
+        "pending": [],
+        "intents": []
+      }
+    },
+    {
+      "id": "C-PENDING",
+      "source": "typed.fnl",
+      "events": [
+        {
+          "time": 0,
+          "priority": 0,
+          "name": "Sink.Apply",
+          "payload": {
+            "n": 3
+          }
+        }
+      ],
+      "seed": 4,
+      "until": 0,
+      "expected": {
+        "state": {
+          "Sink": {
+            "seen": 3
+          }
+        },
+        "processed": [
+          {
+            "time": 0,
+            "priority": 0,
+            "name": "Sink.Apply",
+            "payload": {
+              "n": 3
+            }
+          }
+        ],
+        "pending": [
+          {
+            "time": 1,
+            "priority": 0,
+            "name": "Sink.Follow",
+            "payload": {
+              "n": 3
+            }
+          }
+        ],
+        "intents": []
+      }
+    },
+    {
+      "id": "C-IMPORT",
+      "source": "imported.fnl",
+      "events": [
+        {
+          "time": 0,
+          "priority": 0,
+          "name": "Imported.Pulse",
+          "payload": null
+        },
+        {
+          "time": 2,
+          "priority": 0,
+          "name": "Imported.Pulse",
+          "payload": null
+        }
+      ],
+      "seed": 3,
+      "expected": {
+        "state": {
+          "Imported": {
+            "total": 2
+          }
+        },
+        "processed": [
+          {
+            "time": 0,
+            "priority": 0,
+            "name": "Imported.Pulse",
+            "payload": null
+          },
+          {
+            "time": 2,
+            "priority": 0,
+            "name": "Imported.Pulse",
+            "payload": null
+          }
+        ],
+        "pending": [],
+        "intents": []
+      }
+    },
+    {
+      "id": "C-ARITH",
+      "source": "arithmetic.fnl",
+      "events": [
+        {
+          "time": 0,
+          "priority": 0,
+          "name": "Values.Calc",
+          "payload": null
+        }
+      ],
+      "seed": 0,
+      "expected": {
+        "state": {
+          "Values": {
+            "plus": 7,
+            "minus": 6,
+            "times": 12,
+            "fraction": 9.0,
+            "divisor": 3.0,
+            "quotient": 3.0
+          }
+        },
+        "processed": [
+          {
+            "time": 0,
+            "priority": 0,
+            "name": "Values.Calc",
+            "payload": null
+          }
+        ],
+        "pending": [],
+        "intents": []
+      }
+    },
+    {
+      "id": "R-EOF",
+      "source": "invalid_eof.fnl",
+      "events": [],
+      "seed": 0,
+      "reject": {
+        "boundary": "parse",
+        "exception": "ParserError",
+        "contains": "Expected state literal"
+      }
+    },
+    {
+      "id": "R-REF",
+      "source": "invalid_ref.fnl",
+      "events": [],
+      "seed": 0,
+      "reject": {
+        "boundary": "type",
+        "exception": "WorldTypeError",
+        "contains": "Unknown state reference"
+      }
+    },
+    {
+      "id": "R-MIXED-TYPES",
+      "source": "invalid_type.fnl",
+      "events": [],
+      "seed": 0,
+      "reject": {
+        "boundary": "type",
+        "exception": "WorldTypeError",
+        "contains": "Type mismatch in arithmetic"
+      }
+    },
+    {
+      "id": "R-LITERAL-ZERO",
+      "source": "invalid_literal_zero.fnl",
+      "events": [],
+      "seed": 0,
+      "reject": {
+        "boundary": "type",
+        "exception": "WorldTypeError",
+        "contains": "Division by literal zero"
+      }
+    },
+    {
+      "id": "R-IMPORT-PATH",
+      "source": "invalid_import.fnl",
+      "events": [],
+      "seed": 0,
+      "reject": {
+        "boundary": "import",
+        "exception": "ParserError",
+        "contains": "Invalid World module path"
+      }
+    },
+    {
+      "id": "R-DYNAMIC-ZERO",
+      "source": "dynamic_zero.fnl",
+      "events": [
+        {
+          "time": 0,
+          "priority": 0,
+          "name": "A.Go",
+          "payload": null
+        }
+      ],
+      "seed": 0,
+      "reject": {
+        "boundary": "runtime",
+        "exception": "WorldExecutionError",
+        "contains": "Division by zero"
+      }
+    },
+    {
+      "id": "R-PAYLOAD-MISSING",
+      "source": "typed.fnl",
+      "events": [
+        {
+          "time": 0,
+          "priority": 0,
+          "name": "Sink.Apply",
+          "payload": {}
+        }
+      ],
+      "seed": 0,
+      "reject": {
+        "boundary": "ingress",
+        "exception": "WorldExecutionError",
+        "contains": "Missing event payload fields"
+      }
+    },
+    {
+      "id": "R-PAYLOAD-BOOL",
+      "source": "typed.fnl",
+      "events": [
+        {
+          "time": 0,
+          "priority": 0,
+          "name": "Sink.Apply",
+          "payload": {
+            "n": true
+          }
+        }
+      ],
+      "seed": 0,
+      "reject": {
+        "boundary": "ingress",
+        "exception": "WorldExecutionError",
+        "contains": "Type mismatch"
+      }
+    },
+    {
+      "id": "R-PAYLOAD-EXTRA",
+      "source": "typed.fnl",
+      "events": [
+        {
+          "time": 0,
+          "priority": 0,
+          "name": "Sink.Apply",
+          "payload": {
+            "n": 3,
+            "x": 7
+          }
+        }
+      ],
+      "seed": 0,
+      "reject": {
+        "boundary": "ingress",
+        "exception": "WorldExecutionError",
+        "contains": "Unexpected event payload fields"
+      }
+    },
+    {
+      "id": "R-GUARDED-PAYLOAD",
+      "source": "stochastic.fnl",
+      "events": [
+        {
+          "time": 0,
+          "priority": 0,
+          "name": "A.Skip",
+          "payload": {
+            "bad": 1
+          }
+        }
+      ],
+      "seed": 0,
+      "reject": {
+        "boundary": "ingress",
+        "exception": "WorldExecutionError",
+        "contains": "Unexpected event payload fields"
+      }
+    },
+    {
+      "id": "R-LIMIT",
+      "source": "recursive.fnl",
+      "events": [
+        {
+          "time": 0,
+          "priority": 0,
+          "name": "Counter.Tick",
+          "payload": null
+        }
+      ],
+      "seed": 0,
+      "max_events": 2,
+      "reject": {
+        "boundary": "calendar",
+        "exception": "RuntimeError",
+        "contains": "max_events"
+      }
+    },
+    {
+      "id": "R-UNKNOWN-EVENT",
+      "source": "typed.fnl",
+      "events": [
+        {
+          "time": 0,
+          "priority": 0,
+          "name": "Sink.Other",
+          "payload": null
+        }
+      ],
+      "seed": 0,
+      "reject": {
+        "boundary": "ingress",
+        "exception": "WorldExecutionError",
+        "contains": "Unknown event"
+      }
+    }
+  ]
+}

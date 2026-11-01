@@ -477,3 +477,18 @@ Resolved as a deliberately test-first feature gap. No unrelated tests were weake
 **Correction:** Catch only declared parser/lexer/type/JSON failures and explicit source I/O errors; reject >64 KiB JSON event arguments before decoding; catch export `OSError` and postpone all success notices. Keep timestamp rules with `Event` and permit user-selected absolute output paths.
 
 **Limit:** Output files can still be partially created before a later export fails; this correction prevents false success reporting, not partial writes. Compiler semantics and real-world prediction claims are unchanged.
+
+
+---
+
+## 21. Conformance Oracle Float Serialization and Invalid Overflow Probe
+
+**Class:** Golden-trace provenance / negative-test construction. **Status:** Corrected within Phase 006. **Scope:** `tests/fixtures/world-conformance/cases.json`, `tests/test_world_conformance.py`.
+
+**Observed:** The first focused oracle run yielded 47 passes and two failures. The arithmetic golden fixture encoded `9.0`, `3.0` and `3.0` as JSON integers because an intermediate JavaScript JSON serializer erased the decimal spelling. The non-finite-result test incorrectly assumed that `1e308 / 1e308` overflows; it actually produces finite `1.0`.
+
+**Discrimination:** The first diff showed correct runtime float output versus wrongly integer-encoded expected JSON. The second reported `DID NOT RAISE` for a mathematically finite quotient. Neither result established a production semantic defect.
+
+**Correction:** Authored explicit floating-point JSON literals in the independent golden state and used two separately observable arithmetic boundaries: NaN operand rejection and `1e308 * 1e308` output overflow. The focused suite then passed 49 cases, and an equal-priority input-order perturbation check raised coverage to 50. Full application verification subsequently passed 336 tests plus 58 subtests; research verification passed five tests. Source interpreter modules were unchanged.
+
+**Invariant learned:** Oracle fixtures must preserve primitive number kinds at serialization boundaries and validate mathematical counterexamples independently of the implementation under test. RED from a mistaken fixture is not evidence of an interpreter defect; do not weaken the intended semantic rejection test to gain a green result.
