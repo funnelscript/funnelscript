@@ -541,3 +541,14 @@ The negative two-source-owner P-RNG-ORDER-1 fixture remains authoritative and un
 **Observed RED:** A trace sink passed through two `WorldExecutor.run` calls appended the second run after the first. The per-run processed occurrence counter would begin at the pre-existing list length, creating false source identities. The explicit regression raised `Failed: DID NOT RAISE ValueError` before the fix.
 
 **Correction:** The opt-in trace sink must be a fresh empty list; reuse or incompatible containers raise `ValueError` before event processing. A subsequent focused `uv run pytest -q tests/test_transaction_provenance.py` passed 24 tests (later expanded to 28). This prevents accidental inter-run mixing, not deliberate mutation of an already returned in-memory trace.
+
+
+## 26. Identity Collision in External Authorization Tests Can Obscure the Intended Failure (FL-026)
+
+**Class:** Test oracle and negative-case isolation. **Status:** RESOLVED. During Phase 007D test-first engineering, an adversarial test attempted to reuse an authorization ID by appending an altered operation that also reused an existing transaction ID. The implementation correctly rejected the *transaction identity* collision first, so the authorization-specific assertion failed despite correct guard behavior. The regression fixture was corrected to replace the prior operation rather than appending a second tx ID. Both IDs now independently exercise their intended invariants. No production assertion was weakened. RED of missing financial provenance behavior was observed separately before production code; the corrected expanded focused suite passed.
+
+**Boundary:** `DeclaredFinancialAction` expresses author-asserted consent, not evidence of third-party real-world authorization. Exactly-once effects apply to repeated identical entries in a given adapter invocation, not durable cross-process replay. Separate responsibility and trust-contract review is required before use for real payments.
+
+## 27. Deterministic Independent-agent Replay Does Not Verify Shared Financial Coupling (FL-027)
+
+**Class:** Architectural scope, not a resolved defect. **Status:** BOUNDED STOP. Competing agents using a shared SAR 10 budget with each requesting SAR 10 can produce different winning agents under opposite arrival orders, despite deterministic execution within each order. The tested independent local World agent integration provides no authorized shared-budget arbitration contract, so it must not simulate or claim financial independence under coupling. Proposed generalized shared state and persistent financial auditability require a new architecture/threat-model decision gate.
