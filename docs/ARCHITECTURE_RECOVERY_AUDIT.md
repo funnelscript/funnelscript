@@ -9,7 +9,7 @@ Policy: Pause feature delivery. This audit is evidence, not an autonomous author
 - Both worktrees were clean on main at discovery. Each repository listed exactly one primary worktree.
 - Application: uv run pytest -q => 573 passed, 58 subtests passed, exit 0.
 - Research: python3 -m pytest -q => 57 passed, exit 0. The CONTRIBUTING.md documented unittest command also passed 5 tests, but it does not run every pytest-only research check. Research CI correctly runs pytest.
-- Web: Bun 1.4.3, 1 test passed, exit 0. Production TypeScript/Vite build passed, exit 0. The remote shell initially lacked Bun in PATH; using the installed /Users/mamdouhaboammar/.bun/bin/bun resolved this environment issue.
+- Web: Bun 1.4.3, 1 test passed, exit 0. Production TypeScript/Vite build passed, exit 0. The remote shell initially lacked Bun in PATH; invoking the already installed Bun executable resolved this environment issue.
 - These results do not prove market predictive validity, browser/Python semantic parity, bounded memory, or live-provider safety.
 
 ## 2. Actual system map and ownership
