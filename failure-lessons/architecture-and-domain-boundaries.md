@@ -156,3 +156,13 @@ When a parser can return multiple valid AST variants, every downstream compiler/
 **Observed bound:** single-run traced peaks around 22 MB for 100,000 pending events on CPython 3.12/arm64. This is diagnostic, not a measured worst case or an RSS guarantee.
 
 **Rule:** separate admission, processed-event, output-retention and hard-process-memory contracts. Preserve exact event order and seeded semantics when new limits are not binding. No cap or streaming API has been implemented; see the proposed research resource-envelope spec.
+
+## Recovery checkpoint: duplicate accepted-ADR indexes drift without a CI gate (2026-11-02)
+
+**Symptom:** The application and research decision ledgers had inconsistent accepted-decision indexes, including unindexed DEC-031 through DEC-036 in the previous research main. Either repository could pass its own tests despite diverging architectural authority.
+
+**Cause:** Two copies of the historical decision register were maintained independently without a cross-repository contract check.
+
+**Bounded repair:** Research PR #7 indexed all 37 accepted decisions on research/main. Application CI now checks decision IDs, titles, dates and statuses against that public default branch. Eight local adversarial tests cover missing, duplicated and changed records.
+
+**Reusable rule:** A cross-repository source-of-truth decision needs an executable consistency gate. Index parity does not imply equality of detailed historical prose, and formal ownership still requires a separate accepted governance ADR.
