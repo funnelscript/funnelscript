@@ -7,10 +7,10 @@ are not authoritative task status. Feature development remains paused for recove
 
 ## Baseline and worktrees
 
-| Repository | Baseline main | Local remediation branch |
+| Repository | Audit baseline main | Current recovery location |
 | --- | --- | --- |
-| Application | `156c383` | `remediation/architecture-recovery-r1-r2` |
-| Research | `805d31b` | `remediation/architecture-recovery-r1-docs` |
+| Application | `156c383` | `remediation/architecture-recovery-r1-r2` (Draft PR #7) |
+| Research | `805d31b` | `origin/main` at `2b5b08f` (PR #7 merged; local recovery branch removed) |
 
 Phase 007G: **merged in both default branches**. Phase 007H: **not started**.
 No legacy/runtime removal is authorized by this index. Do not reschedule completed 007G.
@@ -20,7 +20,7 @@ No legacy/runtime removal is authorized by this index. Do not reschedule complet
 | Stage | State | Evidence / remaining gate |
 | --- | --- | --- |
 | R0: Audit baseline | Recorded; owner review ongoing | Audit F-01 through F-11 and baseline test commands |
-| R1: Decision and plan authority | **Partial; research-owned direction selected** | AGENTS/DEC-009 aligned; 37 index rows agree across remediation branches; eight parity tests and a standard-library cross-repo validator now pass locally. Research PR #7 merged the index repair into research/main (2b5b08f). Application CI now checks the accepted-decision index against live research/main on pull requests and pushes; the [first live CI run](https://github.com/funnelscript/funnelscript/actions/runs/41441760351) passed the ADR parity, Python/wheel and Bun jobs. DEC-034 historical body wording differs intentionally. Formal governance ADR not yet accepted |
+| R1: Decision and plan authority | **Partial; research-owned direction selected** | AGENTS/DEC-009 aligned; 37 index rows agree between the application remediation branch and research/main; eight parity tests and a standard-library cross-repo validator now pass locally. Research PR #7 merged the index repair into research/main (2b5b08f). Application CI now checks the accepted-decision index against live research/main on pull requests and pushes; the [first live CI run](https://github.com/funnelscript/funnelscript/actions/runs/41441760351) passed the ADR parity, Python/wheel and Bun jobs. DEC-034 historical body wording differs intentionally. Formal governance ADR not yet accepted |
 | R2: Honest Web Studio preview | **Containment implemented, pending review** | Browser discriminates unsupported vs illustrative; deterministic seed; no agent-count claim; unsupported default conditional graph has no metrics; 9 new negative/contract tests |
 | R3: Resource bounds and scale | **Proposed; no runtime code changed** | Research `spec/runtime-resource-envelope-v0.md` defines separate admission, retention and replay gates; `evals/runtime-resource-baseline-2026-11-02.md` records the 100k pending-event counterexample. Implementation still blocked on accepted contract and R1 |
 | R4: Runtime convergence | **Blocked on R1/R3** | World-first compatibility map and migration gates; no legacy deletion |
