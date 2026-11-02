@@ -466,3 +466,8 @@ Typed nested arithmetic with precedence and source-level parenthesization, named
 ## Architecture recovery checkpoint (2026-11-02)
 
 Phase 007G is **merged in both default branches**; Phase 007H remains **not started**. Feature delivery is paused while the P0/P1 audit is remediated. Work on local remediation branches contains R1 documentation/decision-index repair and R2 bounded, truthful Web Studio preview containment. R1 is not complete until the owner selects canonical accepted-ADR ownership and a cross-repository parity gate; R3 resource semantics and R4 legacy migration remain blocked. Historical ignored `plans/` documents are archival, not current status. The tracked execution source is `docs/RECOVERY_EXECUTION.md`. No general population-scale performance or market-validity claim is made.
+
+
+### R1/R3 recovery progress (2026-11-02; no runtime contract accepted)
+
+A local accepted-ADR index parity validator and negative tests now confirm the 37 decisions across the application and research remediation branches. GitHub CI enforcement is deferred until the research index repair is merged into its default branch. The event-queue resource risk was measured at 100,000 pending future events under `max_events=1`; the research proposal separates admission, processing, result retention and process-level limits. This does not change EventMachine, PopulationExecutor or legacy behavior. Current blockers and required approvals remain tracked in `docs/RECOVERY_EXECUTION.md`.

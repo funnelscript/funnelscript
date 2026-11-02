@@ -145,3 +145,14 @@ When a parser can return multiple valid AST variants, every downstream compiler/
 **Bounded repair:** `BrowserPreviewResult` makes unsupported graph shapes explicit; a finite seeded single-path illustration cannot report simulated agents or retargeting risk; structural canvas edits invalidate the preview. Regression tests include branch/multi-audience/edge rejection, seed replay and ignored population disclosure.
 
 **Reusable rule:** A consumer-visible simulation result must carry provenance and supported-capability scope. A visually connected graph is not evidence of executed graph semantics. A later Python World adapter requires a separate versioned conformance contract and semantic golden oracle; synthetic model consistency is not market accuracy.
+
+
+## Recovery checkpoint: a processed-event cap is not a memory envelope (2026-11-02)
+
+**Symptom:** `EventMachine.run(max_events=1, until=0)` successfully returned 100,000 pending future events after processing zero initial events. A one-event 100,000-emission fan-out produced the same pending count after one processed event.
+
+**Cause:** initial and emitted events are admitted to the heap without a queue quota; processed events, pending events and intents are retained independently of `max_events`.
+
+**Observed bound:** single-run traced peaks around 22 MB for 100,000 pending events on CPython 3.12/arm64. This is diagnostic, not a measured worst case or an RSS guarantee.
+
+**Rule:** separate admission, processed-event, output-retention and hard-process-memory contracts. Preserve exact event order and seeded semantics when new limits are not binding. No cap or streaming API has been implemented; see the proposed research resource-envelope spec.
