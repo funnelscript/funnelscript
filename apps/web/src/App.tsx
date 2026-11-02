@@ -11,7 +11,7 @@ import {
   type EdgeChange,
 } from '@xyflow/react';
 
-import type { StrategyAST, SimulationResult } from './types';
+import type { StrategyAST, BrowserPreviewResult } from './types';
 import { funnelScriptToGraph } from './lib/transpiler';
 import { runInBrowserSimulation } from './lib/simulator';
 import { AudienceNode } from './components/canvas/AudienceNode';
@@ -127,8 +127,8 @@ export default function App() {
   const [edges, setEdges] = useState<Edge[]>([]);
   const [showCode, setShowCode] = useState(false);
   const [showControls, setShowControls] = useState(false);
-  const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
-  const [isSimulating, setIsSimulating] = useState(false);
+  const [simulationResult, setSimulationResult] = useState<BrowserPreviewResult | null>(null);
+  const [canvasModelUnsynced, setCanvasModelUnsynced] = useState(false);
 
   const nodeTypes = useMemo(
     () => ({
@@ -140,15 +140,10 @@ export default function App() {
   );
 
   const runSimulation = useCallback((currentAst: StrategyAST) => {
-    setIsSimulating(true);
-    setTimeout(() => {
-      const res = runInBrowserSimulation(currentAst, 100, currentAst.simulation_engine.parameters.virtual_agents_count);
-      setSimulationResult(res);
-      setIsSimulating(false);
-    }, 50);
+    setSimulationResult(runInBrowserSimulation(currentAst, 100, 12345));
   }, []);
 
-  // Initialize graph and run simulation
+  // Initialize the graph and check whether an illustrative preview is supported.
   useEffect(() => {
     const { nodes: initNodes, edges: initEdges } = funnelScriptToGraph(ast);
     setNodes(initNodes);
@@ -156,18 +151,32 @@ export default function App() {
     runSimulation(ast);
   }, [runSimulation]);
 
+  const invalidateCanvasPreview = useCallback(() => {
+    setCanvasModelUnsynced(true);
+    setSimulationResult({
+      status: 'unsupported',
+      reason: 'Canvas graph edits do not update the StrategyAST. Edit and apply the JSON AST before requesting another illustration.',
+    });
+  }, []);
+
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
       setNodes((nds) => applyNodeChanges(changes, nds));
+      if (changes.some((change) => !['select', 'position', 'dimensions'].includes(change.type))) {
+        invalidateCanvasPreview();
+      }
     },
-    []
+    [invalidateCanvasPreview]
   );
 
   const onEdgesChange = useCallback(
     (changes: EdgeChange[]) => {
       setEdges((eds) => applyEdgeChanges(changes, eds));
+      if (changes.some((change) => change.type !== 'select')) {
+        invalidateCanvasPreview();
+      }
     },
-    []
+    [invalidateCanvasPreview]
   );
 
   const handleUpdateAst = (newAst: StrategyAST) => {
@@ -175,6 +184,7 @@ export default function App() {
     const { nodes: newNodes, edges: newEdges } = funnelScriptToGraph(newAst);
     setNodes(newNodes);
     setEdges(newEdges);
+    setCanvasModelUnsynced(false);
     runSimulation(newAst);
   };
 
@@ -190,7 +200,7 @@ export default function App() {
       },
     };
     setAst(updated);
-    runSimulation(updated);
+    if (!canvasModelUnsynced) runSimulation(updated);
   };
 
   return (
@@ -236,11 +246,11 @@ export default function App() {
 
           <button
             onClick={() => runSimulation(ast)}
-            disabled={isSimulating}
+            disabled={canvasModelUnsynced}
             className="flex items-center space-x-1.5 px-4 py-1.5 rounded bg-brandStrong hover:bg-[#6248E6] text-white font-semibold text-xs transition shadow-lg shadow-[#725CFF]/20 disabled:opacity-50"
           >
-            <Play className={`w-3.5 h-3.5 ${isSimulating ? 'animate-spin' : ''}`} />
-            <span>{isSimulating ? 'Simulating...' : 'Run Simulation'}</span>
+            <Play className="w-3.5 h-3.5" />
+            <span>Refresh Illustration</span>
           </button>
         </div>
       </header>
@@ -294,7 +304,7 @@ export default function App() {
 
           <div className="text-[11px] text-slate-500 flex items-center space-x-1 ml-auto">
             <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
-            <span>Interactive Stress-Test Mode (H_5.2: &lt;350ms)</span>
+            <span>Seeded browser illustration only · no calibrated forecast or World parity</span>
           </div>
         </div>
       )}
@@ -316,11 +326,23 @@ export default function App() {
             <Controls className="!bg-slate-900 !border-slate-800 !text-slate-200" />
           </ReactFlow>
 
-          {/* Floating Live Telemetry Cards Overlay */}
+          {/* Bounded illustrative preview, never authoritative World telemetry. */}
           <div className="absolute bottom-4 left-4 right-4 z-10 pointer-events-none">
             <div className="max-w-6xl mx-auto space-y-2 pointer-events-auto">
-              <DistributionCards result={simulationResult} />
-              <CashRunwayChart result={simulationResult} />
+              {simulationResult?.status === 'unsupported' && (
+                <div role="status" className="bg-slate-950/95 border border-amber-500/60 rounded-lg p-4 text-sm text-amber-100">
+                  <div className="font-semibold">Browser illustration unavailable for this graph</div>
+                  <div className="text-slate-300 mt-1">{simulationResult.reason}</div>
+                  <div className="text-slate-400 text-xs mt-1">No World simulation or financial forecast has been run.</div>
+                </div>
+              )}
+              {simulationResult?.status === 'illustrative' && (
+                <div role="status" className="bg-slate-950/95 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-300">
+                  <span className="text-amber-300 font-semibold">Illustrative estimate only.</span> {simulationResult.limitations}
+                </div>
+              )}
+              <DistributionCards result={simulationResult?.status === 'illustrative' ? simulationResult.metrics : null} />
+              <CashRunwayChart result={simulationResult?.status === 'illustrative' ? simulationResult.metrics : null} />
             </div>
           </div>
         </div>

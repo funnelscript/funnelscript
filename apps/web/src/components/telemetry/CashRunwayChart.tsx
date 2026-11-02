@@ -11,8 +11,8 @@ export const CashRunwayChart: React.FC<{ result: SimulationResult | null }> = ({
   return (
     <div className="bg-slate-900/90 border border-slate-800 rounded-lg p-3 text-xs font-mono">
       <div className="flex items-center justify-between mb-2">
-        <span className="font-semibold text-slate-300">Daily Cash Runway & Settlement Influx</span>
-        <span className="text-[10px] text-slate-500">Working Capital C(t) vs Payout Delay Δ_settle</span>
+        <span className="font-semibold text-slate-300">Illustrative Cash Path (first seeded trial)</span>
+        <span className="text-[10px] text-slate-500">Synthetic settlement assumption, not a World trace</span>
       </div>
 
       <div className="h-28 flex items-end space-x-1 pt-4 pb-2 border-b border-slate-800">
@@ -39,8 +39,8 @@ export const CashRunwayChart: React.FC<{ result: SimulationResult | null }> = ({
       </div>
 
       <div className="flex justify-between items-center text-[10px] text-slate-500 pt-2 font-mono">
-        <div>VaR-95: <span className="text-amber-400">${result.var_95.toLocaleString()}</span></div>
-        <div>CVaR-95: <span className="text-red-400">${result.cvar_95.toLocaleString()}</span></div>
+        <div>Illustrative loss VaR-95: <span className="text-amber-400">${result.var_95.toLocaleString()}</span></div>
+        <div>Illustrative CVaR-95: <span className="text-red-400">${result.cvar_95.toLocaleString()}</span></div>
         <div>Max Drawdown: <span className="text-red-400">${result.worst_case_drawdown.toLocaleString()}</span></div>
       </div>
     </div>
