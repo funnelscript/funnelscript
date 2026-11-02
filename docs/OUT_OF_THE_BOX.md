@@ -484,3 +484,8 @@ DEC-036 introduces only a finite per-event JSON input cap and explicit CLI error
 ## Phase 007E — Future audit capability frontier
 
 Separately approved options include an operator-managed key hierarchy, independently anchored checkpoint digests and serializable shared-budget coordination. Hash chaining alone cannot authenticate a producer; multiple-writer arbitration needs a real ownership/scheduling contract and adversarial tests. All are deferred, not implemented.
+
+
+## Architecture recovery research frontier (2026-11-02; not implemented)
+
+A future browser-to-World bridge could consume versioned deterministic trace fixtures, compare explicit event order/RNG/state/metric contracts and reject unsupported graph constructs before execution. An independent resource-control study could compare heap queue admission, stream/chunk boundaries and aggregate-only retention at 1k/10k/100k workloads. These are research candidates, not accepted semantic equivalence, production scalability claims, or authorization for a new engine. See `ARCHITECTURE_RECOVERY_AUDIT.md`.

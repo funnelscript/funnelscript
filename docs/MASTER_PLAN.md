@@ -461,3 +461,8 @@ Opt-in `marketing.commit_financial_checkpoint`, `recover_financial_checkpoint` a
 ### Phase 007G — Bounded composable World language (proposed implementation record)
 
 Typed nested arithmetic with precedence and source-level parenthesization, named imports from multi-export modules, and strict versioned JSON event playbooks are opt-in syntax/input extensions. Snapshot-atomic transitions, keyed RNG, the legacy SimulationEngine, and Phase 007A–007F financial semantics remain untouched. Do not interpret parser test parity as scientific equivalence between legacy and World runtimes. See companion spec `phase-007g-composable-language-v1.md` and corresponding reproducible event playbook tests. No new accepted ADR.
+
+
+## Architecture recovery checkpoint (2026-11-02)
+
+Phase 007G is **merged in both default branches**; Phase 007H remains **not started**. Feature delivery is paused while the P0/P1 audit is remediated. Work on local remediation branches contains R1 documentation/decision-index repair and R2 bounded, truthful Web Studio preview containment. R1 is not complete until the owner selects canonical accepted-ADR ownership and a cross-repository parity gate; R3 resource semantics and R4 legacy migration remain blocked. Historical ignored `plans/` documents are archival, not current status. The tracked execution source is `docs/RECOVERY_EXECUTION.md`. No general population-scale performance or market-validity claim is made.

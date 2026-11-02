@@ -1046,3 +1046,10 @@ A critical trap in ambitious software projects is delaying release until a massi
 ## Phase 007E — Portable integrity versus authenticated producer evidence (2026-11-01)
 
 Portable source-verified canonical checkpoints support restart-safe logical effects under a declared single-writer file protocol. SHA-256 detects accidental or adversarial edits only while its digest/manifest is trusted; jointly modified contents and digest remain a viable forgery unless the whole envelope is pinned outside the writable trust domain. Operator-asserted external authorization is not permission verification. No generalized transaction processing, signing infrastructure, multiwriter safety or empirical causality is claimed. Research argument: `funnelscript-research/spec/durable-financial-provenance-v1.md`.
+
+
+## Recovery debate (2026-11-02): ADR authority and truthful Web Studio execution
+
+**ADR option A:** research owns the accepted records and the app generates a verified read-only mirror. **Option B:** app owns the accepted records with research referencing immutable IDs. No ownership is accepted yet; mirrored DEC-001–037 records and local index tests catch omissions inside either repository but do not prove cross-repository parity. Falsifier: a decision changes status in one repo without a failing cross-repo check. This remains a recovery R1 stop gate.
+
+**Browser option A:** Studio is only a visual editor/client for versioned World runs, with independent trace parity. **Option B (current narrow containment, not authority):** Studio offers only a disclosed seeded synthetic single-path illustration and rejects branches, missing connections and extra audiences. Falsifier: an unsupported graph displays numeric risk telemetry, or an unmodeled agent count is represented as computed. Neither path establishes empirical forecasting validity. See `RECOVERY_EXECUTION.md`.

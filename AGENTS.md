@@ -54,12 +54,14 @@ Build strictly from the mathematical core outwards:
 $$\text{Mathematical Core (Agent Mind)} \longrightarrow \text{AST \& Type-Checking Linter} \longrightarrow \text{Vectorized Simulation Runtime} \longrightarrow \text{CLI \& Tooling} \longrightarrow \text{Visual UI}$$
 Never jump to high-level UI, marketing wrappers, or peripheral syntactic sugar while the underlying mathematical or simulation mechanics remain unproven.
 
-### 6. Economic Conservation & Physical Invariants
-Every strategy evaluation and simulation kernel must enforce domain conservation laws:
-- **Audience Mass Balance:** $\sum_{s \in S} N_s(t) = N_{\text{total}}$ (no audience creation or destruction ex nihilo).
-- **Working Capital & Payout Latency:** Never assume revenue is instantaneously liquid. Always model settlement delay $\Delta_{\text{settle}}$. If liquid cash $C(t) \le 0$, the engine must trigger an ad spend halt (`Insolvency`).
-- **Diminishing Returns & Fatigue:** All advertising channels must exhibit saturating margins (Hill function) and decay with repetition ($e^{-\kappa \cdot \text{exposures}}$).
-- **Wallet Bound:** An agent cannot execute a purchase if the effective price exceeds its liquid category wallet balance ($P_{\text{eff}} > w$).
+### 6. Domain-Owned Economic Invariants (DEC-008/DEC-009)
+The FunnelScript parser, type checker, World executor, and event kernel are **domain-neutral**. They must enforce language and runtime safety contracts, but must not hard-code marketing economics as universal compiler axioms.
+- **Audience Mass Balance:** A marketing population model that declares a closed cohort may enforce $\sum_{s \in S} N_s(t) = N_{\text{total}}$. Open cohorts, acquisition, and attrition require an explicit model-specific policy.
+- **Working Capital & Payout Latency:** Marketing finance models define when receivables settle and whether $C(t) \le 0$ halts spending. A debt/credit-enabled model may validly allow negative cash, subject to its declared constraints.
+- **Diminishing Returns & Fatigue:** Channel response and fatigue curves are model assumptions, requiring explicit parameters and evidence; no default Hill function or exponential decay is silently inserted by the kernel.
+- **Wallet Bound:** Purchase affordability belongs to the agent/market model and its chosen financing semantics, not to a generic World transition.
+
+Keep exact-type event/transition validation and declared model invariants testable at their owning layer. An optional marketing standard-library policy may reject a state update; the language core must not assume that policy.
 
 ### 7. Multi-Scale Discrete-Event Time Model
 - Never implement continuous busy-loops for multi-timescale events.

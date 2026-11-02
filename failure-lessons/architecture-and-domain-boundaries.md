@@ -134,3 +134,14 @@ When a parser can return multiple valid AST variants, every downstream compiler/
 
 ### Status
 **Resolved in the language-core CLI integration tests.**
+
+
+## Recovery checkpoint: illustrative browser output masquerading as execution (2026-11-02)
+
+**Symptom:** Web Studio used a local stochastic financial formula while displaying `logic_flow` graph branches and a virtual agent count as if both affected its risk cards. Repeated identical inputs produced different numbers; altered unsupported graph topology often produced the same statistics.
+
+**Cause:** The UI result type had no execution-mode/unsupported discriminant, the calculation consumed only first-match entities and ambient `Math.random`, and graph edits were not written back into source AST.
+
+**Bounded repair:** `BrowserPreviewResult` makes unsupported graph shapes explicit; a finite seeded single-path illustration cannot report simulated agents or retargeting risk; structural canvas edits invalidate the preview. Regression tests include branch/multi-audience/edge rejection, seed replay and ignored population disclosure.
+
+**Reusable rule:** A consumer-visible simulation result must carry provenance and supported-capability scope. A visually connected graph is not evidence of executed graph semantics. A later Python World adapter requires a separate versioned conformance contract and semantic golden oracle; synthetic model consistency is not market accuracy.
