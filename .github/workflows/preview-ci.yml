@@ -6,6 +6,8 @@ on:
     tags: ["v*"]
   pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * *"
 
 permissions:
   contents: read
@@ -13,6 +15,7 @@ permissions:
 jobs:
   python:
     name: Python tests and installed wheel
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -49,8 +52,25 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  decisions:
+    name: Accepted ADR index parity (research main)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: funnelscript/funnelscript-research
+          ref: main
+          path: research-source
+          persist-credentials: false
+      - name: Compare accepted decision indexes
+        run: python3 scripts/check_decision_parity.py docs/DECISIONS.md research-source/DECISIONS.md
+
   frontend:
     name: Bun frontend tests and build
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     defaults:
       run:

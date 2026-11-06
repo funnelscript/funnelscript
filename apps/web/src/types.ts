@@ -106,7 +106,6 @@ export interface MetricDistribution {
 export interface SimulationResult {
   strategy_name: string;
   trials_count: number;
-  agents_per_trial: number;
   timeframe_days: number;
   roas: MetricDistribution;
   cac: MetricDistribution;
@@ -115,7 +114,6 @@ export interface SimulationResult {
   probability_of_profit: number;
   cash_ruin_probability: number;
   worst_case_drawdown: number;
-  cannibalization_rate: number;
   var_95: number;
   cvar_95: number;
   daily_trajectories: {
@@ -125,3 +123,7 @@ export interface SimulationResult {
     liquid_cash: number;
   }[];
 }
+
+export type BrowserPreviewResult =
+  | { status: 'unsupported'; reason: string }
+  | { status: 'illustrative'; metrics: SimulationResult; limitations: string };

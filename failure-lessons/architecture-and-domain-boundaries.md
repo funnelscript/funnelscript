@@ -134,3 +134,35 @@ When a parser can return multiple valid AST variants, every downstream compiler/
 
 ### Status
 **Resolved in the language-core CLI integration tests.**
+
+
+## Recovery checkpoint: illustrative browser output masquerading as execution (2026-11-02)
+
+**Symptom:** Web Studio used a local stochastic financial formula while displaying `logic_flow` graph branches and a virtual agent count as if both affected its risk cards. Repeated identical inputs produced different numbers; altered unsupported graph topology often produced the same statistics.
+
+**Cause:** The UI result type had no execution-mode/unsupported discriminant, the calculation consumed only first-match entities and ambient `Math.random`, and graph edits were not written back into source AST.
+
+**Bounded repair:** `BrowserPreviewResult` makes unsupported graph shapes explicit; a finite seeded single-path illustration cannot report simulated agents or retargeting risk; structural canvas edits invalidate the preview. Regression tests include branch/multi-audience/edge rejection, seed replay and ignored population disclosure.
+
+**Reusable rule:** A consumer-visible simulation result must carry provenance and supported-capability scope. A visually connected graph is not evidence of executed graph semantics. A later Python World adapter requires a separate versioned conformance contract and semantic golden oracle; synthetic model consistency is not market accuracy.
+
+
+## Recovery checkpoint: a processed-event cap is not a memory envelope (2026-11-02)
+
+**Symptom:** `EventMachine.run(max_events=1, until=0)` successfully returned 100,000 pending future events after processing zero initial events. A one-event 100,000-emission fan-out produced the same pending count after one processed event.
+
+**Cause:** initial and emitted events are admitted to the heap without a queue quota; processed events, pending events and intents are retained independently of `max_events`.
+
+**Observed bound:** single-run traced peaks around 22 MB for 100,000 pending events on CPython 3.12/arm64. This is diagnostic, not a measured worst case or an RSS guarantee.
+
+**Rule:** separate admission, processed-event, output-retention and hard-process-memory contracts. Preserve exact event order and seeded semantics when new limits are not binding. No cap or streaming API has been implemented; see the proposed research resource-envelope spec.
+
+## Recovery checkpoint: duplicate accepted-ADR indexes drift without a CI gate (2026-11-02)
+
+**Symptom:** The application and research decision ledgers had inconsistent accepted-decision indexes, including unindexed DEC-031 through DEC-036 in the previous research main. Either repository could pass its own tests despite diverging architectural authority.
+
+**Cause:** Two copies of the historical decision register were maintained independently without a cross-repository contract check.
+
+**Bounded repair:** Research PR #7 indexed all 37 accepted decisions on research/main. Application CI now checks decision IDs, titles, dates and statuses against that public default branch. Eight local adversarial tests cover missing, duplicated and changed records.
+
+**Reusable rule:** A cross-repository source-of-truth decision needs an executable consistency gate. Index parity does not imply equality of detailed historical prose, and formal ownership still requires a separate accepted governance ADR.
