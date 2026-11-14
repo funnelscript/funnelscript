@@ -2,6 +2,7 @@
 __pycache__/
 *.py[oc]
 .hypothesis/
+.pytest_cache/
 build/
 dist/
 wheels/
@@ -14,6 +15,11 @@ wheels/
 node_modules/
 apps/web/dist/
 apps/web/node_modules/
+*.tsbuildinfo
+
+# OS metadata
+.DS_Store
+Thumbs.db
 
 # Agent workspaces and plans
 /plans
