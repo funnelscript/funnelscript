@@ -5,14 +5,12 @@ Research: funnelscript-research/spec/event-kernel-v0.md (H-K1 through H-K4).
 
 from __future__ import annotations
 
+import math
+import random
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from heapq import heappop, heappush
 from itertools import count
-from typing import Callable, Generic, Iterable, TypeVar
-import math
-import random
-
-S = TypeVar("S")
 
 
 @dataclass(frozen=True)
@@ -45,7 +43,7 @@ class EffectIntent:
 
 
 @dataclass(frozen=True)
-class Transition(Generic[S]):
+class Transition[S]:
     """Next state and events/effects proposed by a model-owned reducer."""
 
     state: S
@@ -54,14 +52,14 @@ class Transition(Generic[S]):
 
 
 @dataclass(frozen=True)
-class RunResult(Generic[S]):
+class RunResult[S]:
     state: S
     processed: tuple[Event, ...]
     intents: tuple[EffectIntent, ...]
     pending: tuple[Event, ...]
 
 
-class EventMachine(Generic[S]):
+class EventMachine[S]:
     """Run a model reducer over an ordered event calendar and seeded PRNG."""
 
     def __init__(
@@ -89,11 +87,11 @@ class EventMachine(Generic[S]):
             raise ValueError("max_events must be a positive integer")
 
         ordinal = count()
-        queue: list[tuple[float, int, int, Event]] = []
+        queue: list[tuple[float, int, int, int, Event]] = []
         for event in events:
             if not isinstance(event, Event):
                 raise TypeError("Calendar entries must be Event instances")
-            heappush(queue, (event.time, event.priority, next(ordinal), event))
+            heappush(queue, (event.time, event.priority, 0, next(ordinal), event))
 
         rng = random.Random(seed)
         state = initial_state
@@ -103,7 +101,7 @@ class EventMachine(Generic[S]):
         while queue and (until is None or queue[0][0] <= until):
             if len(processed) >= max_events:
                 raise RuntimeError("max_events reached before the calendar was exhausted")
-            _, _, _, event = heappop(queue)
+            _, _, causal_depth, _, event = heappop(queue)
             transition = self.reducer(state, event, rng)
             if not isinstance(transition, Transition):
                 raise TypeError("Model reducer must return a Transition")
@@ -114,7 +112,10 @@ class EventMachine(Generic[S]):
                     raise ValueError("Cannot schedule an event in the past")
                 if future.time == event.time and future.priority < event.priority:
                     raise ValueError("Cannot schedule retrograde priority at the current time")
-                heappush(queue, (future.time, future.priority, next(ordinal), future))
+                heappush(
+                    queue,
+                    (future.time, future.priority, causal_depth + 1, next(ordinal), future),
+                )
             for intent in transition.effects:
                 if not isinstance(intent, EffectIntent):
                     raise TypeError("Model effects must be EffectIntent instances")
@@ -122,5 +123,5 @@ class EventMachine(Generic[S]):
             state = transition.state
             processed.append(event)
 
-        pending = tuple(item[3] for item in sorted(queue))
+        pending = tuple(item[4] for item in sorted(queue))
         return RunResult(state, tuple(processed), tuple(intents), pending)
