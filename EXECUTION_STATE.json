@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "project": "FunnelScript",
   "created_utc": "2026-11-21T13:25:55+00:00",
-  "updated_utc": "2026-11-21T18:09:43.593246+00:00",
+  "updated_utc": "2026-11-21T18:41:06.779299+00:00",
   "repository_root": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect/funnelscript",
   "workspace_parent": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect",
   "python_single_source_of_truth": "src/funnelscript/",
@@ -426,6 +426,11 @@
           "name": "World and Population opt-in resource guard propagation",
           "status": "VERIFIED",
           "note": "18 tests, 13 test functions, 80 Hypothesis cases; World and per-agent Population exact queue/tick/Zeno cap propagation; 718 isolated tests, 50 conformance, scoped Ruff 0."
+        },
+        {
+          "name": "Five cross-process World and linked financial audit hashseed replays",
+          "status": "VERIFIED",
+          "note": "One real .fnl population fixture, five hash seeds and a model-seed negative control, 2 tests, 720 full pytest, 50 conformance, 0 scoped Ruff findings."
         }
       ],
       "target_files_modified_by_wave": [
@@ -447,16 +452,17 @@
         "src/funnelscript/core/__init__.py",
         "tests/verification/test_event_resource_envelope.py",
         "src/funnelscript/runtime/world_executor.py",
-        "tests/verification/test_world_resource_propagation.py"
+        "tests/verification/test_world_resource_propagation.py",
+        "tests/verification/test_world_ledger_hashseed.py"
       ],
-      "git_commit_hash": "becd1e56bb75420387436ef8f2e0ee60345c94c0",
+      "git_commit_hash": "c1e12dba763e42844351cc0ddb9060044d8cc2e9",
       "new_commit_created": true,
-      "test_pass_count": 718,
+      "test_pass_count": 720,
       "exit_gate_metrics": {
         "gate": "Core 99 roadmap criteria including spans, formatter, 10k parser fuzz, five hash-seed checks, snapshot/replay and 100k events",
         "passed": false,
         "observed": {
-          "full_pytest_passed": 718,
+          "full_pytest_passed": 720,
           "full_pytest_failed": 0,
           "full_pytest_skipped": 0,
           "full_pytest_subtests_passed": 58,
@@ -572,10 +578,19 @@
           "world_resource_isolated_pytest_passed": 718,
           "world_resource_isolated_conformance_passed": 50,
           "world_resource_isolated_ruff_findings": 0,
-          "world_resource_scoped_preexisting_ruff_fixed": 2
+          "world_resource_scoped_preexisting_ruff_fixed": 2,
+          "world_ledger_cross_process_hashseed_values": [
+            0,
+            1,
+            7,
+            79,
+            999
+          ],
+          "world_ledger_cross_process_fixtures_verified": 1,
+          "world_ledger_model_seed_negative_control": true
         }
       },
-      "new_pytest_cases": 126,
+      "new_pytest_cases": 128,
       "research_anchor": "DEVS event calendar with bounded admission, runtime-resource-envelope-v0 proposal H-RQ1/H-RQ2/H-RT1 and population-identity-rng-v0; do not treat proposed names as stable public contract.",
       "falsifiable_hypothesis": "When opt-in Lq,Lt,Lz are passed to World/Population, each agent-local EventMachine rejects exactly at cap+1; when caps do not bind, World state, processed, pending, traces, population partition and seeded RNG are unchanged.",
       "invariant": "For each agent a and t, |Q_a|<=Lq; count_due(a,t)<=Lt; consecutive_same_time_depth<=Lz; guarded output == unguarded output when nonbinding; any limit error has original category+cap+count+chain and population agent_id note.",
@@ -602,53 +617,51 @@
         }
       ],
       "last_round": {
-        "round_label": "World and identity-isolated Population opt-in EventMachine guard propagation, typed agent attribution and 80 keyed-RNG replay examples",
-        "source_head_before_round": "a4af8a0cfb3713489c5f32ba62f36b5c71797047",
-        "integration_branch": "feat/wave1-world-resource-propagation-20261121",
-        "integration_source_commit": "becd1e56bb75420387436ef8f2e0ee60345c94c0",
+        "round_label": "Cross-process .fnl World, keyed RNG and financial audit SHA-256 reproducibility",
+        "source_head_before_round": "1600d6086a14216eab94035196e9b043051a95c9",
+        "integration_branch": "feat/wave1-world-ledger-cross-hashseed-20261121",
+        "integration_source_commit": "c1e12dba763e42844351cc0ddb9060044d8cc2e9",
         "python_files": {
-          "src/funnelscript/runtime/world_executor.py": {
-            "added": 33,
-            "deleted": 13,
-            "net": 20
-          },
-          "tests/verification/test_world_resource_propagation.py": {
-            "added": 244,
+          "tests/verification/test_world_ledger_hashseed.py": {
+            "added": 156,
             "deleted": 0,
-            "net": 244
+            "net": 156
           }
         },
         "python_diff_totals": {
-          "added": 277,
-          "deleted": 13,
-          "net": 264
+          "added": 156,
+          "deleted": 0,
+          "net": 156
         },
-        "staged_source_commit_diff_totals": {
-          "added": 277,
-          "deleted": 13,
-          "net": 264
+        "production_python_diff": {
+          "added": 0,
+          "deleted": 0,
+          "net": 0
+        },
+        "test_python_diff": {
+          "added": 156,
+          "deleted": 0,
+          "net": 156
         },
         "metric_exclusions": [
-          "EXECUTION_STATE.json metadata",
-          "all unrelated user dirty WIP and unreviewed local fpm commit 8f083c9"
+          "EXECUTION_STATE.json tracking metadata",
+          "unrelated original checkout WIP and unmerged local fpm commit 8f083c9"
         ],
         "what_done": [
-          "Read governing ORCHESTRATOR_PROMPT, implementation roadmap, Core99 B2, Phase1 freeze, repository AGENTS.md, research event-kernel-v0 and runtime-resource-envelope-v0 (proposal only).",
-          "Preserved one unreviewed concurrent local fpm commit 8f083c9 and 33 dirty tracked +21 untracked entries in the original checkout by branching from origin/main in an entirely separate clean git worktree.",
-          "Research anchor: DEVS event calendar, opt-in bounded admission H-RQ1/H-RQ2/H-RT1 and identity-isolated keyed RNG; falsifiable bounded queue/tick/zero-depth invariants fixed before writing tests.",
-          "TDD RED: WorldExecutor rejected max_queue_size as unexpected keyword; GREEN by passing three optional guard kwargs through WorldExecutor.run into the canonical EventMachine.run.",
-          "PopulationExecutor.run forwards the exact same opt-in guard kwargs into each agent-local WorldExecutor.run; caps are per agent and never incorrectly aggregated across the population.",
-          "Typed FunnelRuntimeLimitError propagates intact for per-agent limit failures and is annotated with the exact population agent_id using Python BaseException.add_note; incomplete PopulationResult is never returned.",
-          "World runtime tests cover bound on unbounded incoming generator, emitted fanout, simultaneous independent arrivals, zero-delay cyclic ancestry, positive-time depth reset, default max_events compatibility, and full event traces.",
-          "Population tests cover independent cap boundaries, error from one agent, exact causal chain, per-tick count, malformed cap rejection, and opt-in limits preserving keyed random streams.",
-          "Added 13 test functions with 18 pytest cases, including 80 randomized Hypothesis examples comparing default and guarded World+Population outputs.",
-          "Proved and repaired two pre-existing Ruff issues in the touched world_executor.py (unsorted imports, loop variable shadowing dataclasses.field); zero scoped Ruff findings and no function longer than 80 lines.",
-          "Clean independent origin/main + exactly this code/test slice: 718 pytest passed with 58 subtests, 50 World conformance passed, scoped Ruff 0; global Ruff 374 pre-existing non-scope findings.",
-          "Nine governing documentation files SHA-256 unchanged; exact code/test diff +277/-13 net +264; no changes to broader dirty working tree, parser, frontend, core, or research files."
+          "Started from independently verified merged origin/main 1600d608 (PR #15, all three GitHub CI jobs green) in a separate clean worktree; original checkout and unrelated local fpm commit 8f083c9 remain untouched.",
+          "Read Core99 B1 cross-process determinism acceptance criterion and existing World/Population-to-financial-audit public APIs before writing the reproducibility tests.",
+          "Research anchor: deterministic discrete-event replay, identity-keyed seeded RNG, canonical SHA-256 financial audit. Hypothesis: varying PYTHONHASHSEED while holding source, events and model seed fixed cannot alter events, draws, ledger balances or audit bytes.",
+          "Created one independent subprocess replay of the real identity-rng.fnl World fixture through PopulationExecutor, event-sale provenance, authorized settlement/writeoff and marketing.export_audit.",
+          "Five independent Python processes with PYTHONHASHSEED values 0, 1, 7, 79 and 999 produced identical canonical full World steps, event-calendar traces, keyed RNG draws and financial audit SHA-256 hashes.",
+          "Deliberately built population enrollment from a hash-randomized set and verified at least two distinct enrollment orders occurred, proving the process test is not a vacuous same-order replay.",
+          "Independent financial oracle: exactly 3 recognized sales, cash 105 SAR, receivables 25 SAR and recognized revenue 60 SAR following a 5 SAR writeoff.",
+          "Negative control: model seed 11 versus 12 changes keyed random draws and the World SHA-256 digest while population sale count remains 3.",
+          "Two new pytest tests passed; complete suite 720 passed with 58 subtests, World conformance 50 passed, targeted Ruff and git diff --check clean; repository-wide Ruff 374 prior findings unchanged.",
+          "Changed exactly one new Python verification file, 156 added/0 deleted; excluded EXECUTION_STATE.json metadata and all pre-existing user WIP from the code/test line count."
         ],
         "what_remaining": [
           "Full compiler/static lint: orphan/dead events, unreachable rules, unused parameters, shadowed identifiers and imported-module diagnostics with precise .fnl spans.",
-          "Full origin/world and ledger SHA256 reproducibility across five PYTHONHASHSEED environments, not only isolated EventMachine tests.",
+          "Extend cross-process World and ledger replay beyond this verified .fnl population fixture to priority-collision, emitted-event and alternative financial scenarios; do not claim universal determinism from one fixture.",
           "World and ledger event_id/parent_event_id causal provenance, source_rule_span propagation, and true source-linked resource-limit diagnostics remain incomplete.",
           "Bit-exact snapshot/restore including World/Population state, pending EventKey, keyed RNG counters, and ledger split-run invariant.",
           "Complete legal formatter with AST round-trip corpus invariants and EBNF grammar drift checks; Phase1 freezes spec/ additions until accepted.",
@@ -659,22 +672,26 @@
           "Review the unrelated local fpm commit 8f083c9 and other contributors WIP independently, then merge only with separate proof and green CI; do not commit it accidentally in this PR.",
           "Waves 2 through 7 remain pending until all Wave1 exit checks pass and the user explicitly authorizes next-wave progression."
         ],
-        "new_tests_added": 18,
-        "new_test_functions": 13,
-        "hypothesis_examples": 80,
-        "full_pytest_passed": 718,
+        "new_tests_added": 2,
+        "new_test_functions": 2,
+        "full_pytest_passed": 720,
         "full_pytest_failed": 0,
         "full_pytest_subtests_passed": 58,
         "conformance_passed": 50,
         "global_ruff_errors": 374,
-        "isolated_staged_pytest_passed": 718,
-        "isolated_staged_conformance_passed": 50,
-        "isolated_staged_ruff_findings": 0,
-        "protected_existing_docs_unchanged": 9,
-        "preexisting_scoped_ruff_findings_fixed": 2,
+        "source_scoped_ruff_findings": 0,
+        "hashseed_variants": [
+          0,
+          1,
+          7,
+          79,
+          999
+        ],
+        "hashseed_fixture": "tests/fixtures/population-reference/identity-rng.fnl",
+        "explicit_enrollment_order_variation": true,
+        "seed_variation_negative_control": true,
         "source_isolated_worktree_verified": true,
-        "local_unrelated_main_ahead_commit": "8f083c9",
-        "suggested_commit_message": "feat(runtime): expose opt-in event guards in World and Population"
+        "suggested_commit_message": "test(runtime): verify World and ledger hashes across Python hash seeds"
       },
       "round_history": [
         {
@@ -1247,6 +1264,83 @@
           "integration_source_commit": "d08f33b24860dabdec2ed5bbc1daa2fd1a155cb4",
           "integration_branch": "feat/wave1-runtime-resource-guards-20261121",
           "suggested_commit_message": "feat(runtime): add opt-in event resource envelopes and causal diagnostics"
+        },
+        {
+          "round_label": "Cross-process .fnl World, keyed RNG and financial audit SHA-256 reproducibility",
+          "source_head_before_round": "1600d6086a14216eab94035196e9b043051a95c9",
+          "integration_branch": "feat/wave1-world-ledger-cross-hashseed-20261121",
+          "integration_source_commit": "c1e12dba763e42844351cc0ddb9060044d8cc2e9",
+          "python_files": {
+            "tests/verification/test_world_ledger_hashseed.py": {
+              "added": 156,
+              "deleted": 0,
+              "net": 156
+            }
+          },
+          "python_diff_totals": {
+            "added": 156,
+            "deleted": 0,
+            "net": 156
+          },
+          "production_python_diff": {
+            "added": 0,
+            "deleted": 0,
+            "net": 0
+          },
+          "test_python_diff": {
+            "added": 156,
+            "deleted": 0,
+            "net": 156
+          },
+          "metric_exclusions": [
+            "EXECUTION_STATE.json tracking metadata",
+            "unrelated original checkout WIP and unmerged local fpm commit 8f083c9"
+          ],
+          "what_done": [
+            "Started from independently verified merged origin/main 1600d608 (PR #15, all three GitHub CI jobs green) in a separate clean worktree; original checkout and unrelated local fpm commit 8f083c9 remain untouched.",
+            "Read Core99 B1 cross-process determinism acceptance criterion and existing World/Population-to-financial-audit public APIs before writing the reproducibility tests.",
+            "Research anchor: deterministic discrete-event replay, identity-keyed seeded RNG, canonical SHA-256 financial audit. Hypothesis: varying PYTHONHASHSEED while holding source, events and model seed fixed cannot alter events, draws, ledger balances or audit bytes.",
+            "Created one independent subprocess replay of the real identity-rng.fnl World fixture through PopulationExecutor, event-sale provenance, authorized settlement/writeoff and marketing.export_audit.",
+            "Five independent Python processes with PYTHONHASHSEED values 0, 1, 7, 79 and 999 produced identical canonical full World steps, event-calendar traces, keyed RNG draws and financial audit SHA-256 hashes.",
+            "Deliberately built population enrollment from a hash-randomized set and verified at least two distinct enrollment orders occurred, proving the process test is not a vacuous same-order replay.",
+            "Independent financial oracle: exactly 3 recognized sales, cash 105 SAR, receivables 25 SAR and recognized revenue 60 SAR following a 5 SAR writeoff.",
+            "Negative control: model seed 11 versus 12 changes keyed random draws and the World SHA-256 digest while population sale count remains 3.",
+            "Two new pytest tests passed; complete suite 720 passed with 58 subtests, World conformance 50 passed, targeted Ruff and git diff --check clean; repository-wide Ruff 374 prior findings unchanged.",
+            "Changed exactly one new Python verification file, 156 added/0 deleted; excluded EXECUTION_STATE.json metadata and all pre-existing user WIP from the code/test line count."
+          ],
+          "what_remaining": [
+            "Full compiler/static lint: orphan/dead events, unreachable rules, unused parameters, shadowed identifiers and imported-module diagnostics with precise .fnl spans.",
+            "Extend cross-process World and ledger replay beyond this verified .fnl population fixture to priority-collision, emitted-event and alternative financial scenarios; do not claim universal determinism from one fixture.",
+            "World and ledger event_id/parent_event_id causal provenance, source_rule_span propagation, and true source-linked resource-limit diagnostics remain incomplete.",
+            "Bit-exact snapshot/restore including World/Population state, pending EventKey, keyed RNG counters, and ledger split-run invariant.",
+            "Complete legal formatter with AST round-trip corpus invariants and EBNF grammar drift checks; Phase1 freezes spec/ additions until accepted.",
+            "Retention quotas for processed history and effects, per-resource typed failures, and World/Population scale workloads are still unverified.",
+            "CLI/API exposure of opt-in resource caps is not part of this runtime-only PR; public resource API is still PROPOSED and awaits contract acceptance.",
+            "Representative 1k, 10k, and 100k World population benchmark matrix remains unrun; no unsupported memory/performance claims.",
+            "Global Ruff debt 374 findings in isolated main-based worktree (original dirty checkout findings can be higher), outside these touched files.",
+            "Review the unrelated local fpm commit 8f083c9 and other contributors WIP independently, then merge only with separate proof and green CI; do not commit it accidentally in this PR.",
+            "Waves 2 through 7 remain pending until all Wave1 exit checks pass and the user explicitly authorizes next-wave progression."
+          ],
+          "new_tests_added": 2,
+          "new_test_functions": 2,
+          "full_pytest_passed": 720,
+          "full_pytest_failed": 0,
+          "full_pytest_subtests_passed": 58,
+          "conformance_passed": 50,
+          "global_ruff_errors": 374,
+          "source_scoped_ruff_findings": 0,
+          "hashseed_variants": [
+            0,
+            1,
+            7,
+            79,
+            999
+          ],
+          "hashseed_fixture": "tests/fixtures/population-reference/identity-rng.fnl",
+          "explicit_enrollment_order_variation": true,
+          "seed_variation_negative_control": true,
+          "source_isolated_worktree_verified": true,
+          "suggested_commit_message": "test(runtime): verify World and ledger hashes across Python hash seeds"
         }
       ]
     },
@@ -1458,8 +1552,8 @@
   "status": "IN_PROGRESS",
   "next_wave": 1,
   "next_wave_execution_permitted": false,
-  "user_approval_needed": "Wave 1 exit gates incomplete; do not advance to Wave 2 until all gates pass and explicit next-wave approval.",
-  "suggested_commit_message": "feat(runtime): expose opt-in event guards in World and Population",
+  "user_approval_needed": true,
+  "suggested_commit_message": "test(runtime): verify World and ledger hashes across Python hash seeds",
   "history": [
     {
       "timestamp_utc": "2026-11-21T13:25:55+00:00",
@@ -1567,6 +1661,17 @@
         "net": 264
       },
       "integration_source_commit": "becd1e56bb75420387436ef8f2e0ee60345c94c0",
+      "global_ruff_errors": 374
+    },
+    {
+      "timestamp_utc": "2026-11-21T18:41:06.779299+00:00",
+      "action": "Wave 1 World/Population and linked finance cross-process deterministic replay, 5 hash seeds and 2 tests; 720 full pass, 50 conformance.",
+      "round_python_diff_totals": {
+        "added": 156,
+        "deleted": 0,
+        "net": 156
+      },
+      "integration_source_commit": "c1e12dba763e42844351cc0ddb9060044d8cc2e9",
       "global_ruff_errors": 374
     }
   ]
