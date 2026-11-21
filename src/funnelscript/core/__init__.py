@@ -3,6 +3,7 @@ from funnelscript.core.event_machine import (
     EffectIntent,
     Event,
     EventMachine,
+    FunnelRuntimeLimitError,
     RunResult,
     Transition,
 )
@@ -10,10 +11,11 @@ from funnelscript.core.event_machine import (
 __all__ = [
     "Agent",
     "ConsumerState",
-    "PsychographicProfile",
     "EffectIntent",
     "Event",
     "EventMachine",
+    "FunnelRuntimeLimitError",
+    "PsychographicProfile",
     "RunResult",
     "Transition",
 ]
