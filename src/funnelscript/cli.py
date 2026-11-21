@@ -15,24 +15,26 @@ import json
 import sys
 from importlib.metadata import version as distribution_version
 from pathlib import Path
+
+from pydantic import ValidationError
 from rich.console import Console
+from rich.markup import escape
 from rich.panel import Panel
 from rich.table import Table
-from pydantic import ValidationError
 
+from funnelscript.compiler.diagnostics import render_compiler_error
 from funnelscript.compiler.linter import FunnelLinter, LintSeverity
-from funnelscript.compiler.world_ast import WorldAST, WorldTypeError
 from funnelscript.compiler.schema import export_json_schema
-from funnelscript.parser import Parser, ParserError
-from funnelscript.tokens import LexerError
+from funnelscript.compiler.world_ast import WorldAST, WorldTypeError
 from funnelscript.core.event_machine import Event
-from funnelscript.runtime.world_executor import WorldExecutor
+from funnelscript.parser import Parser, ParserError
 from funnelscript.runtime.engine import SimulationEngine
 from funnelscript.runtime.exporters import (
     export_report_to_json,
-    export_trajectories_to_csv,
     export_trials_to_csv,
 )
+from funnelscript.runtime.world_executor import WorldExecutor
+from funnelscript.tokens import LexerError
 
 console = Console()
 
@@ -65,7 +67,7 @@ def check_command(file_path: str, quiet: bool = False) -> int:
         ast = Parser.from_file(str(path))
     except (LexerError, ParserError, WorldTypeError, ValidationError, json.JSONDecodeError) as exc:
         if not quiet:
-            console.print(Panel(f"[bold red]❌ Parse Error:[/bold red]\n{exc}", border_style="red"))
+            console.print(Panel(f"[bold red]❌ Parse Error:[/bold red]\n{escape(render_compiler_error(exc, path))}", border_style="red"))
         return 1
     except (OSError, UnicodeError) as exc:
         print(f"Input I/O error: {exc}", file=sys.stderr)
@@ -202,7 +204,7 @@ def run_world_command(
     try:
         ast = Parser.from_file(file_path)
         if not isinstance(ast, WorldAST):
-            raise ValueError("run-world requires a world declaration, not a strategy")
+            raise TypeError("run-world requires a world declaration, not a strategy")
         if events_file is not None and event_specs:
             raise ValueError("--event and --events-file are mutually exclusive")
         events = (_load_event_playbook(events_file) if events_file is not None
@@ -250,7 +252,7 @@ def simulate_command(
         ast = Parser.from_file(str(path))
     except (LexerError, ParserError, WorldTypeError, ValidationError, json.JSONDecodeError) as exc:
         if not as_json:
-            console.print(Panel(f"[bold red]❌ Parse Error:[/bold red]\n{exc}", border_style="red"))
+            console.print(Panel(f"[bold red]❌ Parse Error:[/bold red]\n{escape(render_compiler_error(exc, path))}", border_style="red"))
         return 1
     except (OSError, UnicodeError) as exc:
         print(f"Input I/O error: {exc}", file=sys.stderr)

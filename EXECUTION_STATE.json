@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "project": "FunnelScript",
   "created_utc": "2026-11-21T13:25:55+00:00",
-  "updated_utc": "2026-11-21T14:26:02.167384+00:00",
+  "updated_utc": "2026-11-21T14:42:08.859734+00:00",
   "repository_root": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect/funnelscript",
   "workspace_parent": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect",
   "python_single_source_of_truth": "src/funnelscript/",
@@ -400,6 +400,11 @@
           "name": "Source-mapped World semantic errors with imported-module provenance",
           "status": "VERIFIED",
           "note": "9 new parameterized tests; focused 182 pass, full 727 pass, clean staged compiler snapshot 660 pass, 50 conformance and scoped Ruff 0."
+        },
+        {
+          "name": "JSON/Pydantic structured CLI validation diagnostics",
+          "status": "VERIFIED",
+          "note": "8 new tests, 735 full-worktree tests, 668 isolated integration tests, 50 World conformance, zero scoped Ruff findings."
         }
       ],
       "target_files_modified_by_wave": [
@@ -411,16 +416,19 @@
         "src/funnelscript/compiler/world_ast.py",
         "tests/verification/test_world_ast_source_spans.py",
         "tests/verification/test_world_parser_recovery.py",
-        "tests/verification/test_world_type_diagnostics.py"
+        "tests/verification/test_world_type_diagnostics.py",
+        "src/funnelscript/cli.py",
+        "src/funnelscript/compiler/diagnostics.py",
+        "tests/verification/test_structured_validation_diagnostics.py"
       ],
-      "git_commit_hash": "30cc64abf64d5fe892929678883847090e71ebc2",
+      "git_commit_hash": "004485d6ecea56c6f9babfa45dcc00eb53532539",
       "new_commit_created": true,
-      "test_pass_count": 727,
+      "test_pass_count": 735,
       "exit_gate_metrics": {
         "gate": "Core 99 roadmap criteria including spans, formatter, 10k parser fuzz, five hash-seed checks, snapshot/replay and 100k events",
         "passed": false,
         "observed": {
-          "full_pytest_passed": 727,
+          "full_pytest_passed": 735,
           "full_pytest_failed": 0,
           "full_pytest_skipped": 0,
           "full_pytest_subtests_passed": 58,
@@ -454,7 +462,7 @@
           "world_corpus_world_nodes_missing_span": 0,
           "world_corpus_expected_negative_cases": 5,
           "world_corpus_other_strategies": 1,
-          "protected_document_hashes_unchanged": 5,
+          "protected_document_hashes_unchanged": 9,
           "ast_output_model_dump_excludes_spans": true,
           "imported_declarations_retain_source_spans": true,
           "world_syntax_recovery_max_errors": 32,
@@ -468,17 +476,24 @@
           "semantic_diagnostics_in_memory_backwards_compatible": true,
           "staged_compiler_pytest_passed": 660,
           "staged_compiler_conformance_passed": 50,
-          "staged_compiler_ruff_findings": 0
+          "staged_compiler_ruff_findings": 0,
+          "validation_diagnostics_new_tests": 8,
+          "validation_diagnostics_json_exact_line_column": true,
+          "validation_diagnostics_pydantic_structural_path": true,
+          "validation_diagnostics_bounded": 32,
+          "staged_validation_pytest_passed": 668,
+          "staged_validation_conformance_passed": 50,
+          "staged_validation_ruff_findings": 0
         }
       },
-      "new_pytest_cases": 68,
-      "research_anchor": "Compiler provenance-carrying source locations and typed semantic error propagation for nested AST validations.",
-      "falsifiable_hypothesis": "A semantically invalid World with source provenance fails with FNL-T201 at its nearest originating AST node, including imported modules, without breaking in-memory AST validation.",
-      "invariant": "Source spans are not invented: if emitted, each semantic error.span is inherited from an actual WorldAST source node, and no invalid World AST proceeds to execution.",
+      "new_pytest_cases": 76,
+      "research_anchor": "Pydantic structured field locators and JSONDecoder.pos-derived accurate line/column provenance; no fabricated schema source spans.",
+      "falsifiable_hypothesis": "Invalid JSON source yields a physical caret at JSONDecodeError.lineno/colno, while invalid schema values yield bounded Pydantic field paths and never expose raw validation input or tracebacks.",
+      "invariant": "Physical source spans must come from the decoder or original AST; schema field locators are not physical coordinates; every invalid input returns nonzero and no unhandled traceback.",
       "blockers": [
         {
           "id": "W1-SPANS",
-          "finding": "Token/AST spans, World bounded syntax recovery and source-mapped semantic WorldTypeError complete. Unified Pydantic, linter, cross-entrypoint diagnostics remain."
+          "finding": "World syntax/type spans and JSON FNL-E103 exact caret diagnostics complete; JSON/Pydantic schema FNL-T202 field paths complete. Physical StrategyAST/Pydantic/linter spans and unified lint renderer still missing."
         },
         {
           "id": "W1-FMT",
@@ -486,7 +501,7 @@
         },
         {
           "id": "W1-LINT",
-          "finding": "486 repository-wide Ruff findings remain in full working tree; staged nine-file compiler integration has zero Ruff findings."
+          "finding": "486 pre-existing repository-wide Ruff findings remain. Three-file isolated CLI diagnostic PR has zero Ruff findings."
         },
         {
           "id": "W1-EVENT",
@@ -498,77 +513,76 @@
         }
       ],
       "last_round": {
-        "round_label": "Source-mapped World semantic errors and independent Wave 1 integration",
-        "started_from_baseline_directory": "/var/folders/_w/rzz6bs252_15ztt3z4d9hqsr0000gn/T/funnelscript_wave1_semantic_round_ak_6uqyj",
+        "round_label": "Bounded Pydantic/JSON diagnostic renderer with CLI lint cleanup",
+        "started_from_baseline_directory": "/var/folders/_w/rzz6bs252_15ztt3z4d9hqsr0000gn/T/funnelscript_wave1_validation_round_6d9c4ux0",
+        "source_head_before_round": "3bba95faa86c55659a8a24b78bab17aa6ce348b5",
         "python_files": {
-          "src/funnelscript/compiler/world_ast.py": {
-            "added": 85,
-            "deleted": 28,
-            "net": 57,
-            "final_lines": 395
+          "src/funnelscript/cli.py": {
+            "added": 5,
+            "deleted": 3,
+            "net": 2
           },
-          "tests/verification/test_world_type_diagnostics.py": {
-            "added": 103,
+          "src/funnelscript/compiler/diagnostics.py": {
+            "added": 67,
             "deleted": 0,
-            "net": 103,
-            "final_lines": 103
+            "net": 67
+          },
+          "tests/verification/test_structured_validation_diagnostics.py": {
+            "added": 141,
+            "deleted": 0,
+            "net": 141
           }
         },
         "python_diff_totals": {
-          "added": 188,
-          "deleted": 28,
-          "net": 160
+          "added": 213,
+          "deleted": 3,
+          "net": 210
         },
-        "production_python_diff": {
-          "added": 85,
-          "deleted": 28,
-          "net": 57
+        "staged_source_commit_diff_totals": {
+          "added": 219,
+          "deleted": 9,
+          "net": 210
         },
-        "test_python_diff": {
-          "added": 103,
-          "deleted": 0,
-          "net": 103
-        },
-        "what_done": [
-          "Located WorldTypeError now retains source span, emits FNL-T201, source excerpt, caret and remediation hint; original standalone in-memory ValueError string remains unchanged.",
-          "World semantic checks annotate the narrowest validated AST node: declaration, state, event field, guard, transition and emission, preserving imported-module provenance.",
-          "Split validation by states, event fields, transitions and emissions; all edited checker methods meet <=80-line and <=4-nesting limits.",
-          "Added 9 parameterized World semantic diagnostics cases covering nested declarations, imports, legacy in-memory semantics and CLI without raw traceback.",
-          "TDD RED proved semantic errors lacked spans; GREEN 9 new tests passed; post-review refactor verified 182 targeted tests.",
-          "Full uncommitted project tests: 727 passed, 0 failed/skipped, 58 subtests; World conformance 50 passed.",
-          "Isolated staged snapshot from d589491 plus compiler-owned 9 files: 660 passed, 58 subtests and 50 World conformance; zero Ruff findings in all 9 staged files.",
-          "Created verified source commit 30cc64abf64d5fe892929678883847090e71ebc2 on feat/wave1-compiler-diagnostics-20261121; 9 files committed with prior verified Wave 1 code.",
-          "Confirmed all 5 existing protected governing source files remained byte-for-byte unchanged."
-        ],
-        "what_remaining": [
-          "Complete unified parser, Pydantic ValidationError, semantic and linter DiagnosticRenderer; add precise diagnostic codes and hints for validation and lint failures.",
-          "Formatter funnelscript fmt, grammar drift checks and an approved resolution to the phase spec/ freeze.",
-          "World static linter checks: import cycles, orphan event declarations, unresolved handlers and unreachable rules.",
-          "Deterministic EventKey total ordering and keyed RNG across PYTHONHASHSEED variants and adversarial events.",
-          "Zeno protection, bounded runtime envelopes, snapshot restore and bit-exact split-run replay.",
-          "486 outstanding repository-wide Ruff findings must be independently triaged; do not claim global lint clean.",
-          "Out-of-scope preexisting web decoupling, CLI additions, calibration, solver, packages and examples remain unmerged pending separate verification and wave gates.",
-          "Wave 1 still IN_PROGRESS; Wave 2 is blocked until Wave 1 fully exits and user approves."
-        ],
         "metric_exclusions": [
           "EXECUTION_STATE.json metadata",
-          "other rounds staged in integration source commit",
-          "unrelated pre-existing working tree changes"
+          "pre-existing unrelated dirty worktree modifications",
+          "pre-existing CLI improvements already present in dirty worktree when measuring per-round diffs"
         ],
-        "new_tests_added": 9,
-        "full_pytest_passed": 727,
+        "what_done": [
+          "TDD proved JSON/Pydantic CLI error rendering gaps, then added structured diagnostics with FNL-E103 for exact JSON decoder line/column/caret and FNL-T202 for Pydantic structural field locators.",
+          "Validation output caps visible errors at 32, redacts Pydantic raw input/url/context details, limits message length, and states explicitly when physical source coordinates cannot be established.",
+          "Retained legacy LexerError, ParserError and WorldTypeError error strings; Rich display escapes user-originating markup and preserves terminal non-traceback error returns.",
+          "Reused the diagnostic renderer in both check_command and simulate_command; preserved errors and return codes for valid scripts and failure cases.",
+          "Fixed pre-existing CLI import sorting and removed unused export_trajectories_to_csv import; changed run-world wrong AST type from ValueError to TypeError without changing user-visible return behavior.",
+          "Added eight new tests: JSON syntax and EOF spans, nested schema paths, multi-error cap, Pydantic root validator, legacy error messages, simulation errors and run-world wrong type.",
+          "Full user worktree regression passed 735, 58 subtests, 0 failed/skipped; World conformance passed 50.",
+          "Final staged-only source checkout passed 668, 58 subtests, 50 World conformance; Ruff for three staged files 0. Global worktree Ruff 486 pre-existing findings.",
+          "Created source commit 004485d6ecea56c6f9babfa45dcc00eb53532539 from staged-only three-file patch; all 9 protected existing source documents remain SHA-256 identical."
+        ],
+        "what_remaining": [
+          "Unified physical source spans for legacy StrategyAST/Pydantic schema/linter diagnostics in .fnl where parsing currently discards token-to-field provenance; avoid invented source positions.",
+          "World module graph and static linter passes: import cycles, event handler reachability, shadowed identifiers and dead events with exact proven spans.",
+          "Deterministic funnelscript fmt with valid corpus AST round-trip and grammar synchronization, requiring resolution of read-only spec/grammar.ebnf freeze.",
+          "Event calendar EventKey strict total order and keyed RNG reproducibility under varying PYTHONHASHSEED and adversarial reentrant execution.",
+          "Zeno chain detection, maximum queue and per-tick resource bounds, snapshot/restore and bit-exact split-run replay.",
+          "Repository-wide Ruff remains 486 findings; fix only separately tested, scoped groups and keep Wave 1 exit gate open.",
+          "Other existing web decoupling, legacy CLI commands, package/marketing/calibration/solver files remain in user worktree and are excluded from this Wave 1 integration.",
+          "No advancement to Wave 2 until all Wave 1 exit gates are VERIFIED with explicit approval."
+        ],
+        "new_tests_added": 8,
+        "full_pytest_passed": 735,
         "full_pytest_failed": 0,
         "full_pytest_skipped": 0,
         "full_pytest_subtests_passed": 58,
         "conformance_passed": 50,
         "global_ruff_errors": 486,
-        "isolated_staged_pytest_passed": 660,
+        "isolated_staged_pytest_passed": 668,
         "isolated_staged_conformance_passed": 50,
         "isolated_staged_ruff_findings": 0,
-        "protected_existing_docs_unchanged": 5,
-        "integration_source_commit": "30cc64abf64d5fe892929678883847090e71ebc2",
-        "integration_branch": "feat/wave1-compiler-diagnostics-20261121",
-        "suggested_commit_message": "feat(parser): source-map World syntax and type diagnostics"
+        "protected_existing_docs_unchanged": 9,
+        "integration_source_commit": "004485d6ecea56c6f9babfa45dcc00eb53532539",
+        "integration_branch": "feat/wave1-structured-validation-20261121",
+        "suggested_commit_message": "feat(compiler): render bounded JSON and schema diagnostics"
       },
       "round_history": [
         {
@@ -762,6 +776,79 @@
           "benchmark_100000_events_pending": 0,
           "source_scoped_ruff_status": "new tests pass Ruff; 4 prior BLE001/S110 manifest catches retained in parser.py",
           "suggested_commit_message": "feat(parser): recover and aggregate bounded World syntax errors"
+        },
+        {
+          "round_label": "Source-mapped World semantic errors and independent Wave 1 integration",
+          "started_from_baseline_directory": "/var/folders/_w/rzz6bs252_15ztt3z4d9hqsr0000gn/T/funnelscript_wave1_semantic_round_ak_6uqyj",
+          "python_files": {
+            "src/funnelscript/compiler/world_ast.py": {
+              "added": 85,
+              "deleted": 28,
+              "net": 57,
+              "final_lines": 395
+            },
+            "tests/verification/test_world_type_diagnostics.py": {
+              "added": 103,
+              "deleted": 0,
+              "net": 103,
+              "final_lines": 103
+            }
+          },
+          "python_diff_totals": {
+            "added": 188,
+            "deleted": 28,
+            "net": 160
+          },
+          "production_python_diff": {
+            "added": 85,
+            "deleted": 28,
+            "net": 57
+          },
+          "test_python_diff": {
+            "added": 103,
+            "deleted": 0,
+            "net": 103
+          },
+          "what_done": [
+            "Located WorldTypeError now retains source span, emits FNL-T201, source excerpt, caret and remediation hint; original standalone in-memory ValueError string remains unchanged.",
+            "World semantic checks annotate the narrowest validated AST node: declaration, state, event field, guard, transition and emission, preserving imported-module provenance.",
+            "Split validation by states, event fields, transitions and emissions; all edited checker methods meet <=80-line and <=4-nesting limits.",
+            "Added 9 parameterized World semantic diagnostics cases covering nested declarations, imports, legacy in-memory semantics and CLI without raw traceback.",
+            "TDD RED proved semantic errors lacked spans; GREEN 9 new tests passed; post-review refactor verified 182 targeted tests.",
+            "Full uncommitted project tests: 727 passed, 0 failed/skipped, 58 subtests; World conformance 50 passed.",
+            "Isolated staged snapshot from d589491 plus compiler-owned 9 files: 660 passed, 58 subtests and 50 World conformance; zero Ruff findings in all 9 staged files.",
+            "Created verified source commit 30cc64abf64d5fe892929678883847090e71ebc2 on feat/wave1-compiler-diagnostics-20261121; 9 files committed with prior verified Wave 1 code.",
+            "Confirmed all 5 existing protected governing source files remained byte-for-byte unchanged."
+          ],
+          "what_remaining": [
+            "Complete unified parser, Pydantic ValidationError, semantic and linter DiagnosticRenderer; add precise diagnostic codes and hints for validation and lint failures.",
+            "Formatter funnelscript fmt, grammar drift checks and an approved resolution to the phase spec/ freeze.",
+            "World static linter checks: import cycles, orphan event declarations, unresolved handlers and unreachable rules.",
+            "Deterministic EventKey total ordering and keyed RNG across PYTHONHASHSEED variants and adversarial events.",
+            "Zeno protection, bounded runtime envelopes, snapshot restore and bit-exact split-run replay.",
+            "486 outstanding repository-wide Ruff findings must be independently triaged; do not claim global lint clean.",
+            "Out-of-scope preexisting web decoupling, CLI additions, calibration, solver, packages and examples remain unmerged pending separate verification and wave gates.",
+            "Wave 1 still IN_PROGRESS; Wave 2 is blocked until Wave 1 fully exits and user approves."
+          ],
+          "metric_exclusions": [
+            "EXECUTION_STATE.json metadata",
+            "other rounds staged in integration source commit",
+            "unrelated pre-existing working tree changes"
+          ],
+          "new_tests_added": 9,
+          "full_pytest_passed": 727,
+          "full_pytest_failed": 0,
+          "full_pytest_skipped": 0,
+          "full_pytest_subtests_passed": 58,
+          "conformance_passed": 50,
+          "global_ruff_errors": 486,
+          "isolated_staged_pytest_passed": 660,
+          "isolated_staged_conformance_passed": 50,
+          "isolated_staged_ruff_findings": 0,
+          "protected_existing_docs_unchanged": 5,
+          "integration_source_commit": "30cc64abf64d5fe892929678883847090e71ebc2",
+          "integration_branch": "feat/wave1-compiler-diagnostics-20261121",
+          "suggested_commit_message": "feat(parser): source-map World syntax and type diagnostics"
         }
       ]
     },
@@ -973,8 +1060,8 @@
   "status": "IN_PROGRESS",
   "next_wave": 1,
   "next_wave_execution_permitted": true,
-  "user_approval_needed": "Wave 1 remaining exit gates block Wave 2; only reviewed Wave 1 compiler slice may merge independently.",
-  "suggested_commit_message": "feat(parser): source-map World syntax and type diagnostics",
+  "user_approval_needed": "Wave 1 exit gates remain incomplete; Wave 2 blocked until all gates VERIFIED and explicit user approval.",
+  "suggested_commit_message": "feat(compiler): render bounded JSON and schema diagnostics",
   "history": [
     {
       "timestamp_utc": "2026-11-21T13:25:55+00:00",
@@ -1015,6 +1102,16 @@
         "net": 160
       },
       "integration_source_commit": "30cc64abf64d5fe892929678883847090e71ebc2"
+    },
+    {
+      "timestamp_utc": "2026-11-21T14:42:08.859734+00:00",
+      "action": "Wave 1 structured JSON/schema diagnostics committed in isolated verified compiler slice; staged 668 passed, 50 conformance, 0 scoped Ruff; full 735 passed.",
+      "round_python_diff_totals": {
+        "added": 213,
+        "deleted": 3,
+        "net": 210
+      },
+      "integration_source_commit": "004485d6ecea56c6f9babfa45dcc00eb53532539"
     }
   ]
 }
