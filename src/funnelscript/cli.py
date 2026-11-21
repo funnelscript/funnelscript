@@ -26,6 +26,7 @@ from funnelscript.compiler.diagnostics import render_compiler_error
 from funnelscript.compiler.linter import FunnelLinter, LintSeverity
 from funnelscript.compiler.schema import export_json_schema
 from funnelscript.compiler.world_ast import WorldAST, WorldTypeError
+from funnelscript.compiler.world_lint import WorldLinter
 from funnelscript.core.event_machine import Event
 from funnelscript.parser import Parser, ParserError
 from funnelscript.runtime.engine import SimulationEngine
@@ -74,7 +75,16 @@ def check_command(file_path: str, quiet: bool = False) -> int:
         return 2
 
     if isinstance(ast, WorldAST):
+        world_findings = WorldLinter(ast).lint()
         if not quiet:
+            for finding in world_findings:
+                console.print(
+                    Panel(
+                        escape(finding.render()),
+                        title=f"World hygiene: {finding.code}",
+                        border_style="yellow",
+                    )
+                )
             entities = sum(d.kind == "entity" for d in ast.declarations)
             agents = sum(d.kind == "agent" for d in ast.declarations)
             console.print(

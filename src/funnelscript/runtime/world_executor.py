@@ -30,6 +30,8 @@ from funnelscript.compiler.world_ast import (
 from funnelscript.core.event_machine import (
     Event,
     EventMachine,
+    EventSession,
+    EventSnapshot,
     FunnelRuntimeLimitError,
     RunResult,
     Transition,
@@ -61,6 +63,9 @@ class WorldExecutor:
         WorldTypeChecker.check(world)
         # Retain a private snapshot of checked definitions: callers may mutate ASTs.
         self.world = world.model_copy(deep=True)
+        self._model_identity = hashlib.sha256(
+            self.world.model_dump_json().encode("utf-8")
+        ).hexdigest()
         self.handlers: dict[str, tuple[str, EventRuleDefinition]] = {}
         self.event_schemas: dict[str, dict[str, type]] = {}
         for declaration in self.world.declarations:
@@ -243,6 +248,32 @@ class WorldExecutor:
             for emission in rule.emissions
         )
         return Transition(state=updated, events=scheduled)
+
+    def start(
+        self,
+        events: Iterable[Event],
+        *,
+        seed: int = 0,
+        max_events: int = 100_000,
+        max_queue_size: int | None = None,
+        max_events_per_tick: int | None = None,
+        max_zero_delay_depth: int | None = None,
+    ) -> EventSession[WorldState]:
+        """Create a resumable World calendar with the checked rule reducer."""
+        return EventMachine(self._step).start(
+            self.initial_state(), events, seed=seed, max_events=max_events,
+            max_queue_size=max_queue_size, max_events_per_tick=max_events_per_tick,
+            max_zero_delay_depth=max_zero_delay_depth,
+            model_identity=self._model_identity,
+        )
+
+    def restore(self, snapshot: EventSnapshot[WorldState]) -> EventSession[WorldState]:
+        """Resume only checkpoints from a definition with identical semantics."""
+        if not isinstance(snapshot, EventSnapshot):
+            raise TypeError("World restore requires an EventSnapshot")
+        if snapshot.model_identity != self._model_identity:
+            raise ValueError("World checkpoint does not match the current World definition")
+        return EventMachine(self._step).restore(snapshot)
 
     def run(
         self,

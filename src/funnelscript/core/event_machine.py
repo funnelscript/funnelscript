@@ -8,6 +8,7 @@ from __future__ import annotations
 import math
 import random
 from collections.abc import Callable, Iterable, Iterator
+from copy import deepcopy
 from dataclasses import dataclass
 from heapq import heappop, heappush
 from itertools import count
@@ -172,13 +173,232 @@ def _validate_run_arguments(
     _validate_budget(max_zero_delay_depth, "max_zero_delay_depth", 0)
 
 
-class EventMachine[S]:
-    """Run a model reducer over an ordered event calendar and seeded PRNG."""
+@dataclass(frozen=True, slots=True)
+class EventSnapshot[S]:
+    """Trusted checkpoint of the event calendar and its reducer-owned state.
+
+    Snapshots can be pickled for trusted local storage; never unpickle untrusted
+    external data. The reducer itself is deliberately supplied at restore time.
+    """
+
+    state: S
+    queue: tuple[_QueueEntry, ...]
+    rng_state: tuple[object, ...]
+    next_ordinal: int
+    processed: tuple[Event, ...]
+    intents: tuple[EffectIntent, ...]
+    tick_time: float | None
+    tick_events: int
+    max_events: int
+    max_queue_size: int | None
+    max_events_per_tick: int | None
+    max_zero_delay_depth: int | None
+    model_identity: str | None
+
+
+class EventSession[S]:
+    """Resumable single-reducer calendar with a deterministic total order."""
 
     def __init__(
-        self, reducer: Callable[[S, Event, random.Random], Transition[S]]
+        self,
+        reducer: Callable[[S, Event, random.Random], Transition[S]],
+        initial_state: S,
+        events: Iterable[Event],
+        *,
+        seed: int,
+        max_events: int,
+        max_queue_size: int | None,
+        max_events_per_tick: int | None,
+        max_zero_delay_depth: int | None,
+        model_identity: str | None = None,
+    ) -> None:
+        _validate_run_arguments(
+            None, max_events, max_queue_size, max_events_per_tick, max_zero_delay_depth,
+        )
+        self.reducer = reducer
+        self.model_identity = model_identity
+        self._failed = False
+        self.max_events = max_events
+        self.max_queue_size = max_queue_size
+        self.max_events_per_tick = max_events_per_tick
+        self.max_zero_delay_depth = max_zero_delay_depth
+        self.trace_enabled = any(
+            item is not None for item in
+            (max_queue_size, max_events_per_tick, max_zero_delay_depth)
+        )
+        self.ordinal = count()
+        self.queue: list[_QueueEntry] = []
+        for event in events:
+            if not isinstance(event, Event):
+                raise TypeError("Calendar entries must be Event instances")
+            entry = (event.time, event.priority, 0, next(self.ordinal), event)
+            if max_queue_size is None:
+                heappush(self.queue, entry)
+            else:
+                _admit(self.queue, entry, max_queue_size)
+        self.rng = random.Random(seed)
+        self.state = initial_state
+        self.processed: list[Event] = []
+        self.intents: list[EffectIntent] = []
+        self.tick_time: float | None = None
+        self.tick_events = 0
+
+    @classmethod
+    def from_snapshot(
+        cls,
+        reducer: Callable[[S, Event, random.Random], Transition[S]],
+        snapshot: EventSnapshot[S],
+    ) -> EventSession[S]:
+        if not isinstance(snapshot, EventSnapshot):
+            raise TypeError("restore requires an EventSnapshot")
+        _validate_run_arguments(
+            None, snapshot.max_events, snapshot.max_queue_size,
+            snapshot.max_events_per_tick, snapshot.max_zero_delay_depth,
+        )
+        # A fresh session's initialization cannot observe a mutated checkpoint.
+        result = cls(
+            reducer, deepcopy(snapshot.state), (), seed=0,
+            max_events=snapshot.max_events,
+            max_queue_size=snapshot.max_queue_size,
+            max_events_per_tick=snapshot.max_events_per_tick,
+            max_zero_delay_depth=snapshot.max_zero_delay_depth,
+            model_identity=snapshot.model_identity,
+        )
+        result.queue = list(deepcopy(snapshot.queue))
+        result.ordinal = count(snapshot.next_ordinal)
+        result.rng.setstate(snapshot.rng_state)
+        result.processed = list(deepcopy(snapshot.processed))
+        result.intents = list(deepcopy(snapshot.intents))
+        result.tick_time = snapshot.tick_time
+        result.tick_events = snapshot.tick_events
+        return result
+
+    def snapshot(self) -> EventSnapshot[S]:
+        """Capture an independent copy, including the full PRNG Gaussian cache."""
+        if self._failed:
+            raise RuntimeError("Cannot snapshot a failed session")
+        return EventSnapshot(
+            state=deepcopy(self.state),
+            queue=tuple(deepcopy(self.queue)),
+            rng_state=self.rng.getstate(),
+            next_ordinal=len(self.processed) + len(self.queue),
+            processed=tuple(deepcopy(self.processed)),
+            intents=tuple(deepcopy(self.intents)),
+            tick_time=self.tick_time,
+            tick_events=self.tick_events,
+            max_events=self.max_events,
+            max_queue_size=self.max_queue_size,
+            max_events_per_tick=self.max_events_per_tick,
+            max_zero_delay_depth=self.max_zero_delay_depth,
+            model_identity=self.model_identity,
+        )
+
+    def advance(
+        self, *, until: float | None = None, max_steps: int | None = None,
+    ) -> RunResult[S]:
+        """Process through an inclusive time horizon or an exact event budget."""
+        if self._failed:
+            raise RuntimeError("Cannot advance a failed session")
+        _validate_run_arguments(
+            until, self.max_events, self.max_queue_size,
+            self.max_events_per_tick, self.max_zero_delay_depth,
+        )
+        if max_steps is not None and (type(max_steps) is not int or max_steps < 1):
+            raise ValueError("max_steps must be a positive integer or None")
+        dispatched = 0
+        while (
+            self.queue
+            and (until is None or self.queue[0][0] <= until)
+            and (max_steps is None or dispatched < max_steps)
+        ):
+            try:
+                self._dispatch_one()
+            except Exception:
+                # The reducer may have mutated state or consumed random draws.
+                # Never expose an invalid checkpoint or silently retry this event.
+                self._failed = True
+                raise
+            dispatched += 1
+        pending = tuple(item[4] for item in sorted(self.queue))
+        return RunResult(
+            self.state, tuple(self.processed), tuple(self.intents), pending,
+        )
+
+    def _check_next_budget(self, head: _QueueEntry) -> None:
+        timestamp, event = head[0], head[4]
+        ancestor = head[5] if len(head) == 6 else None
+        if len(self.processed) >= self.max_events:
+            raise FunnelRuntimeLimitError(
+                "max_events", self.max_events, len(self.processed) + 1,
+                timestamp, _chain(event, ancestor),
+                trace_complete=self.trace_enabled,
+            )
+        if self.max_events_per_tick is None:
+            return
+        if timestamp != self.tick_time:
+            self.tick_time = timestamp
+            self.tick_events = 0
+        if self.tick_events >= self.max_events_per_tick:
+            raise FunnelRuntimeLimitError(
+                "max_events_per_tick", self.max_events_per_tick,
+                self.tick_events + 1, timestamp, _chain(event, ancestor),
+            )
+
+    def _dispatch_one(self) -> None:
+        self._check_next_budget(self.queue[0])
+        current = heappop(self.queue)
+        event = current[4]
+        ancestor = current[5] if len(current) == 6 else None
+        depth = ancestor.zero_delay_depth if ancestor is not None else 0
+        transition = self.reducer(self.state, event, self.rng)
+        if not isinstance(transition, Transition):
+            raise TypeError("Model reducer must return a Transition")
+        if transition.events:
+            _schedule_emitted(
+                self.queue, transition.events, event, current[2], depth,
+                ancestor, self.ordinal, self.max_queue_size,
+                self.max_zero_delay_depth, self.trace_enabled,
+            )
+        for intent in transition.effects:
+            if not isinstance(intent, EffectIntent):
+                raise TypeError("Model effects must be EffectIntent instances")
+            self.intents.append(intent)
+        self.state = transition.state
+        self.processed.append(event)
+        if self.max_events_per_tick is not None:
+            self.tick_events += 1
+
+
+class EventMachine[S]:
+    """Run or resume a model-owned reducer over an ordered event calendar."""
+
+    def __init__(
+        self, reducer: Callable[[S, Event, random.Random], Transition[S]],
     ) -> None:
         self.reducer = reducer
+
+    def start(
+        self,
+        initial_state: S,
+        events: Iterable[Event],
+        *,
+        seed: int,
+        max_events: int = 100_000,
+        max_queue_size: int | None = None,
+        max_events_per_tick: int | None = None,
+        max_zero_delay_depth: int | None = None,
+        model_identity: str | None = None,
+    ) -> EventSession[S]:
+        return EventSession(
+            self.reducer, initial_state, events, seed=seed,
+            max_events=max_events, max_queue_size=max_queue_size,
+            max_events_per_tick=max_events_per_tick,
+            max_zero_delay_depth=max_zero_delay_depth,
+            model_identity=model_identity,
+        )
+
+    def restore(self, snapshot: EventSnapshot[S]) -> EventSession[S]:
+        return EventSession.from_snapshot(self.reducer, snapshot)
 
     def run(
         self,
@@ -195,68 +415,8 @@ class EventMachine[S]:
         _validate_run_arguments(
             until, max_events, max_queue_size, max_events_per_tick, max_zero_delay_depth,
         )
-        trace_enabled = any(
-            bound is not None
-            for bound in (max_queue_size, max_events_per_tick, max_zero_delay_depth)
-        )
-        ordinal = count()
-        queue: list[_QueueEntry] = []
-        for event in events:
-            if not isinstance(event, Event):
-                raise TypeError("Calendar entries must be Event instances")
-            entry = (event.time, event.priority, 0, next(ordinal), event)
-            if max_queue_size is None:
-                heappush(queue, entry)
-            else:
-                _admit(queue, entry, max_queue_size)
-
-        rng = random.Random(seed)
-        state = initial_state
-        processed: list[Event] = []
-        intents: list[EffectIntent] = []
-        tick_time: float | None = None
-        tick_events = 0
-
-        while queue and (until is None or queue[0][0] <= until):
-            head = queue[0]
-            timestamp, next_event = head[0], head[4]
-            next_link = head[5] if len(head) == 6 else None
-            if len(processed) >= max_events:
-                raise FunnelRuntimeLimitError(
-                    "max_events", max_events, len(processed) + 1,
-                    timestamp, _chain(next_event, next_link),
-                    trace_complete=trace_enabled,
-                )
-            if max_events_per_tick is not None:
-                if timestamp != tick_time:
-                    tick_time = timestamp
-                    tick_events = 0
-                if tick_events >= max_events_per_tick:
-                    raise FunnelRuntimeLimitError(
-                        "max_events_per_tick", max_events_per_tick, tick_events + 1,
-                        timestamp, _chain(next_event, next_link),
-                    )
-            current = heappop(queue)
-            causal_depth, event = current[2], current[4]
-            ancestor = current[5] if len(current) == 6 else None
-            zero_delay_depth = ancestor.zero_delay_depth if ancestor is not None else 0
-            transition = self.reducer(state, event, rng)
-            if not isinstance(transition, Transition):
-                raise TypeError("Model reducer must return a Transition")
-            if transition.events:
-                _schedule_emitted(
-                    queue, transition.events, event, causal_depth, zero_delay_depth,
-                    ancestor, ordinal, max_queue_size, max_zero_delay_depth,
-                    trace_enabled,
-                )
-            for intent in transition.effects:
-                if not isinstance(intent, EffectIntent):
-                    raise TypeError("Model effects must be EffectIntent instances")
-                intents.append(intent)
-            state = transition.state
-            processed.append(event)
-            if max_events_per_tick is not None:
-                tick_events += 1
-
-        pending = tuple(item[4] for item in sorted(queue))
-        return RunResult(state, tuple(processed), tuple(intents), pending)
+        return self.start(
+            initial_state, events, seed=seed, max_events=max_events,
+            max_queue_size=max_queue_size, max_events_per_tick=max_events_per_tick,
+            max_zero_delay_depth=max_zero_delay_depth,
+        ).advance(until=until)
