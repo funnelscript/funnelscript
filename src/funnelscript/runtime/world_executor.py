@@ -5,29 +5,35 @@ Research: funnelscript-research/spec/rule-transitions-v0.md (H-R1 to H-R4).
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping, Sequence
-from copy import deepcopy
-from dataclasses import dataclass, field
 import hashlib
 import json
 import math
 import random
 import re
+from collections.abc import Iterable, Mapping, Sequence
+from copy import deepcopy
+from dataclasses import dataclass, field
 
 from funnelscript.compiler.world_ast import (
     BinaryExpression,
     EventEmissionDefinition,
     EventRuleDefinition,
+    GuardDefinition,
     LiteralExpression,
     PayloadFieldExpression,
     ReferenceExpression,
     SampleExpression,
     StateExpression,
-    GuardDefinition,
     WorldAST,
     WorldTypeChecker,
 )
-from funnelscript.core.event_machine import Event, EventMachine, RunResult, Transition
+from funnelscript.core.event_machine import (
+    Event,
+    EventMachine,
+    FunnelRuntimeLimitError,
+    RunResult,
+    Transition,
+)
 
 WorldState = dict[str, dict[str, object]]
 
@@ -245,6 +251,9 @@ class WorldExecutor:
         seed: int = 0,
         until: float | None = None,
         max_events: int = 100_000,
+        max_queue_size: int | None = None,
+        max_events_per_tick: int | None = None,
+        max_zero_delay_depth: int | None = None,
         trace: list[WorldEventStep] | None = None,
     ) -> RunResult[WorldState]:
         """Lower source rules without changing the default event calendar."""
@@ -265,7 +274,9 @@ class WorldExecutor:
 
         machine = EventMachine(observed_step if trace is not None else self._step)
         return machine.run(
-            self.initial_state(), events, seed=seed, until=until, max_events=max_events
+            self.initial_state(), events, seed=seed, until=until, max_events=max_events,
+            max_queue_size=max_queue_size, max_events_per_tick=max_events_per_tick,
+            max_zero_delay_depth=max_zero_delay_depth,
         )
 
 
@@ -288,8 +299,8 @@ class PopulationAgent:
     segment_id: str
 
     def __post_init__(self) -> None:
-        for field in ("agent_id", "cohort_id", "segment_id"):
-            _valid_identity(getattr(self, field), field)
+        for identity_field in ("agent_id", "cohort_id", "segment_id"):
+            _valid_identity(getattr(self, identity_field), identity_field)
 
 
 @dataclass(frozen=True)
@@ -357,6 +368,9 @@ class PopulationExecutor:
         stream_role: str = "world-transitions",
         until: float | None = None, max_events: int = 100_000,
         trace: bool = False,
+        max_queue_size: int | None = None,
+        max_events_per_tick: int | None = None,
+        max_zero_delay_depth: int | None = None,
     ) -> PopulationResult:
         """Replay each agent-local event calendar; no cross-agent causal interactions."""
         _valid_identity(stream_role, "stream_role")
@@ -377,11 +391,17 @@ class PopulationExecutor:
         for agent in self.agents:
             aid = agent.agent_id
             observed: list[WorldEventStep] = []
-            output = self.world.run(
-                events_by_agent.get(aid, ()), seed=seeds[aid],
-                until=until, max_events=max_events,
-                trace=observed if trace else None,
-            )
+            try:
+                output = self.world.run(
+                    events_by_agent.get(aid, ()), seed=seeds[aid],
+                    until=until, max_events=max_events,
+                    max_queue_size=max_queue_size, max_events_per_tick=max_events_per_tick,
+                    max_zero_delay_depth=max_zero_delay_depth,
+                    trace=observed if trace else None,
+                )
+            except FunnelRuntimeLimitError as exc:
+                exc.add_note(f"population agent_id={aid}")
+                raise
             if trace:
                 steps[aid] = tuple(observed)
             state = output.state[self.owner][self.state_field]
