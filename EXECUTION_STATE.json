@@ -1,0 +1,1020 @@
+{
+  "schema_version": "1.0",
+  "project": "FunnelScript",
+  "created_utc": "2026-11-21T13:25:55+00:00",
+  "updated_utc": "2026-11-21T14:26:02.167384+00:00",
+  "repository_root": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect/funnelscript",
+  "workspace_parent": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect",
+  "python_single_source_of_truth": "src/funnelscript/",
+  "baseline_git": {
+    "head": "d589491f84a434a292242f6c207fb5116998eb71",
+    "branch": "main",
+    "dirty_before_tracking": true,
+    "preexisting_status_porcelain": [
+      "M .github/workflows/preview-ci.yml",
+      " M .gitignore",
+      " M CONTRIBUTING.md",
+      " M README.md",
+      " D apps/web/.gitignore",
+      " D apps/web/bun.lock",
+      " D apps/web/index.html",
+      " D apps/web/package.json",
+      " D apps/web/postcss.config.js",
+      " D apps/web/public/funnelscript-icon.svg",
+      " D apps/web/src/App.tsx",
+      " D apps/web/src/components/CodeDrawer.tsx",
+      " D apps/web/src/components/canvas/AudienceNode.tsx",
+      " D apps/web/src/components/canvas/ConditionalNode.tsx",
+      " D apps/web/src/components/canvas/TouchpointNode.tsx",
+      " D apps/web/src/components/telemetry/CashRunwayChart.tsx",
+      " D apps/web/src/components/telemetry/DistributionCards.tsx",
+      " D apps/web/src/index.css",
+      " D apps/web/src/lib/simulator.test.ts",
+      " D apps/web/src/lib/simulator.ts",
+      " D apps/web/src/lib/transpiler.test.ts",
+      " D apps/web/src/lib/transpiler.ts",
+      " D apps/web/src/main.tsx",
+      " D apps/web/src/types.ts",
+      " D apps/web/tailwind.config.js",
+      " D apps/web/tsconfig.json",
+      " D apps/web/vite.config.ts",
+      " M failure-lessons/runtime-and-types.md",
+      " M failure-lessons/testing-and-verification.md",
+      " M src/funnelscript/cli.py",
+      " M src/funnelscript/stdlib/marketing/__init__.py",
+      " M tests/test_brand_identity.py",
+      " M tests/test_cli.py",
+      "?? examples/calibrated_ecommerce_2026.fnl",
+      "?? examples/data/",
+      "?? examples/sample_solver_spec.json",
+      "?? src/funnelscript/runtime/server.py",
+      "?? src/funnelscript/solver/",
+      "?? src/funnelscript/stdlib/marketing/backtest.py",
+      "?? src/funnelscript/stdlib/marketing/calibration.py",
+      "?? src/funnelscript/stdlib/marketing/ingestion.py",
+      "?? src/funnelscript/stdlib/marketing/kernels.py",
+      "?? tests/test_api_server.py",
+      "?? tests/test_calibration_and_backtest.py",
+      "?? tests/test_marketing_ingestion.py",
+      "?? tests/test_marketing_stdlib.py",
+      "?? tests/test_solver_engine.py"
+    ],
+    "original_tracked_markdown_modifications": [
+      "CONTRIBUTING.md",
+      "README.md",
+      "failure-lessons/runtime-and-types.md",
+      "failure-lessons/testing-and-verification.md"
+    ],
+    "no_git_reset_restore_or_commit_performed": true
+  },
+  "related_repositories_read_only": {
+    "funnelscript-studio": "091cc9422d1d7f20ec95cbd2774038ade4dbad73",
+    "funnelscript-research-doc": "d34900e484334abaf534cf744c9c1cb1ba59abc7"
+  },
+  "governance": {
+    "document_preservation": "No .md files created, modified, deleted or renamed by Wave 0",
+    "expected_to_actual_read_only_documents": {
+      "AGENTS.md": {
+        "expected_repo_path_present": true,
+        "actual_path": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect/funnelscript/AGENTS.md",
+        "actual_sha256_before_wave0": "2ee97fae6ae50b2ef3a910fe2564458ce039404465a3ab9b9b0ac8c003f8b7ef",
+        "usage": "reference_only_read_only",
+        "resolution": "EXACT_MATCH"
+      },
+      "EXECUTION_RULES.md": {
+        "expected_repo_path_present": false,
+        "actual_path": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect/funnelscript_phase_1_execution_rules.md",
+        "actual_sha256_before_wave0": "eb794ce99f7e85ca6011433cc06e0aeeb967d381ab497e7efb5a38799169a65c",
+        "usage": "reference_only_read_only",
+        "resolution": "PARENT_DOCUMENT_ALIAS_PENDING_APPROVAL"
+      },
+      "CORE_99_ROADMAP_AND_PROMPT.md": {
+        "expected_repo_path_present": false,
+        "actual_path": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect/funnelscript_core_99_hardening_plan_agent_prompt.md",
+        "actual_sha256_before_wave0": "d5d9a1994fe57c17934c57041369e96ac39d4922d690faa2a01c1ef868a537e3",
+        "usage": "reference_only_read_only",
+        "resolution": "PARENT_DOCUMENT_ALIAS_PENDING_APPROVAL"
+      },
+      "LEDGER_AND_MARKETING_99_ROADMAP.md": {
+        "expected_repo_path_present": false,
+        "actual_path": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect/funnelscript_ledger_marketing_stdlib_99_plan_prompt.md",
+        "actual_sha256_before_wave0": "0067130dc546c4d8e8f4f45326899acf9b195d7e9a632fbe264d760f51f61b5a",
+        "usage": "reference_only_read_only",
+        "resolution": "PARENT_DOCUMENT_ALIAS_PENDING_APPROVAL"
+      },
+      "CALIBRATION_AND_SOLVER_99_ROADMAP.md": {
+        "expected_repo_path_present": false,
+        "actual_path": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect/funnelscript_calibration_or_solver_99_plan_prompt.md",
+        "actual_sha256_before_wave0": "dff19737a7ff7e73c112f63ab1e2c9b115fd2e247b082faf7026933e59b6edf3",
+        "usage": "reference_only_read_only",
+        "resolution": "PARENT_DOCUMENT_ALIAS_PENDING_APPROVAL"
+      },
+      "TYPING_AND_CONNECTORS_99_ROADMAP.md": {
+        "expected_repo_path_present": false,
+        "actual_path": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect/funnelscript_dimensional_typing_live_connectors_99_plan_prompt.md",
+        "actual_sha256_before_wave0": "247356e03c3f59ac7253310fe499c223919e8a0d508d199c1574f323f9812297",
+        "usage": "reference_only_read_only",
+        "resolution": "PARENT_DOCUMENT_ALIAS_PENDING_APPROVAL"
+      },
+      "V1_READINESS_ROADMAP_AND_PROMPT.md": {
+        "expected_repo_path_present": false,
+        "actual_path": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect/funnelscript_v1_0_readiness_plan_master_prompt.md",
+        "actual_sha256_before_wave0": "7546d28e47f67f2dc21dff12f08307373fbf75435a4bf7244004090dc84bad4a",
+        "usage": "reference_only_read_only",
+        "resolution": "PARENT_DOCUMENT_ALIAS_PENDING_APPROVAL"
+      }
+    },
+    "source_of_truth_priority": [
+      "AGENTS.md and phase execution rules",
+      "Specialized 99% plans",
+      "v1.0 readiness plan"
+    ],
+    "required_filenames_present": false,
+    "spec_aliases_require_approval": true,
+    "read_only_documents_sha256_verified_after_wave1_slice": true,
+    "alias_decision": "Existing uniquely mapped parent filenames used read-only; requested root filename aliases remain absent and require a separate naming decision.",
+    "phase_1_conflict": "Legacy Phase 1 policy remains written and unchanged; work continued only on backward-compatible exception safety and test execution under the newer v1.0 request."
+  },
+  "baseline": {
+    "full_pytest": {
+      "command": "uv run --no-sync pytest -v",
+      "exit_code": 0,
+      "passed": 627,
+      "skipped": 4,
+      "subtests_passed": 58,
+      "elapsed_seconds": 13.2,
+      "skipped_reason": "tests/test_brand_identity.py skipped via module-level Phase 1 freeze"
+    },
+    "conformance": {
+      "command": "uv run --no-sync pytest -v tests/test_world_conformance.py",
+      "exit_code": 0,
+      "passed": 50,
+      "elapsed_seconds": 0.28
+    },
+    "ruff": {
+      "command": "ruff check .",
+      "version": "0.17.4",
+      "exit_code": 1,
+      "error_count": 498,
+      "errors_by_area": {
+        "agents": 271,
+        "examples": 2,
+        "scripts": 5,
+        "src": 138,
+        "tests": 82
+      },
+      "errors_by_code": {
+        "BLE001": 15,
+        "C401": 3,
+        "C414": 1,
+        "EXE001": 33,
+        "EXE002": 7,
+        "F401": 35,
+        "F402": 1,
+        "F541": 3,
+        "F841": 6,
+        "FURB157": 1,
+        "FURB162": 1,
+        "FURB167": 4,
+        "FURB192": 1,
+        "I001": 108,
+        "ISC004": 39,
+        "LOG015": 29,
+        "PERF102": 1,
+        "PERF402": 1,
+        "PIE790": 9,
+        "PIE810": 1,
+        "PLR0402": 3,
+        "PLW1510": 26,
+        "PYI041": 1,
+        "RUF007": 3,
+        "RUF012": 37,
+        "RUF022": 6,
+        "RUF046": 4,
+        "RUF059": 5,
+        "RUF100": 1,
+        "S110": 1,
+        "SIM102": 5,
+        "SIM117": 1,
+        "TRY004": 4,
+        "TRY203": 1,
+        "UP006": 19,
+        "UP007": 2,
+        "UP012": 1,
+        "UP017": 6,
+        "UP031": 39,
+        "UP035": 20,
+        "UP045": 11,
+        "UP046": 3
+      },
+      "auto_fix_not_attempted": true
+    },
+    "resource_benchmark": {
+      "command": "uv run --no-sync python scripts/benchmark_event_resources.py --scenario due --count 1000",
+      "exit_code": 0,
+      "count": 1000,
+      "elapsed_seconds": 0.00688241699936043,
+      "machine": "arm64",
+      "pending": 0,
+      "platform": "macOS-27.0.1-arm64-arm-64bit",
+      "process_peak_rss_bytes": 30638080,
+      "processed": 1000,
+      "python": "3.12.13",
+      "scenario": "due",
+      "tracemalloc_peak_bytes": 205660
+    },
+    "python_version": "3.12.13",
+    "evidence_logs": {
+      "directory": "/tmp/funnelscript-wave0.vHWPwJ",
+      "note": "Temporary local logs; full measured summaries are preserved in this tracker"
+    },
+    "no_new_tests_added": true
+  },
+  "wave_execution_order": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "waves": {
+    "0": {
+      "name": "Pre-Flight Audit & Baseline Freeze",
+      "status": "VERIFIED",
+      "depends_on": [],
+      "subtasks": [
+        {
+          "name": "Inspect Git/worktrees and preserve existing changes",
+          "status": "VERIFIED"
+        },
+        {
+          "name": "Inspect governance and five roadmap specifications",
+          "status": "VERIFIED"
+        },
+        {
+          "name": "Run complete pytest suite",
+          "status": "VERIFIED"
+        },
+        {
+          "name": "Run conformance corpus",
+          "status": "VERIFIED"
+        },
+        {
+          "name": "Run full Ruff check",
+          "status": "VERIFIED",
+          "note": "Ruff was executed and findings recorded; existing lint debt is not resolved."
+        },
+        {
+          "name": "Record an EventMachine resource benchmark",
+          "status": "VERIFIED"
+        },
+        {
+          "name": "Create execution state with blockers",
+          "status": "VERIFIED"
+        }
+      ],
+      "target_files_modified_by_wave": [
+        "EXECUTION_STATE.json",
+        "tests/test_brand_identity.py"
+      ],
+      "git_commit_hash": "d589491f84a434a292242f6c207fb5116998eb71",
+      "new_commit_created": false,
+      "test_pass_count": 627,
+      "exit_gate_metrics": {
+        "gate": "Reproducible baseline and clean audit report, no unrecorded failures",
+        "passed": true,
+        "observed": {
+          "full_pytest_passed": 627,
+          "full_pytest_skipped": 4,
+          "full_pytest_subtests_passed": 58,
+          "conformance_passed": 50,
+          "ruff_errors": 498,
+          "benchmark_elapsed_seconds_1000_events": 0.00688241699936043,
+          "subsequent_full_pytest_passed": 637,
+          "subsequent_full_pytest_skipped": 0,
+          "subsequent_full_ruff_errors": 497
+        },
+        "acceptance_basis": "Baseline and all exceptions were recorded. This pre-flight gate verifies audit completeness, not zero repository-wide lint debt or v1.0 readiness."
+      },
+      "blockers": [
+        {
+          "id": "W0-GOV-001",
+          "severity": "BLOCKING",
+          "finding": "Six required specification filenames do not exist at the Python repository root; corresponding parent documents are present but the precedence mapping needs ratification.",
+          "disposition": "KNOWN_RISK",
+          "disposition_note": "Parent documents uniquely identified and hash-checked; filenames are left unchanged."
+        },
+        {
+          "id": "W0-LINT-002",
+          "severity": "BLOCKING",
+          "finding": "ruff check . exited 1 with 498 baseline errors; no fixes, suppression, or exclusions applied.",
+          "disposition": "DEFERRED_TO_W7",
+          "disposition_note": "Global lint debt remains 497 errors after the scoped change; no exclusions or silencing."
+        },
+        {
+          "id": "W0-SKIP-003",
+          "severity": "BLOCKING",
+          "finding": "Four brand identity tests are already skipped under the Phase 1 freeze, conflicting with the requested no-skipped-tests rule.",
+          "disposition": "RESOLVED",
+          "disposition_note": "Removed module-level skip; all four brand checks execute and pass in the full suite."
+        },
+        {
+          "id": "W0-WORKTREE-004",
+          "severity": "RISK",
+          "finding": "Pre-existing dirty worktree, including deleted apps/web files and uncommitted calibration/solver changes; do not reset or overwrite.",
+          "disposition": "PRESERVED",
+          "disposition_note": "Pre-existing changes remain intact, no reset/stash/commit."
+        },
+        {
+          "id": "W0-GOV-005",
+          "severity": "BLOCKING",
+          "finding": "Phase 1 execution rules freeze new specifications/features pending real-data case-study validation, in tension with requested v1.0 multi-wave expansion.",
+          "disposition": "KNOWN_RISK",
+          "disposition_note": "Strict Phase 1 policy is unchanged; only backward-compatible numeric parser safety changed."
+        },
+        {
+          "id": "W0-META-006",
+          "severity": "NOTE",
+          "finding": "The prompt calls the work a 7-wave DAG, but enumerates Wave 0 through Wave 7 (8 stages); all 8 stages are tracked.",
+          "disposition": "RECORDED",
+          "disposition_note": "Eight distinct waves tracked: Wave 0 through Wave 7."
+        }
+      ]
+    },
+    "1": {
+      "name": "Language Core & Deterministic Runtime",
+      "status": "IN_PROGRESS",
+      "depends_on": [
+        0
+      ],
+      "subtasks": [
+        {
+          "name": "AST spans and structured diagnostics",
+          "status": "IN_PROGRESS",
+          "note": "World token/AST spans, bounded syntax recovery and precise FNL-T201 semantic spans verified. Pydantic/linter diagnostic normalization remains."
+        },
+        {
+          "name": "Grammar/parser drift and formatter",
+          "status": "PENDING",
+          "note": "Canonical spec/grammar.ebnf is missing. Formatter, grammar drift verification, and AST round-trip checks remain unimplemented."
+        },
+        {
+          "name": "Static semantic and module checks",
+          "status": "PENDING"
+        },
+        {
+          "name": "Deterministic event ordering and keyed RNG",
+          "status": "IN_PROGRESS",
+          "note": "One world conformance scenario passed five PYTHONHASHSEED variants; event ordering and RNG architecture not changed."
+        },
+        {
+          "name": "Snapshot/replay and Zeno/resource properties",
+          "status": "PENDING"
+        },
+        {
+          "name": "Typed malformed numeric lexer errors and 10,000-input Unicode property check",
+          "status": "VERIFIED"
+        },
+        {
+          "name": "Token SourceSpan with exclusive end, import provenance, CLI FNL-E101/E102 caret diagnostics",
+          "status": "VERIFIED"
+        },
+        {
+          "name": "10,000 Hypothesis World parser crash-safety cases and four deep nesting fixtures",
+          "status": "VERIFIED"
+        },
+        {
+          "name": "Complete World AST source mapping, import provenance and corpus regression checks",
+          "status": "VERIFIED",
+          "note": "15 AST node classes; 23 valid World sources with 354 located nodes; 29 .fnl corpus cases tested including 5 negative fixtures and 1 Strategy; model_dump compatibility preserved."
+        },
+        {
+          "name": "World syntax multi-error recovery with bounded delimiter-aware synchronization",
+          "status": "VERIFIED",
+          "note": "10 independent tests including 80 deterministic Hypothesis examples, CLI no traceback, nested emit no duplicate diagnostics; limit 32 and one-error API compatibility; 718 full tests passed."
+        },
+        {
+          "name": "Source-mapped World semantic errors with imported-module provenance",
+          "status": "VERIFIED",
+          "note": "9 new parameterized tests; focused 182 pass, full 727 pass, clean staged compiler snapshot 660 pass, 50 conformance and scoped Ruff 0."
+        }
+      ],
+      "target_files_modified_by_wave": [
+        "src/funnelscript/tokens.py",
+        "tests/verification/test_lexer_fuzzing.py",
+        "src/funnelscript/parser.py",
+        "tests/verification/test_source_span_diagnostics.py",
+        "tests/verification/test_parser_crash_safety.py",
+        "src/funnelscript/compiler/world_ast.py",
+        "tests/verification/test_world_ast_source_spans.py",
+        "tests/verification/test_world_parser_recovery.py",
+        "tests/verification/test_world_type_diagnostics.py"
+      ],
+      "git_commit_hash": "30cc64abf64d5fe892929678883847090e71ebc2",
+      "new_commit_created": true,
+      "test_pass_count": 727,
+      "exit_gate_metrics": {
+        "gate": "Core 99 roadmap criteria including spans, formatter, 10k parser fuzz, five hash-seed checks, snapshot/replay and 100k events",
+        "passed": false,
+        "observed": {
+          "full_pytest_passed": 727,
+          "full_pytest_failed": 0,
+          "full_pytest_skipped": 0,
+          "full_pytest_subtests_passed": 58,
+          "conformance_passed": 50,
+          "hypothesis_unicode_inputs": 10000,
+          "focused_ruff_scoped_passed": true,
+          "global_ruff_errors": 486,
+          "hashseed_variants_verified_for_one_fixture": [
+            0,
+            1,
+            7,
+            79,
+            999
+          ],
+          "hashseed_output_sha256": "3ef2ea5a88546b8e498e2d26fd8bf3ce4970524ff5d7b5ee459251451076748c",
+          "benchmark_100000_events_elapsed_seconds": 1.251729042000079,
+          "benchmark_100000_events_peak_rss_bytes": 87408640,
+          "benchmark_100000_events_pending": 0,
+          "parser_hypothesis_unicode_inputs": 10000,
+          "lexer_hypothesis_unicode_inputs": 10000,
+          "source_span_token_fixtures_passed": true,
+          "cli_diagnostic_codes_verified": [
+            "FNL-E101",
+            "FNL-E102"
+          ],
+          "parser_preexisting_manifest_lint_errors": 4,
+          "world_ast_node_classes_with_spans": 15,
+          "world_corpus_fnl_files_covered": 29,
+          "world_corpus_valid_world_files": 23,
+          "world_corpus_world_nodes_examined": 354,
+          "world_corpus_world_nodes_missing_span": 0,
+          "world_corpus_expected_negative_cases": 5,
+          "world_corpus_other_strategies": 1,
+          "protected_document_hashes_unchanged": 5,
+          "ast_output_model_dump_excludes_spans": true,
+          "imported_declarations_retain_source_spans": true,
+          "world_syntax_recovery_max_errors": 32,
+          "world_syntax_recovery_focused_tests_passed": 10,
+          "world_syntax_recovery_hypothesis_examples": 80,
+          "world_syntax_recovery_cli_no_tracebacks": true,
+          "world_syntax_recovery_parenthesis_aware": true,
+          "semantic_diagnostics_new_tests": 9,
+          "semantic_diagnostics_source_mapped": true,
+          "semantic_diagnostics_import_provenance": true,
+          "semantic_diagnostics_in_memory_backwards_compatible": true,
+          "staged_compiler_pytest_passed": 660,
+          "staged_compiler_conformance_passed": 50,
+          "staged_compiler_ruff_findings": 0
+        }
+      },
+      "new_pytest_cases": 68,
+      "research_anchor": "Compiler provenance-carrying source locations and typed semantic error propagation for nested AST validations.",
+      "falsifiable_hypothesis": "A semantically invalid World with source provenance fails with FNL-T201 at its nearest originating AST node, including imported modules, without breaking in-memory AST validation.",
+      "invariant": "Source spans are not invented: if emitted, each semantic error.span is inherited from an actual WorldAST source node, and no invalid World AST proceeds to execution.",
+      "blockers": [
+        {
+          "id": "W1-SPANS",
+          "finding": "Token/AST spans, World bounded syntax recovery and source-mapped semantic WorldTypeError complete. Unified Pydantic, linter, cross-entrypoint diagnostics remain."
+        },
+        {
+          "id": "W1-FMT",
+          "finding": "Canonical spec/grammar.ebnf missing; formatter, grammar drift guard, and AST round-trip coverage remain incomplete."
+        },
+        {
+          "id": "W1-LINT",
+          "finding": "486 repository-wide Ruff findings remain in full working tree; staged nine-file compiler integration has zero Ruff findings."
+        },
+        {
+          "id": "W1-EVENT",
+          "finding": "Total event key, keyed RNG and Zeno guard not completely verified; 5 hashseed processes cover one fixture only."
+        },
+        {
+          "id": "W1-SNAPSHOT",
+          "finding": "Bit-exact World and ledger snapshot/restore split-run tests are not implemented."
+        }
+      ],
+      "last_round": {
+        "round_label": "Source-mapped World semantic errors and independent Wave 1 integration",
+        "started_from_baseline_directory": "/var/folders/_w/rzz6bs252_15ztt3z4d9hqsr0000gn/T/funnelscript_wave1_semantic_round_ak_6uqyj",
+        "python_files": {
+          "src/funnelscript/compiler/world_ast.py": {
+            "added": 85,
+            "deleted": 28,
+            "net": 57,
+            "final_lines": 395
+          },
+          "tests/verification/test_world_type_diagnostics.py": {
+            "added": 103,
+            "deleted": 0,
+            "net": 103,
+            "final_lines": 103
+          }
+        },
+        "python_diff_totals": {
+          "added": 188,
+          "deleted": 28,
+          "net": 160
+        },
+        "production_python_diff": {
+          "added": 85,
+          "deleted": 28,
+          "net": 57
+        },
+        "test_python_diff": {
+          "added": 103,
+          "deleted": 0,
+          "net": 103
+        },
+        "what_done": [
+          "Located WorldTypeError now retains source span, emits FNL-T201, source excerpt, caret and remediation hint; original standalone in-memory ValueError string remains unchanged.",
+          "World semantic checks annotate the narrowest validated AST node: declaration, state, event field, guard, transition and emission, preserving imported-module provenance.",
+          "Split validation by states, event fields, transitions and emissions; all edited checker methods meet <=80-line and <=4-nesting limits.",
+          "Added 9 parameterized World semantic diagnostics cases covering nested declarations, imports, legacy in-memory semantics and CLI without raw traceback.",
+          "TDD RED proved semantic errors lacked spans; GREEN 9 new tests passed; post-review refactor verified 182 targeted tests.",
+          "Full uncommitted project tests: 727 passed, 0 failed/skipped, 58 subtests; World conformance 50 passed.",
+          "Isolated staged snapshot from d589491 plus compiler-owned 9 files: 660 passed, 58 subtests and 50 World conformance; zero Ruff findings in all 9 staged files.",
+          "Created verified source commit 30cc64abf64d5fe892929678883847090e71ebc2 on feat/wave1-compiler-diagnostics-20261121; 9 files committed with prior verified Wave 1 code.",
+          "Confirmed all 5 existing protected governing source files remained byte-for-byte unchanged."
+        ],
+        "what_remaining": [
+          "Complete unified parser, Pydantic ValidationError, semantic and linter DiagnosticRenderer; add precise diagnostic codes and hints for validation and lint failures.",
+          "Formatter funnelscript fmt, grammar drift checks and an approved resolution to the phase spec/ freeze.",
+          "World static linter checks: import cycles, orphan event declarations, unresolved handlers and unreachable rules.",
+          "Deterministic EventKey total ordering and keyed RNG across PYTHONHASHSEED variants and adversarial events.",
+          "Zeno protection, bounded runtime envelopes, snapshot restore and bit-exact split-run replay.",
+          "486 outstanding repository-wide Ruff findings must be independently triaged; do not claim global lint clean.",
+          "Out-of-scope preexisting web decoupling, CLI additions, calibration, solver, packages and examples remain unmerged pending separate verification and wave gates.",
+          "Wave 1 still IN_PROGRESS; Wave 2 is blocked until Wave 1 fully exits and user approves."
+        ],
+        "metric_exclusions": [
+          "EXECUTION_STATE.json metadata",
+          "other rounds staged in integration source commit",
+          "unrelated pre-existing working tree changes"
+        ],
+        "new_tests_added": 9,
+        "full_pytest_passed": 727,
+        "full_pytest_failed": 0,
+        "full_pytest_skipped": 0,
+        "full_pytest_subtests_passed": 58,
+        "conformance_passed": 50,
+        "global_ruff_errors": 486,
+        "isolated_staged_pytest_passed": 660,
+        "isolated_staged_conformance_passed": 50,
+        "isolated_staged_ruff_findings": 0,
+        "protected_existing_docs_unchanged": 5,
+        "integration_source_commit": "30cc64abf64d5fe892929678883847090e71ebc2",
+        "integration_branch": "feat/wave1-compiler-diagnostics-20261121",
+        "suggested_commit_message": "feat(parser): source-map World syntax and type diagnostics"
+      },
+      "round_history": [
+        {
+          "round_label": "Source span and parser crash-safety",
+          "python_files": {
+            "src/funnelscript/tokens.py": {
+              "added": 80,
+              "deleted": 28,
+              "net": 52,
+              "final_lines": 326
+            },
+            "src/funnelscript/parser.py": {
+              "added": 29,
+              "deleted": 7,
+              "net": 22,
+              "final_lines": 538
+            },
+            "tests/verification/test_source_span_diagnostics.py": {
+              "added": 66,
+              "deleted": 0,
+              "net": 66,
+              "final_lines": 66
+            },
+            "tests/verification/test_parser_crash_safety.py": {
+              "added": 42,
+              "deleted": 0,
+              "net": 42,
+              "final_lines": 42
+            }
+          },
+          "python_diff_totals": {
+            "added": 217,
+            "deleted": 35,
+            "net": 182
+          },
+          "metric_exclusions": [
+            "EXECUTION_STATE.json metadata changes",
+            "pre-existing dirty files",
+            "files changed before this round"
+          ],
+          "full_pytest_passed": 647,
+          "full_pytest_skipped": 0,
+          "full_pytest_subtests_passed": 58,
+          "conformance_passed": 50,
+          "global_ruff_errors": 493,
+          "note": "Line counts include blank lines, docstrings, and Python tests, as ordinary diff additions/deletions do."
+        },
+        {
+          "round_label": "World AST spans and corpus regression",
+          "started_from_baseline_directory": "/var/folders/_w/rzz6bs252_15ztt3z4d9hqsr0000gn/T/funnelscript_wave1_ast_06qygont",
+          "python_files": {
+            "src/funnelscript/parser.py": {
+              "added": 87,
+              "deleted": 26,
+              "net": 61,
+              "final_lines": 667
+            },
+            "src/funnelscript/compiler/world_ast.py": {
+              "added": 23,
+              "deleted": 17,
+              "net": 6,
+              "final_lines": 338
+            },
+            "tests/verification/test_world_ast_source_spans.py": {
+              "added": 154,
+              "deleted": 0,
+              "net": 154,
+              "final_lines": 154
+            }
+          },
+          "python_diff_totals": {
+            "added": 264,
+            "deleted": 43,
+            "net": 221
+          },
+          "production_python_diff": {
+            "added": 110,
+            "deleted": 43,
+            "net": 67
+          },
+          "test_python_diff": {
+            "added": 154,
+            "deleted": 0,
+            "net": 154
+          },
+          "what_done": [
+            "Attached immutable end-exclusive SourceSpan metadata to all 15 declared World AST model classes through a shared LocatedNode base.",
+            "Propagated exact lexical positions to world declarations, entity and agent declarations, states, event definitions and fields, guards, rules, transitions, emissions, arithmetic and sampled expressions.",
+            "Preserved source-file provenance for imported World declaration aliases using deep model copies instead of span-stripping serialization.",
+            "Kept SourceSpan excluded from model_dump and model_dump_json; retained manual AST validation compatibility with span=None.",
+            "Added 4 direct AST/serialization/import source-mapping tests and 29 parameterized corpus tests that include positive, negative, and Strategy .fnl files.",
+            "Verified 23 accepted World files with 354 AST nodes and zero missing spans; five known negative World sources rejected as expected.",
+            "Verified full pytest 680 passed, 0 failures and 0 skips; 58 subtests passed; 50 World conformance tests passed.",
+            "Verified 100000 due event benchmark and preserved 9 original governance/planning documents byte-for-byte."
+          ],
+          "what_remaining": [
+            "Implement parser multi-error recovery with bounded statement and block synchronization and typed error aggregation.",
+            "Unify semantic/type/lint/Pydantic diagnostics with source locations and stable error codes; additional typed malformed-input coverage.",
+            "Implement deterministic funnelscript fmt and AST round-trip tests without introducing new DSL syntax.",
+            "Resolve spec/grammar.ebnf governance conflict before introducing or changing frozen specs; grammar drift guard remains unavailable.",
+            "Complete static module-graph and semantic linter checks.",
+            "Verify strict EventKey ordering, keyed RNG independence under multiple PYTHONHASHSEED values, Zeno and resource-limit diagnostics.",
+            "Implement bit-exact snapshot/restore and Hypothesis split-run invariants for event, World and ledger state.",
+            "Reduce existing whole-repository Ruff debt (496 errors currently, including four existing broad-except catches in modified parser module), without suppressing warnings.",
+            "Keep Phase 1 policy conflict documented until explicit governance disposition and real-data case study exit evidence."
+          ],
+          "metric_exclusions": [
+            "EXECUTION_STATE.json metadata changes",
+            "files not edited this round",
+            "pre-existing dirty Git changes"
+          ],
+          "full_pytest_passed": 680,
+          "full_pytest_failed": 0,
+          "full_pytest_skipped": 0,
+          "full_pytest_subtests_passed": 58,
+          "conformance_passed": 50,
+          "global_ruff_errors": 496,
+          "source_scoped_ruff_status": "world_ast.py and new verification test clean; parser.py has 4 inherited manifest catch errors",
+          "suggested_commit_message": "feat(parser): preserve source spans across World AST and imports",
+          "note": "Diff line totals count added/deleted physical lines including Python tests, comments and blank lines."
+        },
+        {
+          "round_label": "Bounded multi-error World parser recovery",
+          "started_from_baseline_directory": "/var/folders/_w/rzz6bs252_15ztt3z4d9hqsr0000gn/T/funnelscript_wave1_recovery_round_ir9z3jpa",
+          "python_files": {
+            "src/funnelscript/parser.py": {
+              "added": 174,
+              "deleted": 88,
+              "net": 86,
+              "final_lines": 753
+            },
+            "tests/verification/test_world_parser_recovery.py": {
+              "added": 144,
+              "deleted": 0,
+              "net": 144,
+              "final_lines": 144
+            }
+          },
+          "python_diff_totals": {
+            "added": 318,
+            "deleted": 88,
+            "net": 230
+          },
+          "production_python_diff": {
+            "added": 174,
+            "deleted": 88,
+            "net": 86
+          },
+          "test_python_diff": {
+            "added": 144,
+            "deleted": 0,
+            "net": 144
+          },
+          "what_done": [
+            "Implemented ParserErrors as a backwards-compatible ParserError subclass with typed individual .errors entries.",
+            "Bounded World syntax diagnostics at 32, with explicit saturation instead of silent truncation or unbounded error accumulation.",
+            "Introduced panic-mode synchronization across top-level declarations, state/event/rule members and transition/emit statements.",
+            "Kept synchronization delimiter-aware by accounting for previously consumed parentheses and braces, preventing cascading errors from malformed emit arguments.",
+            "Preserved one-error ParserError semantics and fail-closed World compilation, including when valid declarations follow malformed ones.",
+            "Added 10 focused tests, including deterministic 80-example Hypothesis coverage, CLI diagnostics without raw traceback, truncated input, top-level and nested recovery and missing semicolon handling.",
+            "Verified full regression suite 718 passed, zero failures/skips and 58 subtests passed; 50 World conformance passed.",
+            "Verified 100000 due events (all processed, zero pending) and unchanged SHA-256 for all nine protected project/planning files.",
+            "Verified targeted Python function size <=80 lines and scoped Ruff with no new findings in the changed code."
+          ],
+          "what_remaining": [
+            "Unify source-mapped syntax, Pydantic model validation, World semantic and linter diagnostics with consistent FNL-E/T error codes and actionable hints.",
+            "Implement deterministic funnelscript fmt, AST round-trip tests, and resolved canonical grammar.ebnf governance to enable grammar drift checks.",
+            "Complete static linter checks for module cycles, unreachable/orphan event rules, shadowing and unused declarations.",
+            "Fully prove deterministic EventKey ordering and keyed RNG invariants across PYTHONHASHSEED variants and scheduler adversarial cases.",
+            "Implement and falsify Zeno-loop detection, resource-limit error diagnostics, snapshot/restore and split-run World and ledger bit-exact replay.",
+            "Address 487 repository-wide Ruff findings, including the four pre-existing BLE001/S110 manifest catches in parser.py, without suppressions or unrelated rewrites.",
+            "Resolve Phase 1 governance freeze conflict and missing Living Intellectual Trilogy ledgers in a separately approved and scoped governance pass.",
+            "Do not start Wave 2 until all Wave 1 exit gates pass and user approves progression."
+          ],
+          "metric_exclusions": [
+            "EXECUTION_STATE.json metadata",
+            "unchanged user-owned working-tree files",
+            "pre-existing code changes from earlier rounds"
+          ],
+          "new_tests_added": 10,
+          "hypothesis_examples": 80,
+          "full_pytest_passed": 718,
+          "full_pytest_failed": 0,
+          "full_pytest_skipped": 0,
+          "full_pytest_subtests_passed": 58,
+          "conformance_passed": 50,
+          "global_ruff_errors": 487,
+          "world_recovery_diagnostic_cap": 32,
+          "benchmark_100000_events_elapsed_seconds": 1.251729042000079,
+          "benchmark_100000_events_peak_rss_bytes": 87408640,
+          "benchmark_100000_events_pending": 0,
+          "source_scoped_ruff_status": "new tests pass Ruff; 4 prior BLE001/S110 manifest catches retained in parser.py",
+          "suggested_commit_message": "feat(parser): recover and aggregate bounded World syntax errors"
+        }
+      ]
+    },
+    "2": {
+      "name": "Dimensional Type System",
+      "status": "PENDING",
+      "depends_on": [
+        1
+      ],
+      "subtasks": [
+        {
+          "name": "Dimension algebra and unit registry",
+          "status": "PENDING"
+        },
+        {
+          "name": "Compiler/linter inference and FNL-T2xx diagnostics",
+          "status": "PENDING"
+        },
+        {
+          "name": "Strict stdlib signatures and fixture conformance",
+          "status": "PENDING"
+        }
+      ],
+      "target_files_modified_by_wave": [],
+      "git_commit_hash": null,
+      "new_commit_created": false,
+      "test_pass_count": null,
+      "exit_gate_metrics": {
+        "gate": "All dimensional fixtures and property tests pass, strict FNL-T2xx rejection and all existing examples valid",
+        "passed": null,
+        "observed": {}
+      }
+    },
+    "3": {
+      "name": "Financial Ledger & Marketing Mathematics",
+      "status": "PENDING",
+      "depends_on": [
+        2
+      ],
+      "subtasks": [
+        {
+          "name": "Exact ledger units and allocation",
+          "status": "PENDING"
+        },
+        {
+          "name": "Cash/accrual, settlement, reserves and refunds",
+          "status": "PENDING"
+        },
+        {
+          "name": "Crash/replay and provenance audit chain",
+          "status": "PENDING"
+        },
+        {
+          "name": "Stable Hill/adstock/delay kernels",
+          "status": "PENDING"
+        },
+        {
+          "name": "MTA and survival/churn models",
+          "status": "PENDING"
+        }
+      ],
+      "target_files_modified_by_wave": [],
+      "git_commit_hash": null,
+      "new_commit_created": false,
+      "test_pass_count": null,
+      "exit_gate_metrics": {
+        "gate": "100k transaction conservation, provenance tamper checks, exact settlement, stable marketing kernels, MTA and survival tests",
+        "passed": null,
+        "observed": {}
+      }
+    },
+    "4": {
+      "name": "Package & Ecosystem Layer (fpm)",
+      "status": "PENDING",
+      "depends_on": [
+        3
+      ],
+      "subtasks": [
+        {
+          "name": "Manifest and deterministic lock/resolution",
+          "status": "PENDING"
+        },
+        {
+          "name": "Namespace isolation and compiler import support",
+          "status": "PENDING"
+        },
+        {
+          "name": "SaaS PLG and D2C starter packages, validated end-to-end",
+          "status": "PENDING"
+        }
+      ],
+      "target_files_modified_by_wave": [],
+      "git_commit_hash": null,
+      "new_commit_created": false,
+      "test_pass_count": null,
+      "exit_gate_metrics": {
+        "gate": "Both built-in package examples compile, dimension-check, simulate deterministically and reconcile in ledger",
+        "passed": null,
+        "observed": {}
+      }
+    },
+    "5": {
+      "name": "Live Ingestion Connectors & Staging",
+      "status": "PENDING",
+      "depends_on": [
+        4
+      ],
+      "subtasks": [
+        {
+          "name": "Canonical adapter and schema contracts",
+          "status": "PENDING"
+        },
+        {
+          "name": "Meta/Google Ads/GA4 direct pull adapters",
+          "status": "PENDING"
+        },
+        {
+          "name": "Stripe/Shopify/Segment webhook signatures",
+          "status": "PENDING"
+        },
+        {
+          "name": "SQLite WAL staging and DLQ",
+          "status": "PENDING"
+        },
+        {
+          "name": "Offline replay, pagination, restatement and idempotency checks",
+          "status": "PENDING"
+        }
+      ],
+      "target_files_modified_by_wave": [],
+      "git_commit_hash": null,
+      "new_commit_created": false,
+      "test_pass_count": null,
+      "exit_gate_metrics": {
+        "gate": "All ingestion/webhook adapters pass offline fixture, idempotency, rate-limit and DLQ recovery tests",
+        "passed": null,
+        "observed": {}
+      }
+    },
+    "6": {
+      "name": "Calibration, Backtesting & OR Solver",
+      "status": "PENDING",
+      "depends_on": [
+        5
+      ],
+      "subtasks": [
+        {
+          "name": "Dirty CSV normalization and temporal leakage controls",
+          "status": "PENDING"
+        },
+        {
+          "name": "Regularized fitting and uncertainty intervals",
+          "status": "PENDING"
+        },
+        {
+          "name": "Rolling-origin benchmarks and type-safe .fnl generation",
+          "status": "PENDING"
+        },
+        {
+          "name": "Nonlinear Hill-aware LP and liquidity constraints",
+          "status": "PENDING"
+        },
+        {
+          "name": "Shadow prices, infeasibility and closed-loop verification",
+          "status": "PENDING"
+        }
+      ],
+      "target_files_modified_by_wave": [],
+      "git_commit_hash": null,
+      "new_commit_created": false,
+      "test_pass_count": null,
+      "exit_gate_metrics": {
+        "gate": "Typed generated files, rolling-origin benchmarks and solver schedules pass DEVS/ledger solvency audit",
+        "passed": null,
+        "observed": {}
+      }
+    },
+    "7": {
+      "name": "v1.0 End-to-End Integration & Release Verification",
+      "status": "PENDING",
+      "depends_on": [
+        6
+      ],
+      "subtasks": [
+        {
+          "name": "Complete offline-to-ledger pipeline integration test",
+          "status": "PENDING"
+        },
+        {
+          "name": "Full pytest, Ruff, conformance and resource benchmarks",
+          "status": "PENDING"
+        },
+        {
+          "name": "Verify immutable document hashes and completed wave gates",
+          "status": "PENDING"
+        }
+      ],
+      "target_files_modified_by_wave": [],
+      "git_commit_hash": null,
+      "new_commit_created": false,
+      "test_pass_count": null,
+      "exit_gate_metrics": {
+        "gate": "Full end-to-end pipeline green, no lint errors and all originally present governance documents unchanged",
+        "passed": null,
+        "observed": {}
+      }
+    }
+  },
+  "status": "IN_PROGRESS",
+  "next_wave": 1,
+  "next_wave_execution_permitted": true,
+  "user_approval_needed": "Wave 1 remaining exit gates block Wave 2; only reviewed Wave 1 compiler slice may merge independently.",
+  "suggested_commit_message": "feat(parser): source-map World syntax and type diagnostics",
+  "history": [
+    {
+      "timestamp_utc": "2026-11-21T13:25:55+00:00",
+      "action": "Wave 0 baseline measured and frozen in tracker; engineering feature work not started"
+    },
+    {
+      "timestamp_utc": "2026-11-21T13:36:54.502455+00:00",
+      "action": "User authorized continuation. Wave 0 audit accepted with recorded lint/governance risks; Wave 1 parser safety slice passes 637 tests, zero skips, 10k Unicode fuzz inputs, 50 conformance tests, 100k-event benchmark and 5 hashseed checks. Wave 1 remains IN_PROGRESS."
+    },
+    {
+      "timestamp_utc": "2026-11-21T13:46:29.927116+00:00",
+      "action": "Completed Wave 1 token SourceSpan and CLI diagnostics slice with 10k World parser fuzz cases. Full suite 647 passed, zero skips; 50 conformance; Ruff scoped clean and globally 493 remaining; exact per-round Python diff recorded."
+    },
+    {
+      "timestamp_utc": "2026-11-21T13:56:58.864083+00:00",
+      "action": "Wave 1 AST source mapping completed with 15 classes and full positive/negative corpus guard. 680 tests pass, 50 conformance; verified untouched planning docs, current global lint debt 496. Per-round diffs and next tasks saved.",
+      "round_python_diff_totals": {
+        "added": 264,
+        "deleted": 43,
+        "net": 221
+      }
+    },
+    {
+      "timestamp_utc": "2026-11-21T14:11:28.994129+00:00",
+      "action": "Wave 1 bounded multi-error World parser recovery checked (10 new tests, 718 full pass, 50 conformance, global Ruff 487), protected documents SHA-256 unchanged, per-round code diffs recorded.",
+      "round_python_diff_totals": {
+        "added": 318,
+        "deleted": 88,
+        "net": 230
+      }
+    },
+    {
+      "timestamp_utc": "2026-11-21T14:26:02.167384+00:00",
+      "action": "Wave 1 World semantic spans verified and 9-file compiler slice committed on independent integration branch; staged 660 tests, 50 conformance, 0 scoped Ruff. 727 full working tree tests pass.",
+      "round_python_diff_totals": {
+        "added": 188,
+        "deleted": 28,
+        "net": 160
+      },
+      "integration_source_commit": "30cc64abf64d5fe892929678883847090e71ebc2"
+    }
+  ]
+}
