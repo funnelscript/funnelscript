@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "project": "FunnelScript",
   "created_utc": "2026-11-21T13:25:55+00:00",
-  "updated_utc": "2026-11-21T14:53:25.217482+00:00",
+  "updated_utc": "2026-11-21T14:57:17.885205+00:00",
   "repository_root": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect/funnelscript",
   "workspace_parent": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect",
   "python_single_source_of_truth": "src/funnelscript/",
@@ -498,7 +498,11 @@
           "module_cycle_minimal_backedge_trace": true,
           "staged_module_cycle_pytest_passed": 675,
           "staged_module_cycle_conformance_passed": 50,
-          "staged_module_cycle_ruff_findings": 0
+          "staged_module_cycle_ruff_findings": 0,
+          "cycle_ci_wrap_invariant_test_fixed": true,
+          "cycle_ci_wrap_test_fixed_commit": "9cd66f66ad5e6588728795e4d843522db81ff1e0",
+          "module_cycle_total_added": 134,
+          "module_cycle_total_deleted": 8
         }
       },
       "new_pytest_cases": 83,
@@ -538,20 +542,20 @@
             "net": 3
           },
           "tests/verification/test_world_module_cycles.py": {
-            "added": 122,
+            "added": 123,
             "deleted": 0,
-            "net": 122
+            "net": 123
           }
         },
         "python_diff_totals": {
-          "added": 133,
+          "added": 134,
           "deleted": 8,
-          "net": 125
+          "net": 126
         },
         "staged_source_commit_diff_totals": {
-          "added": 133,
+          "added": 134,
           "deleted": 8,
-          "net": 125
+          "net": 126
         },
         "metric_exclusions": [
           "EXECUTION_STATE.json metadata",
@@ -566,7 +570,8 @@
           "100 related parser/source-span/conformance tests passed; whole dirty working tree 743 tests and 58 subtests passed.",
           "HEAD + exact staged two-file source patch independently passed 675 tests with 58 subtests and 50 conformance; Ruff reported 0 on both staged files.",
           "Global Ruff findings 491, consisting of the previous 486 plus 5 added solely by independently changed packages/leadgen/sales_capacity/engine.py; no findings from the two source paths in this round.",
-          "Nine protected existing governing documents unchanged by SHA-256; isolated source commit 83a7fd65296471a04f5ce8574cc3ba136dda755a prepared."
+          "Nine protected existing governing documents unchanged by SHA-256; isolated source commit 83a7fd65296471a04f5ce8574cc3ba136dda755a prepared.",
+          "Found and repaired CI-only Rich Panel line-wrap assertion, without modifying parser semantics. GitHub first run failed 1 test out of 675 due to rendering only; fixed test and reran 675 isolated tests at COLUMNS=80, 50 conformance and Ruff zero."
         ],
         "what_remaining": [
           "World static semantic lint: dead/unreachable event handlers, orphan events, shadowed names and unused parameters, preserving correct event ingress behavior.",
@@ -592,7 +597,10 @@
         "protected_existing_docs_unchanged": 9,
         "integration_source_commit": "83a7fd65296471a04f5ce8574cc3ba136dda755a",
         "integration_branch": "feat/wave1-module-cycle-trace-20261121",
-        "suggested_commit_message": "feat(parser): trace cyclic World imports to source tokens"
+        "suggested_commit_message": "feat(parser): trace cyclic World imports to source tokens",
+        "ci_test_fix_commit": "9cd66f66ad5e6588728795e4d843522db81ff1e0",
+        "ci_first_attempt_issue": "Initial GH Python CI failed in a Rich Panel CLI test: runner terminal width wraps the string \"line 2, column 10\" across lines; parser token source span was correct.",
+        "ci_fix_evidence": "Replaced fragile combined Rich display assertion with wrap-independent checks for column 10 and the short ParserError diagnostic line; 7 targeted tests, 675 isolated tests with COLUMNS=80, 50 conformance and 0 scoped Ruff passed."
       },
       "round_history": [
         {
@@ -1199,15 +1207,25 @@
       "timestamp_utc": "2026-11-21T14:53:25.217482+00:00",
       "action": "Wave 1 cycle graph source-mapped diagnostics committed; 7 tests, isolated 675 passed, 50 conformance; full worktree 743 passed; 0 scoped Ruff.",
       "round_python_diff_totals": {
-        "added": 133,
+        "added": 134,
         "deleted": 8,
-        "net": 125
+        "net": 126
       },
       "integration_source_commit": "83a7fd65296471a04f5ce8574cc3ba136dda755a",
       "global_ruff_out_of_scope_increase": {
         "from": 486,
         "to": 491,
         "location": "packages/leadgen/sales_capacity/engine.py"
+      }
+    },
+    {
+      "timestamp_utc": "2026-11-21T14:57:17.885205+00:00",
+      "action": "CI feedback on PR #12: Rich terminal wrapping caused brittle CLI assertion; test corrected, COLUMNS=80 independent suite 675 passed, 50 conformance, 0 scoped Ruff.",
+      "fix_commit": "9cd66f66ad5e6588728795e4d843522db81ff1e0",
+      "round_python_diff_totals": {
+        "added": 134,
+        "deleted": 8,
+        "net": 126
       }
     }
   ]
