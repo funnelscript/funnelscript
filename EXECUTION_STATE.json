@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "project": "FunnelScript",
   "created_utc": "2026-11-21T13:25:55+00:00",
-  "updated_utc": "2026-11-21T14:57:17.885205+00:00",
+  "updated_utc": "2026-11-21T15:33:05.908365+00:00",
   "repository_root": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect/funnelscript",
   "workspace_parent": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect",
   "python_single_source_of_truth": "src/funnelscript/",
@@ -368,7 +368,7 @@
         {
           "name": "Deterministic event ordering and keyed RNG",
           "status": "IN_PROGRESS",
-          "note": "One world conformance scenario passed five PYTHONHASHSEED variants; event ordering and RNG architecture not changed."
+          "note": "EventKey causal depth verified in isolated slice. Global keyed RNG, World and ledger cross-hash-seed replay remain incomplete."
         },
         {
           "name": "Snapshot/replay and Zeno/resource properties",
@@ -410,6 +410,11 @@
           "name": "World cyclic module imports with exact file chain and source token",
           "status": "VERIFIED",
           "note": "7 tests, 675 isolated integration, 100 related regression, 50 conformance, 0 changed-file Ruff findings"
+        },
+        {
+          "name": "EventKey causal-depth total ordering and five hash-seed replay tests",
+          "status": "VERIFIED",
+          "note": "6 tests with 60 Hypothesis examples and five PYTHONHASHSEED subprocess variants; isolated 681 pass, 50 conformance, scoped Ruff 0"
         }
       ],
       "target_files_modified_by_wave": [
@@ -425,23 +430,25 @@
         "src/funnelscript/cli.py",
         "src/funnelscript/compiler/diagnostics.py",
         "tests/verification/test_structured_validation_diagnostics.py",
-        "tests/verification/test_world_module_cycles.py"
+        "tests/verification/test_world_module_cycles.py",
+        "src/funnelscript/core/event_machine.py",
+        "tests/verification/test_event_causal_ordering.py"
       ],
-      "git_commit_hash": "83a7fd65296471a04f5ce8574cc3ba136dda755a",
+      "git_commit_hash": "ce4642933a0808a40edb6dbde2bb6e334be607f1",
       "new_commit_created": true,
-      "test_pass_count": 743,
+      "test_pass_count": 779,
       "exit_gate_metrics": {
         "gate": "Core 99 roadmap criteria including spans, formatter, 10k parser fuzz, five hash-seed checks, snapshot/replay and 100k events",
         "passed": false,
         "observed": {
-          "full_pytest_passed": 743,
+          "full_pytest_passed": 779,
           "full_pytest_failed": 0,
           "full_pytest_skipped": 0,
           "full_pytest_subtests_passed": 58,
           "conformance_passed": 50,
           "hypothesis_unicode_inputs": 10000,
           "focused_ruff_scoped_passed": true,
-          "global_ruff_errors": 491,
+          "global_ruff_errors": 481,
           "hashseed_variants_verified_for_one_fixture": [
             0,
             1,
@@ -502,13 +509,29 @@
           "cycle_ci_wrap_invariant_test_fixed": true,
           "cycle_ci_wrap_test_fixed_commit": "9cd66f66ad5e6588728795e4d843522db81ff1e0",
           "module_cycle_total_added": 134,
-          "module_cycle_total_deleted": 8
+          "module_cycle_total_deleted": 8,
+          "eventkey_causal_depth_verified": true,
+          "eventkey_pending_causal_depth_verified": true,
+          "eventkey_priority_outranks_depth_verified": true,
+          "eventkey_new_tests": 6,
+          "eventkey_hypothesis_examples": 60,
+          "eventkey_hashseed_values": [
+            0,
+            1,
+            7,
+            79,
+            999
+          ],
+          "eventkey_isolated_tests_passed": 681,
+          "eventkey_isolated_conformance_passed": 50,
+          "eventkey_isolated_ruff_findings": 0,
+          "eventkey_benchmark_100000_due_elapsed_seconds": 0.8953640419986186
         }
       },
-      "new_pytest_cases": 83,
-      "research_anchor": "Graph-theoretic DFS active-recursion back-edge cycle detection with canonical Path.resolve identity and precise parser token provenance.",
-      "falsifiable_hypothesis": "A cyclic World import always reports a minimal closed chain of resolved file paths and the importing source token; acyclic diamond imports and identically named modules in distinct directories continue to load.",
-      "invariant": "A module is cyclic iff its resolved path appears in the active import ancestor stack, never merely because a sibling branch loaded the same module.",
+      "new_pytest_cases": 89,
+      "research_anchor": "Core 99 B1 and classic deterministic discrete-event simulation: causal precedence at equal time/priority must use recursion depth before a unique monotonic enqueue ordinal.",
+      "falsifiable_hypothesis": "A lower-depth event wins a same-time/same-priority collision regardless of insertion order, priority still outranks depth, pending order preserves both, and seeded draws replay across five PYTHONHASHSEED variants.",
+      "invariant": "EventKey=(event.time, event.priority, causal_depth, monotonic_enqueue_id), compared lexicographically; initial depth=0, emitted child depth=parent depth+1; unique enqueue ID resolves all remaining ties.",
       "blockers": [
         {
           "id": "W1-SPANS",
@@ -532,75 +555,83 @@
         }
       ],
       "last_round": {
-        "round_label": "Source-mapped cyclic World module import graph diagnostics",
-        "started_from_baseline_directory": "/var/folders/_w/rzz6bs252_15ztt3z4d9hqsr0000gn/T/funnelscript_wave1_cycle_round_qv2dlvy1",
-        "source_head_before_round": "d0708acd74c4618485a0944071dc9ce1c221c2ef",
+        "round_label": "EventMachine causal-depth EventKey lexicographic ordering and cross-hashseed verification",
+        "started_from_baseline_directory": "/var/folders/_w/rzz6bs252_15ztt3z4d9hqsr0000gn/T/funnelscript_wave1_event_order_round_dx7ctodx",
+        "source_head_before_round": "30928979e4074c380cdf5a59ce829774b753299c",
         "python_files": {
-          "src/funnelscript/parser.py": {
-            "added": 11,
-            "deleted": 8,
-            "net": 3
+          "src/funnelscript/core/event_machine.py": {
+            "added": 14,
+            "deleted": 13,
+            "net": 1
           },
-          "tests/verification/test_world_module_cycles.py": {
-            "added": 123,
+          "tests/verification/test_event_causal_ordering.py": {
+            "added": 136,
             "deleted": 0,
-            "net": 123
+            "net": 136
           }
         },
         "python_diff_totals": {
-          "added": 134,
-          "deleted": 8,
-          "net": 126
+          "added": 150,
+          "deleted": 13,
+          "net": 137
         },
         "staged_source_commit_diff_totals": {
-          "added": 134,
-          "deleted": 8,
-          "net": 126
+          "added": 150,
+          "deleted": 13,
+          "net": 137
         },
         "metric_exclusions": [
           "EXECUTION_STATE.json metadata",
-          "preexisting and concurrent unrelated dirty worktree modifications"
+          "pre-existing or concurrent unrelated dirty worktree modifications"
         ],
         "what_done": [
-          "TDD RED: cycle trace test failed against unlocalized ParserError; GREEN: 7 dedicated module import cases passed without rewriting the existing import resolver.",
-          "World module import cycles now report the exact resolved-file back-edge path and FNL-E102 source location at the triggering import STRING token.",
-          "Ancestor-stack cycle detection still differentiates completed sibling imports from active recursion: self-cycle, two-file and three-file cycles rejected; diamond graph and same-name independent modules compile.",
-          "A cycle below the entry file reports only the minimal closed loop, not the unrelated ancestor prefix.",
-          "The check command returns nonzero with a sourced error and no traceback for cycle imports.",
-          "100 related parser/source-span/conformance tests passed; whole dirty working tree 743 tests and 58 subtests passed.",
-          "HEAD + exact staged two-file source patch independently passed 675 tests with 58 subtests and 50 conformance; Ruff reported 0 on both staged files.",
-          "Global Ruff findings 491, consisting of the previous 486 plus 5 added solely by independently changed packages/leadgen/sales_capacity/engine.py; no findings from the two source paths in this round.",
-          "Nine protected existing governing documents unchanged by SHA-256; isolated source commit 83a7fd65296471a04f5ce8574cc3ba136dda755a prepared.",
-          "Found and repaired CI-only Rich Panel line-wrap assertion, without modifying parser semantics. GitHub first run failed 1 test out of 675 due to rendering only; fixed test and reran 675 isolated tests at COLUMNS=80, 50 conformance and Ruff zero."
+          "TDD RED: independently specified causal ordering test reproduced deep-before-shallow event dispatch under the previous time/priority/ordinal heap; GREEN after adding causal_depth.",
+          "EventMachine priority queue now uses lexicographic (time, priority, causal_depth, monotonic ordinal) with initial depth 0 and each emitted event inheriting parent depth + 1.",
+          "Pending queue ordering after until= horizon uses the same five-tuple key; no new API or dependencies and no changes to world/ledger math.",
+          "Six new test functions verify exact equal-time ordering, horizon pending order, 60 Hypothesis translations/seeds, priority dominance, five isolated PYTHONHASHSEED subprocess runs including RNG draws, and generic API subscription.",
+          "Existing Python 3.12+ event kernel Generic/TypeVar and import lint debt modernized in this touched module, with a real public generic-subscript runtime regression test.",
+          "Full current worktree 779 tests and 58 subtests passed; 50 World conformance; scoped Ruff zero; global Ruff 481 findings in dirty worktree.",
+          "Independent HEAD plus precisely two staged files passed 681 tests and 58 subtests at COLUMNS=80; World conformance 50; Ruff zero.",
+          "100,000 due-event resource benchmark completed without failed caps: baseline 0.916s, changed 0.905s, isolated candidate 0.895s; treat timings as uncalibrated single samples, not a validated speedup.",
+          "Nine protected preexisting governance/roadmap files matched SHA256 before and after; code commit ce4642933a0808a40edb6dbde2bb6e334be607f1 contains only the two authorized code/test paths."
         ],
         "what_remaining": [
-          "World static semantic lint: dead/unreachable event handlers, orphan events, shadowed names and unused parameters, preserving correct event ingress behavior.",
-          "Imported-module errors outside true cycles (not found, invalid manifest, maximum import depth) require additional typed provenance improvements.",
-          "Legacy StrategyAST and .fnl linter physical source span provenance remains incomplete; do not invent source positions.",
-          "Canonical formatter with 100% valid corpus round-trip and grammar drift guard blocked by active read-only spec/grammar.ebnf freeze conflict.",
-          "Deterministic keyed RNG/event priority total order under randomized PYTHONHASHSEED, plus Zeno causal diagnostics and queue resource envelope.",
-          "Bit-exact snapshot/restore covering world state, event calendar, RNG and financial ledger.",
-          "Repository-wide Ruff remains 491 findings in this dirty worktree (5 new in unrelated sales_capacity package); handle as independently verified code slices.",
-          "Existing unrelated CLI, marketing/solver/calibration and web user worktree modifications remain unmerged to avoid contaminating Wave 1.",
-          "Do not proceed to Wave 2 until all Wave 1 exit criteria verified and explicit user approval."
+          "Complete Event State Machine deterministic keyed RNG invariants and multi-fixture hash-seed World/ledger replay verification; this round tests only the EventMachine hash-seed behavior.",
+          "Add per-tick zero-delay/Zeno event depth guards, queue and max-events limits, structured causal chain diagnostics (source_rule_span, parent IDs).",
+          "Implement bit-exact World+agent+financial-ledger snapshot/restore, including event key and RNG state, and Hypothesis split-run equivalence.",
+          "Static compiler linter for dead/unreachable handlers, orphan events, shadowed names and unused declared parameters, with truthful source spans.",
+          "Improve other imported-module errors with typed source provenance; complete physical span attribution for legacy StrategyAST/Pydantic/linter fields.",
+          "Canonical .fnl formatter, full valid-corpus AST round trip and grammar drift guard blocked by read-only spec/grammar.ebnf Phase 1 freeze conflict.",
+          "Repository-wide Ruff remains 481 findings in dirty worktree; isolate and remedy independently without altering in-progress user work.",
+          "Existing unrelated CLI, sales capacity, marketing/solver/calibration and web modifications remain untouched and not included in this Wave 1 PR.",
+          "Do not start Wave 2 until all Wave 1 exit gates pass and explicit user approval is obtained."
         ],
-        "new_tests_added": 7,
-        "full_pytest_passed": 743,
+        "new_tests_added": 6,
+        "hypothesis_examples": 60,
+        "hashseed_variants": [
+          0,
+          1,
+          7,
+          79,
+          999
+        ],
+        "full_pytest_passed": 779,
         "full_pytest_failed": 0,
         "full_pytest_skipped": 0,
         "full_pytest_subtests_passed": 58,
         "conformance_passed": 50,
-        "global_ruff_errors": 491,
-        "isolated_staged_pytest_passed": 675,
+        "global_ruff_errors": 481,
+        "isolated_staged_pytest_passed": 681,
         "isolated_staged_conformance_passed": 50,
         "isolated_staged_ruff_findings": 0,
         "protected_existing_docs_unchanged": 9,
-        "integration_source_commit": "83a7fd65296471a04f5ce8574cc3ba136dda755a",
-        "integration_branch": "feat/wave1-module-cycle-trace-20261121",
-        "suggested_commit_message": "feat(parser): trace cyclic World imports to source tokens",
-        "ci_test_fix_commit": "9cd66f66ad5e6588728795e4d843522db81ff1e0",
-        "ci_first_attempt_issue": "Initial GH Python CI failed in a Rich Panel CLI test: runner terminal width wraps the string \"line 2, column 10\" across lines; parser token source span was correct.",
-        "ci_fix_evidence": "Replaced fragile combined Rich display assertion with wrap-independent checks for column 10 and the short ParserError diagnostic line; 7 targeted tests, 675 isolated tests with COLUMNS=80, 50 conformance and 0 scoped Ruff passed."
+        "benchmark_100000_due_before_seconds": 0.9156143750005867,
+        "benchmark_100000_due_after_seconds": 0.9048616669988405,
+        "benchmark_100000_due_isolated_seconds": 0.8953640419986186,
+        "benchmark_100000_due_process_peak_rss_bytes": 88850432,
+        "integration_source_commit": "ce4642933a0808a40edb6dbde2bb6e334be607f1",
+        "integration_branch": "feat/wave1-causal-eventkey-20261121",
+        "suggested_commit_message": "feat(runtime): apply causal-depth event ordering"
       },
       "round_history": [
         {
@@ -939,6 +970,77 @@
           "integration_source_commit": "004485d6ecea56c6f9babfa45dcc00eb53532539",
           "integration_branch": "feat/wave1-structured-validation-20261121",
           "suggested_commit_message": "feat(compiler): render bounded JSON and schema diagnostics"
+        },
+        {
+          "round_label": "Source-mapped cyclic World module import graph diagnostics",
+          "started_from_baseline_directory": "/var/folders/_w/rzz6bs252_15ztt3z4d9hqsr0000gn/T/funnelscript_wave1_cycle_round_qv2dlvy1",
+          "source_head_before_round": "d0708acd74c4618485a0944071dc9ce1c221c2ef",
+          "python_files": {
+            "src/funnelscript/parser.py": {
+              "added": 11,
+              "deleted": 8,
+              "net": 3
+            },
+            "tests/verification/test_world_module_cycles.py": {
+              "added": 123,
+              "deleted": 0,
+              "net": 123
+            }
+          },
+          "python_diff_totals": {
+            "added": 134,
+            "deleted": 8,
+            "net": 126
+          },
+          "staged_source_commit_diff_totals": {
+            "added": 134,
+            "deleted": 8,
+            "net": 126
+          },
+          "metric_exclusions": [
+            "EXECUTION_STATE.json metadata",
+            "preexisting and concurrent unrelated dirty worktree modifications"
+          ],
+          "what_done": [
+            "TDD RED: cycle trace test failed against unlocalized ParserError; GREEN: 7 dedicated module import cases passed without rewriting the existing import resolver.",
+            "World module import cycles now report the exact resolved-file back-edge path and FNL-E102 source location at the triggering import STRING token.",
+            "Ancestor-stack cycle detection still differentiates completed sibling imports from active recursion: self-cycle, two-file and three-file cycles rejected; diamond graph and same-name independent modules compile.",
+            "A cycle below the entry file reports only the minimal closed loop, not the unrelated ancestor prefix.",
+            "The check command returns nonzero with a sourced error and no traceback for cycle imports.",
+            "100 related parser/source-span/conformance tests passed; whole dirty working tree 743 tests and 58 subtests passed.",
+            "HEAD + exact staged two-file source patch independently passed 675 tests with 58 subtests and 50 conformance; Ruff reported 0 on both staged files.",
+            "Global Ruff findings 491, consisting of the previous 486 plus 5 added solely by independently changed packages/leadgen/sales_capacity/engine.py; no findings from the two source paths in this round.",
+            "Nine protected existing governing documents unchanged by SHA-256; isolated source commit 83a7fd65296471a04f5ce8574cc3ba136dda755a prepared.",
+            "Found and repaired CI-only Rich Panel line-wrap assertion, without modifying parser semantics. GitHub first run failed 1 test out of 675 due to rendering only; fixed test and reran 675 isolated tests at COLUMNS=80, 50 conformance and Ruff zero."
+          ],
+          "what_remaining": [
+            "World static semantic lint: dead/unreachable event handlers, orphan events, shadowed names and unused parameters, preserving correct event ingress behavior.",
+            "Imported-module errors outside true cycles (not found, invalid manifest, maximum import depth) require additional typed provenance improvements.",
+            "Legacy StrategyAST and .fnl linter physical source span provenance remains incomplete; do not invent source positions.",
+            "Canonical formatter with 100% valid corpus round-trip and grammar drift guard blocked by active read-only spec/grammar.ebnf freeze conflict.",
+            "Deterministic keyed RNG/event priority total order under randomized PYTHONHASHSEED, plus Zeno causal diagnostics and queue resource envelope.",
+            "Bit-exact snapshot/restore covering world state, event calendar, RNG and financial ledger.",
+            "Repository-wide Ruff remains 491 findings in this dirty worktree (5 new in unrelated sales_capacity package); handle as independently verified code slices.",
+            "Existing unrelated CLI, marketing/solver/calibration and web user worktree modifications remain unmerged to avoid contaminating Wave 1.",
+            "Do not proceed to Wave 2 until all Wave 1 exit criteria verified and explicit user approval."
+          ],
+          "new_tests_added": 7,
+          "full_pytest_passed": 743,
+          "full_pytest_failed": 0,
+          "full_pytest_skipped": 0,
+          "full_pytest_subtests_passed": 58,
+          "conformance_passed": 50,
+          "global_ruff_errors": 491,
+          "isolated_staged_pytest_passed": 675,
+          "isolated_staged_conformance_passed": 50,
+          "isolated_staged_ruff_findings": 0,
+          "protected_existing_docs_unchanged": 9,
+          "integration_source_commit": "83a7fd65296471a04f5ce8574cc3ba136dda755a",
+          "integration_branch": "feat/wave1-module-cycle-trace-20261121",
+          "suggested_commit_message": "feat(parser): trace cyclic World imports to source tokens",
+          "ci_test_fix_commit": "9cd66f66ad5e6588728795e4d843522db81ff1e0",
+          "ci_first_attempt_issue": "Initial GH Python CI failed in a Rich Panel CLI test: runner terminal width wraps the string \"line 2, column 10\" across lines; parser token source span was correct.",
+          "ci_fix_evidence": "Replaced fragile combined Rich display assertion with wrap-independent checks for column 10 and the short ParserError diagnostic line; 7 targeted tests, 675 isolated tests with COLUMNS=80, 50 conformance and 0 scoped Ruff passed."
         }
       ]
     },
@@ -1150,8 +1252,8 @@
   "status": "IN_PROGRESS",
   "next_wave": 1,
   "next_wave_execution_permitted": true,
-  "user_approval_needed": "Wave 1 exit gates remain incomplete; Wave 2 blocked until all gates VERIFIED and explicit approval.",
-  "suggested_commit_message": "feat(parser): trace cyclic World imports to source tokens",
+  "user_approval_needed": "Wave 1 exit gates are incomplete; do not advance to Wave 2 until VERIFIED and explicit approval.",
+  "suggested_commit_message": "feat(runtime): apply causal-depth event ordering",
   "history": [
     {
       "timestamp_utc": "2026-11-21T13:25:55+00:00",
@@ -1227,6 +1329,17 @@
         "deleted": 8,
         "net": 126
       }
+    },
+    {
+      "timestamp_utc": "2026-11-21T15:33:05.908365+00:00",
+      "action": "Wave 1 EventKey causal-depth total-order source regression with six tests, 60 property examples, five hash-seed subprocess checks; full worktree 779 passed, isolated 681, conformance 50, scoped Ruff zero.",
+      "round_python_diff_totals": {
+        "added": 150,
+        "deleted": 13,
+        "net": 137
+      },
+      "integration_source_commit": "ce4642933a0808a40edb6dbde2bb6e334be607f1",
+      "global_ruff_errors": 481
     }
   ]
 }
