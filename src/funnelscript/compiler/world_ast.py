@@ -5,41 +5,50 @@ Research: funnelscript-research/spec/world-declarations-v0.md (H-W1 to H-W4).
 
 from __future__ import annotations
 
+import linecache
 import math
-from typing import Annotated, Literal
+from collections.abc import Iterator
+from contextlib import contextmanager
+from typing import Annotated, ClassVar, Literal
 
 from pydantic import BaseModel, Field
 
+from funnelscript.tokens import SourceSpan, diagnostic_excerpt
 
-class StateDefinition(BaseModel):
+
+class LocatedNode(BaseModel):
+    span: SourceSpan | None = Field(default=None, exclude=True, repr=False)
+
+
+class StateDefinition(LocatedNode):
     name: str
     type_name: str
     value: object
 
 
-class PayloadFieldExpression(BaseModel):
+class PayloadFieldExpression(LocatedNode):
     kind: Literal["payload_field"] = "payload_field"
     name: str
 
 
-class LiteralExpression(BaseModel):
+class LiteralExpression(LocatedNode):
     kind: Literal["literal"] = "literal"
     value: object
 
 
-class ReferenceExpression(BaseModel):
+class ReferenceExpression(LocatedNode):
     kind: Literal["reference"] = "reference"
     name: str
 
 
-class BinaryExpression(BaseModel):
+class BinaryExpression(LocatedNode):
     kind: Literal["binary"] = "binary"
     operator: Literal["+", "-", "*", "/"]
     left: StateExpression
     right: StateExpression
 
 
-class SampleExpression(BaseModel):
+class SampleExpression(LocatedNode):
     kind: Literal["sample"] = "sample"
     distribution: Literal["bernoulli", "uniform"]
     arguments: list[LiteralExpression | ReferenceExpression | PayloadFieldExpression]
@@ -52,34 +61,34 @@ StateExpression = Annotated[
 ]
 
 
-class StateTransitionDefinition(BaseModel):
+class StateTransitionDefinition(LocatedNode):
     target: str
     expr: StateExpression
 
 
-class EventFieldDefinition(BaseModel):
+class EventFieldDefinition(LocatedNode):
     name: str
     type_name: str
 
 
-class EventDefinition(BaseModel):
+class EventDefinition(LocatedNode):
     name: str
     fields: list[EventFieldDefinition] = Field(default_factory=list)
 
 
-class EventEmissionDefinition(BaseModel):
+class EventEmissionDefinition(LocatedNode):
     event: str
     delay: object
     arguments: dict[str, StateExpression] = Field(default_factory=dict)
 
 
-class GuardDefinition(BaseModel):
+class GuardDefinition(LocatedNode):
     field: str
     operator: Literal["==", "!=", "<", "<=", ">", ">="]
     value: object
 
 
-class EventRuleDefinition(BaseModel):
+class EventRuleDefinition(LocatedNode):
     name: str
     event: str
     guard: GuardDefinition | None = None
@@ -87,7 +96,7 @@ class EventRuleDefinition(BaseModel):
     emissions: list[EventEmissionDefinition] = Field(default_factory=list)
 
 
-class EntityDefinition(BaseModel):
+class EntityDefinition(LocatedNode):
     kind: Literal["entity"] = "entity"
     name: str
     states: list[StateDefinition] = Field(default_factory=list)
@@ -104,7 +113,7 @@ WorldDeclaration = Annotated[
 ]
 
 
-class WorldAST(BaseModel):
+class WorldAST(LocatedNode):
     kind: Literal["world"] = "world"
     name: str
     declarations: list[WorldDeclaration] = Field(default_factory=list)
@@ -113,28 +122,62 @@ class WorldAST(BaseModel):
 class WorldTypeError(ValueError):
     """A source declaration violates the primitive typing contract."""
 
+    def __init__(self, message: str, *, span: SourceSpan | None = None) -> None:
+        super().__init__(message)
+        self.span = span
+
+    def __str__(self) -> str:
+        message = super().__str__()
+        if self.span is None:
+            return message
+        span = self.span
+        line = linecache.getline(span.file, span.start_line).rstrip("\r\n")
+        width = span.end_col - span.start_col if span.start_line == span.end_line else 1
+        excerpt = diagnostic_excerpt(line, span.start_col, width) if line else ""
+        return (
+            f"FNL-T201 {span.file}: line {span.start_line}, column {span.start_col}\n"
+            f"{excerpt}\nWorldTypeError: {message}\n"
+            "Hint: Verify declaration names, field references, and primitive types."
+        )
+
+
+@contextmanager
+def _located(node: LocatedNode) -> Iterator[None]:
+    """Preserve the nearest originating AST span on semantic failure."""
+    try:
+        yield
+    except WorldTypeError as error:
+        if error.span is None:
+            error.span = node.span
+        raise
+
 
 class WorldTypeChecker:
     """Checks declaration uniqueness and exact primitive literal types."""
 
-    PRIMITIVES = {"int": int, "float": float, "bool": bool, "string": str}
+    PRIMITIVES: ClassVar[dict[str, type]] = {"int": int, "float": float, "bool": bool, "string": str}
 
     @classmethod
     def check(cls, world: WorldAST) -> None:
         names: set[str] = set()
         for declaration in world.declarations:
-            if declaration.name in names:
-                raise WorldTypeError(f"Duplicate declaration '{declaration.name}'")
-            names.add(declaration.name)
+            with _located(declaration):
+                if declaration.name in names:
+                    raise WorldTypeError(f"Duplicate declaration '{declaration.name}'")
+                names.add(declaration.name)
+                cls._check_states(declaration)
+                cls._check_rules(declaration)
 
-            fields: set[str] = set()
-            for state in declaration.states:
+    @classmethod
+    def _check_states(cls, declaration: EntityDefinition) -> None:
+        fields: set[str] = set()
+        for state in declaration.states:
+            with _located(state):
                 if state.name in fields:
                     raise WorldTypeError(
                         f"Duplicate state '{state.name}' in '{declaration.name}'"
                     )
                 fields.add(state.name)
-
                 expected = cls.PRIMITIVES.get(state.type_name)
                 if expected is None:
                     raise WorldTypeError(
@@ -145,24 +188,28 @@ class WorldTypeChecker:
                         f"Type mismatch for '{declaration.name}.{state.name}': "
                         f"expected {state.type_name}, got {type(state.value).__name__}"
                     )
-            cls._check_rules(declaration)
-
 
     @classmethod
     def _event_types(cls, declaration: EntityDefinition) -> dict[str, dict[str, str]]:
         schemas: dict[str, dict[str, str]] = {}
         for event in declaration.events:
-            if event.name in schemas:
-                raise WorldTypeError(f"Duplicate event declaration '{event.name}'")
-            fields: dict[str, str] = {}
-            for field in event.fields:
+            with _located(event):
+                if event.name in schemas:
+                    raise WorldTypeError(f"Duplicate event declaration '{event.name}'")
+                schemas[event.name] = cls._event_fields(event)
+        return schemas
+
+    @classmethod
+    def _event_fields(cls, event: EventDefinition) -> dict[str, str]:
+        fields: dict[str, str] = {}
+        for field in event.fields:
+            with _located(field):
                 if field.name in fields:
                     raise WorldTypeError(f"Duplicate event field '{field.name}'")
                 if field.type_name not in cls.PRIMITIVES:
                     raise WorldTypeError(f"Unknown event field type '{field.type_name}'")
                 fields[field.name] = field.type_name
-            schemas[event.name] = fields
-        return schemas
+        return fields
 
     @classmethod
     def _check_rules(cls, declaration: EntityDefinition) -> None:
@@ -172,17 +219,27 @@ class WorldTypeChecker:
         events: set[str] = set()
         declared_events = {rule.event for rule in declaration.rules}
         for rule in declaration.rules:
-            if rule.name in names:
-                raise WorldTypeError(f"Duplicate rule '{rule.name}'")
-            if rule.event in events:
-                raise WorldTypeError(f"Duplicate event handler '{rule.event}'")
-            names.add(rule.name)
-            events.add(rule.event)
-            if rule.guard is not None:
-                cls._check_guard(rule.guard, types)
+            with _located(rule):
+                if rule.name in names:
+                    raise WorldTypeError(f"Duplicate rule '{rule.name}'")
+                if rule.event in events:
+                    raise WorldTypeError(f"Duplicate event handler '{rule.event}'")
+                names.add(rule.name)
+                events.add(rule.event)
+                if rule.guard is not None:
+                    with _located(rule.guard):
+                        cls._check_guard(rule.guard, types)
+                cls._check_transitions(rule, types, event_types)
+                cls._check_emissions(rule, declared_events, types, event_types)
 
-            targets: set[str] = set()
-            for transition in rule.transitions:
+    @classmethod
+    def _check_transitions(
+        cls, rule: EventRuleDefinition, types: dict[str, str],
+        event_types: dict[str, dict[str, str]],
+    ) -> None:
+        targets: set[str] = set()
+        for transition in rule.transitions:
+            with _located(transition):
                 target = transition.target
                 if target in targets:
                     raise WorldTypeError(f"Duplicate transition target '{target}'")
@@ -198,7 +255,13 @@ class WorldTypeChecker:
                         f"expected {types[target]}, got {actual_type}"
                     )
 
-            for emission in rule.emissions:
+    @classmethod
+    def _check_emissions(
+        cls, rule: EventRuleDefinition, declared_events: set[str],
+        types: dict[str, str], event_types: dict[str, dict[str, str]],
+    ) -> None:
+        for emission in rule.emissions:
+            with _located(emission):
                 if emission.event not in declared_events:
                     raise WorldTypeError(f"Unknown emitted event '{emission.event}'")
                 cls._check_payload_arguments(

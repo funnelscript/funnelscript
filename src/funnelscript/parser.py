@@ -3,18 +3,56 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Any
+
+from funnelscript.compiler.world_ast import (
+    AgentDefinition,
+    EntityDefinition,
+    WorldAST,
+    WorldTypeChecker,
+)
 from funnelscript.models import StrategyAST
-from funnelscript.compiler.world_ast import WorldAST, WorldTypeChecker
-from funnelscript.tokens import Lexer, Token, TokenType
+from funnelscript.tokens import Lexer, SourceSpan, Token, TokenType, diagnostic_excerpt
 
 
 class ParserError(Exception):
     def __init__(self, message: str, token: Token | None = None) -> None:
         if token:
-            super().__init__(f"ParserError at line {token.line}, col {token.column}: {message}")
+            diagnostic = f"ParserError at line {token.line}, col {token.column}: {message}"
+            if token.span is not None and token.span.file != "<memory>":
+                path = Path(token.span.file)
+                try:
+                    with path.open(encoding="utf-8") as source:
+                        line = next(
+                            (text.rstrip("\n") for i, text in enumerate(source, start=1)
+                             if i == token.span.start_line),
+                            None,
+                        )
+                except (OSError, UnicodeError):
+                    line = None
+                if line is not None:
+                    width = (token.span.end_col - token.span.start_col
+                             if token.span.start_line == token.span.end_line else 1)
+                    excerpt = diagnostic_excerpt(line, token.span.start_col, width)
+                    diagnostic = (
+                        f"FNL-E102 {path}: line {token.span.start_line}, "
+                        f"column {token.span.start_col}\n"
+                        f"{excerpt}\n"
+                        f"{diagnostic}\nHint: Check the expected syntax at this location."
+                    )
+            super().__init__(diagnostic)
         else:
             super().__init__(f"ParserError: {message}")
         self.token = token
+
+
+class ParserErrors(ParserError):
+    """Multiple recoverable syntax errors from one World source."""
+
+    def __init__(self, errors: list[ParserError], *, truncated: bool = False) -> None:
+        self.errors = tuple(errors)
+        suffix = " (diagnostic limit reached)" if truncated else ""
+        details = "\n\n".join(str(error) for error in errors)
+        super().__init__(f"{len(errors)} syntax errors{suffix}:\n\n{details}")
 
 
 class Parser:
@@ -45,7 +83,7 @@ class Parser:
         content = resolved.read_text(encoding="utf-8")
         if resolved.suffix.lower() == ".json":
             return Parser.from_json_str(content)
-        tokens = Lexer(content).tokenize()
+        tokens = Lexer(content, file=str(resolved)).tokenize()
         parser = Parser(tokens)
         if tokens[0].type == TokenType.IDENTIFIER and tokens[0].value == "world":
             return parser.parse_world(
@@ -55,24 +93,92 @@ class Parser:
 
     @staticmethod
     def _module_path(reference: str, source_path: Path) -> Path:
+        if not reference or "\\" in reference:
+            raise ParserError("Invalid World module path")
         if reference.startswith("std:"):
             root = Path(__file__).resolve().parent / "stdlib"
             fragment = reference.removeprefix("std:")
-        else:
+            relative = Path(fragment)
+            if relative.is_absolute() or ".." in relative.parts or relative.suffix != ".fnl":
+                raise ParserError("Invalid World module path")
+            resolved = (root / relative).resolve()
+            if not resolved.is_relative_to(root.resolve()):
+                raise ParserError("World module path escapes the allowed directory")
+            if not resolved.is_file():
+                raise ParserError("World module not found")
+            return resolved
+
+        # Direct .fnl file reference relative to source_path.parent
+        if reference.endswith(".fnl"):
             root = source_path.parent
-            fragment = reference
-        relative = Path(fragment)
-        if (
-            not fragment or "\\" in fragment or relative.is_absolute()
-            or ".." in relative.parts or relative.suffix != ".fnl"
-        ):
+            relative = Path(reference)
+            if relative.is_absolute() or ".." in relative.parts:
+                raise ParserError("Invalid World module path")
+            resolved = (root / relative).resolve()
+            if not resolved.is_relative_to(root.resolve()):
+                raise ParserError("World module path escapes the allowed directory")
+            if not resolved.is_file():
+                raise ParserError("World module not found")
+            return resolved
+
+        # Package reference (e.g. "ecommerce/d2c_scale" or "@scope/pkg")
+        pkg_rel = Path(reference)
+        if pkg_rel.is_absolute() or ".." in pkg_rel.parts:
             raise ParserError("Invalid World module path")
-        resolved = (root / relative).resolve()
-        if not resolved.is_relative_to(root.resolve()):
-            raise ParserError("World module path escapes the allowed directory")
-        if not resolved.is_file():
-            raise ParserError("World module not found")
-        return resolved
+
+        search_dirs: list[Path] = [
+            source_path.parent,
+            source_path.parent / ".funnelscript_modules",
+            source_path.parent / "packages",
+            source_path.parent / "fpm",
+        ]
+        curr = source_path.parent.resolve()
+        for _ in range(5):
+            search_dirs.extend([
+                curr / ".funnelscript_modules",
+                curr / "packages",
+                curr / "fpm",
+            ])
+            if curr.parent == curr:
+                break
+            curr = curr.parent
+
+        repo_root = Path(__file__).resolve().parents[2]
+        search_dirs.extend([
+            repo_root / "packages",
+            repo_root / "fpm",
+            repo_root.parent / "fpm",
+            Path(__file__).resolve().parent / "stdlib",
+        ])
+
+        for cand_root in search_dirs:
+            if not cand_root.is_dir():
+                continue
+            pkg_dir = (cand_root / pkg_rel).resolve()
+            if pkg_dir.is_dir() and pkg_dir.is_relative_to(cand_root.resolve()):
+                entry_filename = "index.fnl"
+                manifest_json = pkg_dir / "manifest.json"
+                funnel_json = pkg_dir / "funnelscript.json"
+                if manifest_json.is_file():
+                    try:
+                        data = json.loads(manifest_json.read_text(encoding="utf-8"))
+                        entry_filename = data.get("main", entry_filename)
+                    except (json.JSONDecodeError, OSError, KeyError):
+                        entry_filename = "index.fnl"
+                elif funnel_json.is_file():
+                    try:
+                        data = json.loads(funnel_json.read_text(encoding="utf-8"))
+                        entry_filename = data.get("main", entry_filename)
+                    except (json.JSONDecodeError, OSError, KeyError):
+                        entry_filename = "index.fnl"
+                entry_file = (pkg_dir / entry_filename).resolve()
+                if entry_file.is_file() and entry_file.is_relative_to(pkg_dir):
+                    return entry_file
+            cand_fnl = (cand_root / f"{reference}.fnl").resolve()
+            if cand_fnl.is_file() and cand_fnl.is_relative_to(cand_root.resolve()):
+                return cand_fnl
+
+        raise ParserError("World module not found")
 
     def __init__(self, tokens: list[Token]) -> None:
         self.tokens = tokens
@@ -116,7 +222,6 @@ class Parser:
         sim_params: dict[str, Any] = {}
 
         while not self.match(TokenType.RBRACE) and not self.match(TokenType.EOF):
-            tok = self.current()
             if self.match(TokenType.METADATA):
                 metadata = self._parse_block_map()
             elif self.match(TokenType.ENVIRONMENT):
@@ -162,7 +267,7 @@ class Parser:
         return res
 
     def _parse_budget(self) -> dict[str, Any]:
-        name_tok = self.expect(TokenType.IDENTIFIER)
+        self.expect(TokenType.IDENTIFIER)
         block = self._parse_block_map()
         return {
             "total_budget": float(block.get("total", block.get("total_budget", 10000.0))),
@@ -202,7 +307,7 @@ class Parser:
         step_counter = 1
         while not self.match(TokenType.RBRACE) and not self.match(TokenType.EOF):
             if self.match(TokenType.TRIGGER):
-                trigger_name = self.expect(TokenType.IDENTIFIER).value
+                self.expect(TokenType.IDENTIFIER)
                 self.expect(TokenType.FROM)
                 src = self.expect(TokenType.IDENTIFIER).value
                 self.expect(TokenType.VIA)
@@ -225,44 +330,93 @@ class Parser:
         return steps
 
 
+    def _record_world_error(self, error: ParserError) -> None:
+        self._world_errors.append(error)
+        if len(self._world_errors) == 32:
+            raise ParserErrors(self._world_errors, truncated=True) from None
+
+    def _raise_world_errors(self) -> None:
+        if len(self._world_errors) == 1:
+            raise self._world_errors[0]
+        if self._world_errors:
+            raise ParserErrors(self._world_errors)
+
+    def _recover_world(self, start: int, starters: frozenset[str]) -> None:
+        """Resume at a grammar boundary outside nested expressions and blocks."""
+        parentheses = blocks = 0
+        for index in range(start, len(self.tokens)):
+            token = self.tokens[index]
+            if index >= self.pos:
+                if token.type == TokenType.EOF:
+                    self.pos = index
+                    return
+                if blocks == 0 and token.type == TokenType.RBRACE:
+                    self.pos = index
+                    return
+                if blocks == 0 and parentheses == 0:
+                    if token.type == TokenType.SEMICOLON:
+                        self.pos = index + 1
+                        return
+                    if token.type == TokenType.IDENTIFIER and token.value in starters:
+                        self.pos = index
+                        return
+            if token.type == TokenType.LPAREN:
+                parentheses += 1
+            elif token.type == TokenType.RPAREN:
+                parentheses = max(0, parentheses - 1)
+            elif token.type == TokenType.LBRACE:
+                blocks += 1
+            elif token.type == TokenType.RBRACE:
+                blocks = max(0, blocks - 1)
+        self.pos = len(self.tokens)
+
+    def _node_span(self, start: int) -> SourceSpan | None:
+        if not 0 <= start < self.pos <= len(self.tokens):
+            return None
+        first = self.tokens[start].span
+        last = self.tokens[self.pos - 1].span
+        if first is None or last is None:
+            return None
+        return SourceSpan(
+            first.file, first.start_line, first.start_col,
+            last.end_line, last.end_col,
+        )
+
     def parse_world(
         self, *, source_path: Path | None = None,
         ancestors: tuple[Path, ...] = (),
     ) -> WorldAST:
         """Parse a World and compile imported one-declaration modules."""
+        self._world_errors: list[ParserError] = []
+        world_start = self.pos
         start = self.expect(TokenType.IDENTIFIER)
         if start.value != "world":
             raise ParserError("Expected world declaration", start)
         name = str(self.expect(TokenType.IDENTIFIER).value)
         self.expect(TokenType.LBRACE)
-        declarations: list[dict[str, Any]] = []
+        declarations: list[dict[str, Any] | EntityDefinition | AgentDefinition] = []
         imports: list[tuple[str, list[tuple[str | None, str]]]] = []
-
         while self.current().type != TokenType.RBRACE:
+            declaration_start = self.pos
             if self.current().type == TokenType.EOF:
-                raise ParserError("Unclosed world declaration", self.current())
-            kind = self.expect(TokenType.IDENTIFIER)
-            if kind.value == "import":
-                reference = str(self.expect(TokenType.STRING).value)
-                selected = self._parse_import_bindings()
-                self.expect(TokenType.SEMICOLON)
-                imports.append((reference, selected))
-                continue
-            if kind.value not in ("entity", "agent"):
-                raise ParserError("Expected entity, agent or import declaration", kind)
-            decl_name = str(self.expect(TokenType.IDENTIFIER).value)
-            self.expect(TokenType.LBRACE)
-            states, events, rules = self._parse_world_members()
-            self.expect(TokenType.RBRACE)
-            declarations.append(
-                {
-                    "kind": kind.value, "name": decl_name,
-                    "states": states, "events": events, "rules": rules,
-                }
-            )
+                self._record_world_error(ParserError("Unclosed world declaration", self.current()))
+                self._raise_world_errors()
+            try:
+                self._parse_world_declaration(declarations, imports)
+            except ParserErrors:
+                raise
+            except ParserError as error:
+                self._record_world_error(error)
+                self._recover_world(declaration_start, frozenset({"entity", "agent", "import"}))
 
         self.expect(TokenType.RBRACE)
-        self.expect(TokenType.EOF, "Unexpected content after world declaration")
+        world_span = self._node_span(world_start)
+        try:
+            self.expect(TokenType.EOF, "Unexpected content after world declaration")
+        except ParserError as error:
+            self._record_world_error(error)
+        self._raise_world_errors()
+
         if imports and source_path is None:
             raise ParserError("World module imports require a source file path")
         for reference, selected in imports:
@@ -279,10 +433,37 @@ class Parser:
                     raise ParserError(f"Unknown World module export '{export_name}'")
                 imported = exported[export_name].model_copy(deep=True)
                 imported.name = alias
-                declarations.append(imported.model_dump())
-        ast = WorldAST.model_validate({"name": name, "declarations": declarations})
+                declarations.append(imported)
+        ast = WorldAST.model_validate(
+            {"name": name, "declarations": declarations, "span": world_span}
+        )
         WorldTypeChecker.check(ast)
         return ast
+
+    def _parse_world_declaration(
+        self,
+        declarations: list[dict[str, Any] | EntityDefinition | AgentDefinition],
+        imports: list[tuple[str, list[tuple[str | None, str]]]],
+    ) -> None:
+        declaration_start = self.pos
+        kind = self.expect(TokenType.IDENTIFIER)
+        if kind.value == "import":
+            reference = str(self.expect(TokenType.STRING).value)
+            selected = self._parse_import_bindings()
+            self.expect(TokenType.SEMICOLON)
+            imports.append((reference, selected))
+            return
+        if kind.value not in ("entity", "agent"):
+            raise ParserError("Expected entity, agent or import declaration", kind)
+        decl_name = str(self.expect(TokenType.IDENTIFIER).value)
+        self.expect(TokenType.LBRACE)
+        states, events, rules = self._parse_world_members()
+        self.expect(TokenType.RBRACE)
+        declarations.append({
+            "kind": kind.value, "name": decl_name,
+            "states": states, "events": events, "rules": rules,
+            "span": self._node_span(declaration_start),
+        })
 
     def _parse_import_bindings(self) -> list[tuple[str | None, str]]:
         if self.match(TokenType.LBRACE):
@@ -313,41 +494,56 @@ class Parser:
         rules: list[dict[str, Any]] = []
         while self.current().type != TokenType.RBRACE:
             if self.current().type == TokenType.EOF:
-                raise ParserError("Unclosed entity or agent", self.current())
-            keyword = self.expect(TokenType.IDENTIFIER)
-            if keyword.value == "rule":
-                rules.append(self._parse_world_rule())
-            elif keyword.value == "event":
-                events.append(self._parse_event_declaration())
-            elif keyword.value == "state":
-                field_name = str(self.expect(TokenType.IDENTIFIER).value)
-                self.expect(TokenType.COLON)
-                type_name = str(self.expect(TokenType.IDENTIFIER).value)
-                self.expect(TokenType.ASSIGN)
-                value = self._parse_world_literal()
-                self.expect(TokenType.SEMICOLON)
-                states.append({"name": field_name, "type_name": type_name, "value": value})
-            else:
-                raise ParserError("Expected state, event or rule declaration", keyword)
+                self._record_world_error(ParserError("Unclosed entity or agent", self.current()))
+                self._raise_world_errors()
+            member_start = self.pos
+            try:
+                keyword = self.expect(TokenType.IDENTIFIER)
+                if keyword.value == "rule":
+                    rules.append(self._parse_world_rule(member_start))
+                elif keyword.value == "event":
+                    events.append(self._parse_event_declaration(member_start))
+                elif keyword.value == "state":
+                    field_name = str(self.expect(TokenType.IDENTIFIER).value)
+                    self.expect(TokenType.COLON)
+                    type_name = str(self.expect(TokenType.IDENTIFIER).value)
+                    self.expect(TokenType.ASSIGN)
+                    value = self._parse_world_literal()
+                    self.expect(TokenType.SEMICOLON)
+                    states.append({
+                        "name": field_name, "type_name": type_name, "value": value,
+                        "span": self._node_span(member_start),
+                    })
+                else:
+                    raise ParserError("Expected state, event or rule declaration", keyword)
+            except ParserErrors:
+                raise
+            except ParserError as error:
+                self._record_world_error(error)
+                self._recover_world(member_start, frozenset({"state", "event", "rule"}))
         return states, events, rules
 
-    def _parse_event_declaration(self) -> dict[str, Any]:
+    def _parse_event_declaration(self, start: int) -> dict[str, Any]:
         name = str(self.expect(TokenType.IDENTIFIER).value)
         self.expect(TokenType.LPAREN)
         fields: list[dict[str, str]] = []
         if self.current().type != TokenType.RPAREN:
             while True:
+                field_start = self.pos
                 field = str(self.expect(TokenType.IDENTIFIER).value)
                 self.expect(TokenType.COLON)
                 type_name = str(self.expect(TokenType.IDENTIFIER).value)
-                fields.append({"name": field, "type_name": type_name})
+                fields.append({
+                    "name": field, "type_name": type_name,
+                    "span": self._node_span(field_start),
+                })
                 if not self.match(TokenType.COMMA):
                     break
         self.expect(TokenType.RPAREN)
         self.expect(TokenType.SEMICOLON)
-        return {"name": name, "fields": fields}
+        return {"name": name, "fields": fields, "span": self._node_span(start)}
 
-    def _parse_world_rule(self) -> dict[str, Any]:
+    def _parse_world_rule(self, start: int) -> dict[str, Any]:
         rule_name = str(self.expect(TokenType.IDENTIFIER).value)
         on = self.expect(TokenType.IDENTIFIER)
         if on.value != "on":
@@ -356,53 +552,72 @@ class Parser:
         if event_keyword.value != "event":
             raise ParserError("Expected 'event' after 'on'", event_keyword)
         event_name = str(self.expect(TokenType.IDENTIFIER).value)
-        guard = self._parse_rule_guard() if self.match(TokenType.WHEN) else None
+        guard = self._parse_rule_guard(self.pos - 1) if self.match(TokenType.WHEN) else None
         self.expect(TokenType.LBRACE)
         transitions: list[dict[str, Any]] = []
         emissions: list[dict[str, Any]] = []
-
         while self.current().type != TokenType.RBRACE:
             if self.current().type == TokenType.EOF:
-                raise ParserError("Unclosed rule", self.current())
-            keyword = self.expect(TokenType.IDENTIFIER)
-            if keyword.value == "transition":
-                target = str(self.expect(TokenType.IDENTIFIER).value)
-                self.expect(TokenType.ASSIGN)
-                expr = self._parse_rule_expression()
-                self.expect(TokenType.SEMICOLON)
-                transitions.append({"target": target, "expr": expr})
-            elif keyword.value == "emit":
-                target = str(self.expect(TokenType.IDENTIFIER).value)
-                arguments: dict[str, dict[str, Any]] = {}
-                if self.match(TokenType.LPAREN):
-                    if self.current().type != TokenType.RPAREN:
-                        while True:
-                            field = str(self.expect(TokenType.IDENTIFIER).value)
-                            if field in arguments:
-                                raise ParserError(f"Duplicate emitted event field '{field}'")
-                            self.expect(TokenType.ASSIGN)
-                            arguments[field] = self._parse_rule_expression()
-                            if not self.match(TokenType.COMMA):
-                                break
-                    self.expect(TokenType.RPAREN)
-                after = self.expect(TokenType.IDENTIFIER)
-                if after.value != "after":
-                    raise ParserError("Expected 'after' in emit statement", after)
-                delay = self._parse_world_literal()
-                self.expect(TokenType.SEMICOLON)
-                emissions.append({"event": target, "delay": delay, "arguments": arguments})
+                self._record_world_error(ParserError("Unclosed rule", self.current()))
+                self._raise_world_errors()
+            statement_start = self.pos
+            try:
+                kind, statement = self._parse_world_rule_statement()
+            except ParserErrors:
+                raise
+            except ParserError as error:
+                self._record_world_error(error)
+                self._recover_world(statement_start, frozenset({"transition", "emit"}))
+                continue
+            if kind == "transition":
+                transitions.append(statement)
             else:
-                raise ParserError("Expected transition or emit statement", keyword)
+                emissions.append(statement)
         self.expect(TokenType.RBRACE)
         return {
-            "name": rule_name,
-            "event": event_name,
-            "guard": guard,
-            "transitions": transitions,
-            "emissions": emissions,
+            "name": rule_name, "event": event_name, "guard": guard,
+            "transitions": transitions, "emissions": emissions,
+            "span": self._node_span(start),
         }
 
-    def _parse_rule_guard(self) -> dict[str, Any]:
+    def _parse_world_rule_statement(self) -> tuple[str, dict[str, Any]]:
+        statement_start = self.pos
+        keyword = self.expect(TokenType.IDENTIFIER)
+        if keyword.value == "transition":
+            target = str(self.expect(TokenType.IDENTIFIER).value)
+            self.expect(TokenType.ASSIGN)
+            expr = self._parse_rule_expression()
+            self.expect(TokenType.SEMICOLON)
+            return "transition", {
+                "target": target, "expr": expr,
+                "span": self._node_span(statement_start),
+            }
+        if keyword.value != "emit":
+            raise ParserError("Expected transition or emit statement", keyword)
+        target = str(self.expect(TokenType.IDENTIFIER).value)
+        arguments: dict[str, dict[str, Any]] = {}
+        if self.match(TokenType.LPAREN):
+            if self.current().type != TokenType.RPAREN:
+                while True:
+                    field = str(self.expect(TokenType.IDENTIFIER).value)
+                    if field in arguments:
+                        raise ParserError(f"Duplicate emitted event field '{field}'")
+                    self.expect(TokenType.ASSIGN)
+                    arguments[field] = self._parse_rule_expression()
+                    if not self.match(TokenType.COMMA):
+                        break
+            self.expect(TokenType.RPAREN)
+        after = self.expect(TokenType.IDENTIFIER)
+        if after.value != "after":
+            raise ParserError("Expected 'after' in emit statement", after)
+        delay = self._parse_world_literal()
+        self.expect(TokenType.SEMICOLON)
+        return "emit", {
+            "event": target, "delay": delay, "arguments": arguments,
+            "span": self._node_span(statement_start),
+        }
+
+    def _parse_rule_guard(self, start: int) -> dict[str, Any]:
         self.expect(TokenType.LPAREN)
         field = str(self.expect(TokenType.IDENTIFIER).value)
         operators = {
@@ -419,14 +634,19 @@ class Parser:
         self.pos += 1
         value = self._parse_world_literal()
         self.expect(TokenType.RPAREN)
-        return {"field": field, "operator": operators[comparison.type], "value": value}
+        return {
+            "field": field, "operator": operators[comparison.type], "value": value,
+            "span": self._node_span(start),
+        }
 
     def _parse_payload_reference(self) -> dict[str, Any]:
+        start = self.pos
         self.expect(TokenType.IDENTIFIER)
         self.expect(TokenType.DOT)
         return {
             "kind": "payload_field",
             "name": str(self.expect(TokenType.IDENTIFIER).value),
+            "span": self._node_span(start),
         }
 
     def _parse_rule_expression(self) -> dict[str, Any]:
@@ -437,6 +657,7 @@ class Parser:
         return result
 
     def _parse_arithmetic(self, minimum: int, depth: int) -> dict[str, Any]:
+        start = self.pos
         if depth > 24:
             raise ParserError("Arithmetic expression depth limit exceeded", self.current())
         left = self._parse_primary(depth + 1)
@@ -448,14 +669,19 @@ class Parser:
                 break
             self.pos += 1
             right = self._parse_arithmetic(level + 1, depth + 1)
-            left = {"kind": "binary", "operator": operator, "left": left, "right": right}
+            left = {
+                "kind": "binary", "operator": operator, "left": left, "right": right,
+                "span": self._node_span(start),
+            }
         return left
 
     def _parse_primary(self, depth: int) -> dict[str, Any]:
+        start = self.pos
         token = self.current()
         if self.match(TokenType.LPAREN):
             expression = self._parse_arithmetic(0, depth)
             self.expect(TokenType.RPAREN, "Missing closing expression parenthesis")
+            expression["span"] = self._node_span(start)
             return expression
         if token.type == TokenType.IDENTIFIER and token.value == "sample" and (
             self.peek() is not None and self.peek().type == TokenType.IDENTIFIER
@@ -467,10 +693,15 @@ class Parser:
             return self._parse_payload_reference()
         if token.type == TokenType.IDENTIFIER and token.value not in ("true", "false"):
             self.pos += 1
-            return {"kind": "reference", "name": str(token.value)}
-        return {"kind": "literal", "value": self._parse_world_literal()}
+            return {
+                "kind": "reference", "name": str(token.value),
+                "span": self._node_span(start),
+            }
+        value = self._parse_world_literal()
+        return {"kind": "literal", "value": value, "span": self._node_span(start)}
 
     def _parse_sample_expression(self) -> dict[str, Any]:
+        start = self.pos
         self.expect(TokenType.IDENTIFIER)
         distribution_token = self.expect(TokenType.IDENTIFIER)
         distribution = str(distribution_token.value)
@@ -485,10 +716,12 @@ class Parser:
                     break
         self.expect(TokenType.RPAREN)
         return {
-            "kind": "sample", "distribution": distribution, "arguments": arguments
+            "kind": "sample", "distribution": distribution, "arguments": arguments,
+            "span": self._node_span(start),
         }
 
     def _parse_sample_argument(self) -> dict[str, Any]:
+        start = self.pos
         token = self.current()
         if token.type == TokenType.IDENTIFIER and token.value == "payload" and (
             self.peek() is not None and self.peek().type == TokenType.DOT
@@ -496,8 +729,12 @@ class Parser:
             return self._parse_payload_reference()
         if token.type == TokenType.IDENTIFIER and token.value not in ("true", "false"):
             self.pos += 1
-            return {"kind": "reference", "name": str(token.value)}
-        return {"kind": "literal", "value": self._parse_world_literal()}
+            return {
+                "kind": "reference", "name": str(token.value),
+                "span": self._node_span(start),
+            }
+        value = self._parse_world_literal()
+        return {"kind": "literal", "value": value, "span": self._node_span(start)}
 
     def _parse_world_literal(self) -> int | float | bool | str:
         negative = self.match(TokenType.MINUS)
