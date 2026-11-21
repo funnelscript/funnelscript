@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "project": "FunnelScript",
   "created_utc": "2026-11-21T13:25:55+00:00",
-  "updated_utc": "2026-11-21T15:33:05.908365+00:00",
+  "updated_utc": "2026-11-21T15:57:11.908699+00:00",
   "repository_root": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect/funnelscript",
   "workspace_parent": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect",
   "python_single_source_of_truth": "src/funnelscript/",
@@ -372,7 +372,8 @@
         },
         {
           "name": "Snapshot/replay and Zeno/resource properties",
-          "status": "PENDING"
+          "status": "IN_PROGRESS",
+          "note": "EventMachine opt-in queue, per-tick and zero-delay budgets independently verified; World propagation, B4 causal IDs, complete snapshot and ledger split-run remain."
         },
         {
           "name": "Typed malformed numeric lexer errors and 10,000-input Unicode property check",
@@ -415,6 +416,11 @@
           "name": "EventKey causal-depth total ordering and five hash-seed replay tests",
           "status": "VERIFIED",
           "note": "6 tests with 60 Hypothesis examples and five PYTHONHASHSEED subprocess variants; isolated 681 pass, 50 conformance, scoped Ruff 0"
+        },
+        {
+          "name": "Opt-in EventMachine resource envelopes and causal diagnostics",
+          "status": "VERIFIED",
+          "note": "19 fresh cases incl. 80 Hypothesis examples; isolated 700 pytest, 50 World conformance, scoped Ruff 0, 100k event resource benchmarks completed."
         }
       ],
       "target_files_modified_by_wave": [
@@ -432,23 +438,25 @@
         "tests/verification/test_structured_validation_diagnostics.py",
         "tests/verification/test_world_module_cycles.py",
         "src/funnelscript/core/event_machine.py",
-        "tests/verification/test_event_causal_ordering.py"
+        "tests/verification/test_event_causal_ordering.py",
+        "src/funnelscript/core/__init__.py",
+        "tests/verification/test_event_resource_envelope.py"
       ],
-      "git_commit_hash": "ce4642933a0808a40edb6dbde2bb6e334be607f1",
+      "git_commit_hash": "d08f33b24860dabdec2ed5bbc1daa2fd1a155cb4",
       "new_commit_created": true,
-      "test_pass_count": 779,
+      "test_pass_count": 798,
       "exit_gate_metrics": {
         "gate": "Core 99 roadmap criteria including spans, formatter, 10k parser fuzz, five hash-seed checks, snapshot/replay and 100k events",
         "passed": false,
         "observed": {
-          "full_pytest_passed": 779,
+          "full_pytest_passed": 798,
           "full_pytest_failed": 0,
           "full_pytest_skipped": 0,
           "full_pytest_subtests_passed": 58,
           "conformance_passed": 50,
           "hypothesis_unicode_inputs": 10000,
           "focused_ruff_scoped_passed": true,
-          "global_ruff_errors": 481,
+          "global_ruff_errors": 480,
           "hashseed_variants_verified_for_one_fixture": [
             0,
             1,
@@ -525,13 +533,31 @@
           "eventkey_isolated_tests_passed": 681,
           "eventkey_isolated_conformance_passed": 50,
           "eventkey_isolated_ruff_findings": 0,
-          "eventkey_benchmark_100000_due_elapsed_seconds": 0.8953640419986186
+          "eventkey_benchmark_100000_due_elapsed_seconds": 0.8953640419986186,
+          "event_resource_new_pytest_cases": 19,
+          "event_resource_new_test_functions": 13,
+          "event_resource_hypothesis_examples": 80,
+          "event_resource_initial_queue_bound": true,
+          "event_resource_emitted_queue_bound": true,
+          "event_resource_per_tick_bound": true,
+          "event_resource_zero_delay_depth_bound": true,
+          "event_resource_structured_error": true,
+          "event_resource_optin_only": true,
+          "event_resource_default_trace_complete_when_untraced": false,
+          "event_resource_legacy_max_events_message_compatible": true,
+          "event_resource_isolated_pytest_passed": 700,
+          "event_resource_isolated_conformance_passed": 50,
+          "event_resource_isolated_ruff_findings": 0,
+          "event_resource_due_100000_elapsed_seconds": 0.826611166998191,
+          "event_resource_fanout_100000_elapsed_seconds": 0.40723016599804396,
+          "event_resource_due_100000_peak_rss_bytes": 88834048,
+          "event_resource_fanout_100000_peak_rss_bytes": 88555520
         }
       },
-      "new_pytest_cases": 89,
-      "research_anchor": "Core 99 B1 and classic deterministic discrete-event simulation: causal precedence at equal time/priority must use recursion depth before a unique monotonic enqueue ordinal.",
-      "falsifiable_hypothesis": "A lower-depth event wins a same-time/same-priority collision regardless of insertion order, priority still outranks depth, pending order preserves both, and seeded draws replay across five PYTHONHASHSEED variants.",
-      "invariant": "EventKey=(event.time, event.priority, causal_depth, monotonic_enqueue_id), compared lexicographically; initial depth=0, emitted child depth=parent depth+1; unique enqueue ID resolves all remaining ties.",
+      "new_pytest_cases": 108,
+      "research_anchor": "Core99 B2 plus research runtime-resource-envelope-v0 H-RQ1/H-RQ2/H-RT1 (PROPOSED, not accepted), DEVS zero-delay Zeno semantics. Preserve original behavior absent optional bounds.",
+      "falsifiable_hypothesis": "When explicit budgets bind, resource failures occur exactly at queue length Lq+1, per-tick count Lt+1 or zero-delay ancestor depth Lz+1 with source event lineage; without binding limits, complete results and RNG draws are unchanged.",
+      "invariant": "Successful bounded runs have |Q|<=Lq; processed_per_timestamp<=Lt; consecutive-zero-delay ancestry_depth<=Lz; output RunResult never silently truncated; invariant EventKey lexicographic ordering preserved.",
       "blockers": [
         {
           "id": "W1-SPANS",
@@ -555,83 +581,88 @@
         }
       ],
       "last_round": {
-        "round_label": "EventMachine causal-depth EventKey lexicographic ordering and cross-hashseed verification",
-        "started_from_baseline_directory": "/var/folders/_w/rzz6bs252_15ztt3z4d9hqsr0000gn/T/funnelscript_wave1_event_order_round_dx7ctodx",
-        "source_head_before_round": "30928979e4074c380cdf5a59ce829774b753299c",
+        "round_label": "Opt-in EventMachine resource envelopes, Zeno loop guard, typed causal diagnostics, and default-path performance preservation",
+        "source_head_before_round": "f81f2180e2ad24477a7715fd8a13016347f1a731",
+        "started_from_baseline_directory": "/var/folders/_w/rzz6bs252_15ztt3z4d9hqsr0000gn/T/funnelscript_wave1_resource_round_da326omf",
         "python_files": {
           "src/funnelscript/core/event_machine.py": {
-            "added": 14,
-            "deleted": 13,
-            "net": 1
+            "added": 160,
+            "deleted": 25,
+            "net": 135
           },
-          "tests/verification/test_event_causal_ordering.py": {
-            "added": 136,
+          "src/funnelscript/core/__init__.py": {
+            "added": 3,
+            "deleted": 1,
+            "net": 2
+          },
+          "tests/verification/test_event_resource_envelope.py": {
+            "added": 215,
             "deleted": 0,
-            "net": 136
+            "net": 215
           }
         },
         "python_diff_totals": {
-          "added": 150,
-          "deleted": 13,
-          "net": 137
+          "added": 378,
+          "deleted": 26,
+          "net": 352
         },
         "staged_source_commit_diff_totals": {
-          "added": 150,
-          "deleted": 13,
-          "net": 137
+          "added": 378,
+          "deleted": 26,
+          "net": 352
         },
         "metric_exclusions": [
           "EXECUTION_STATE.json metadata",
-          "pre-existing or concurrent unrelated dirty worktree modifications"
+          "unrelated preexisting or concurrent dirty working-tree modifications"
         ],
         "what_done": [
-          "TDD RED: independently specified causal ordering test reproduced deep-before-shallow event dispatch under the previous time/priority/ordinal heap; GREEN after adding causal_depth.",
-          "EventMachine priority queue now uses lexicographic (time, priority, causal_depth, monotonic ordinal) with initial depth 0 and each emitted event inheriting parent depth + 1.",
-          "Pending queue ordering after until= horizon uses the same five-tuple key; no new API or dependencies and no changes to world/ledger math.",
-          "Six new test functions verify exact equal-time ordering, horizon pending order, 60 Hypothesis translations/seeds, priority dominance, five isolated PYTHONHASHSEED subprocess runs including RNG draws, and generic API subscription.",
-          "Existing Python 3.12+ event kernel Generic/TypeVar and import lint debt modernized in this touched module, with a real public generic-subscript runtime regression test.",
-          "Full current worktree 779 tests and 58 subtests passed; 50 World conformance; scoped Ruff zero; global Ruff 481 findings in dirty worktree.",
-          "Independent HEAD plus precisely two staged files passed 681 tests and 58 subtests at COLUMNS=80; World conformance 50; Ruff zero.",
-          "100,000 due-event resource benchmark completed without failed caps: baseline 0.916s, changed 0.905s, isolated candidate 0.895s; treat timings as uncalibrated single samples, not a validated speedup.",
-          "Nine protected preexisting governance/roadmap files matched SHA256 before and after; code commit ce4642933a0808a40edb6dbde2bb6e334be607f1 contains only the two authorized code/test paths."
+          "Read authoritative orchestration/Phase1/Core99 roadmap and proposed runtime-resource-envelope-v0 research; chose only additive opt-in bounds and preserved existing unspecified defaults.",
+          "TDD RED: first new tests failed because FunnelRuntimeLimitError did not exist; GREEN after adding typed failures and queue/tick/zero-delay guard invariants.",
+          "EventMachine.run optionally accepts max_queue_size, max_events_per_tick and max_zero_delay_depth; original max_events=100000 remains the unmodified total processing budget.",
+          "Admission cap rejects both potentially endless initial generators and model-emitted fanout at exact attempted_count, without publishing a partial RunResult or silently dropping events.",
+          "Per-time tick budget resets after clock advances; zero-delay depth resets on strictly positive time advances and counts ancestry, not unrelated sibling events.",
+          "FunnelRuntimeLimitError(RuntimeError) exposes limit_kind, configured_cap, attempted_count, timestamp, causal_chain and trace_complete; full ancestor trace when optional budgets enable provenance, explicit incompleteness label on an untraced default max_events violation.",
+          "Discovered full-suite regression: a legacy test matches the literal max_events reached; fixed production diagnostic wording and did not modify or weaken that test.",
+          "Added 13 new test functions representing 19 pytest cases, including an 80-example Hypothesis invariant, invalid input validation, horizon queue retention, bounded generator consumption and distinct typed failure categories.",
+          "Removed previously measured overhead from default execution by retaining 5-field EventKey tuples unless an optional resource guard activates causal trace links; all real-world performance claims remain outside this scope.",
+          "Full working tree 798 passed and 58 subtests, 50 World conformance, scoped Ruff zero, global unrelated Ruff 480; isolated HEAD + staged code 700 passed and 58 subtests, 50 conformance, scoped Ruff zero at 80 columns.",
+          "Isolated resource benchmarks for 100,000 due events: 0.82661s, 88.834MB RSS; fanout: 0.40723s, 88.556MB RSS; pre-round baseline respectively 0.87843s/88.687MB and 0.47772s/88.441MB, timing is noisy and not proof of speedup.",
+          "Nine protected existing governance files verified SHA-256 unchanged; code/test diff exactly +378/-26, excludes EXECUTION_STATE.json and unrelated dirty WIP."
         ],
         "what_remaining": [
-          "Complete Event State Machine deterministic keyed RNG invariants and multi-fixture hash-seed World/ledger replay verification; this round tests only the EventMachine hash-seed behavior.",
-          "Add per-tick zero-delay/Zeno event depth guards, queue and max-events limits, structured causal chain diagnostics (source_rule_span, parent IDs).",
-          "Implement bit-exact World+agent+financial-ledger snapshot/restore, including event key and RNG state, and Hypothesis split-run equivalence.",
-          "Static compiler linter for dead/unreachable handlers, orphan events, shadowed names and unused declared parameters, with truthful source spans.",
-          "Improve other imported-module errors with typed source provenance; complete physical span attribution for legacy StrategyAST/Pydantic/linter fields.",
-          "Canonical .fnl formatter, full valid-corpus AST round trip and grammar drift guard blocked by read-only spec/grammar.ebnf Phase 1 freeze conflict.",
-          "Repository-wide Ruff remains 481 findings in dirty worktree; isolate and remedy independently without altering in-progress user work.",
-          "Existing unrelated CLI, sales capacity, marketing/solver/calibration and web modifications remain untouched and not included in this Wave 1 PR.",
-          "Do not start Wave 2 until all Wave 1 exit gates pass and explicit user approval is obtained."
+          "Resource budget propagation to WorldExecutor/PopulationExecutor, exact .fnl source_rule_span provenance for runtime limits, and full B4 event ID/parent ID causal tracing have not been implemented.",
+          "Opt-in runtime envelope is an implementation slice under a PROPOSED research contract; formal owner acceptance, history/intent retention quotas, representative scale benchmarks and public compatibility policy remain.",
+          "Default max_events failure retains RuntimeError-compatible wording but does not collect full ancestor chain when no opt-in guard was enabled; trace_complete explicitly marks that limitation.",
+          "Complete World and ledger bit-identical replay across five PYTHONHASHSEED values, not only the isolated EventMachine fixture.",
+          "Implement bit-exact snapshot/restore of World, agent, pending EventKey, keyed RNG counter, and ledger; Hypothesis split-run equivalence.",
+          "Static compiler linter for unreachable rules, orphan/dead events, shadowed identifiers, unused declared parameters, including truthful spans.",
+          "Complete physical spans for legacy StrategyAST/Pydantic and further imported-module error provenance, with no user-facing raw tracebacks.",
+          "Canonical .fnl formatter, full valid-corpus AST round trip, and EBNF drift checks require resolving the existing Phase 1 spec/grammar freeze conflict.",
+          "Global Ruff still reports 480 findings in the current dirty working tree, outside the touched code/test files.",
+          "Preserve unrelated web decoupling, API, solver, marketing/calibration and documentation WIP without staging or reverting it.",
+          "Do not start Wave 2 until every Wave 1 exit gate passes and the user explicitly approves proceeding."
         ],
-        "new_tests_added": 6,
-        "hypothesis_examples": 60,
-        "hashseed_variants": [
-          0,
-          1,
-          7,
-          79,
-          999
-        ],
-        "full_pytest_passed": 779,
+        "new_tests_added": 19,
+        "new_test_functions": 13,
+        "hypothesis_examples": 80,
+        "full_pytest_passed": 798,
         "full_pytest_failed": 0,
-        "full_pytest_skipped": 0,
         "full_pytest_subtests_passed": 58,
         "conformance_passed": 50,
-        "global_ruff_errors": 481,
-        "isolated_staged_pytest_passed": 681,
+        "global_ruff_errors": 480,
+        "isolated_staged_pytest_passed": 700,
         "isolated_staged_conformance_passed": 50,
         "isolated_staged_ruff_findings": 0,
         "protected_existing_docs_unchanged": 9,
-        "benchmark_100000_due_before_seconds": 0.9156143750005867,
-        "benchmark_100000_due_after_seconds": 0.9048616669988405,
-        "benchmark_100000_due_isolated_seconds": 0.8953640419986186,
-        "benchmark_100000_due_process_peak_rss_bytes": 88850432,
-        "integration_source_commit": "ce4642933a0808a40edb6dbde2bb6e334be607f1",
-        "integration_branch": "feat/wave1-causal-eventkey-20261121",
-        "suggested_commit_message": "feat(runtime): apply causal-depth event ordering"
+        "baseline_benchmark_due_100000_seconds": 0.8784342079998169,
+        "baseline_benchmark_fanout_100000_seconds": 0.4777229579995037,
+        "isolated_benchmark_due_100000_seconds": 0.826611166998191,
+        "isolated_benchmark_fanout_100000_seconds": 0.40723016599804396,
+        "isolated_due_peak_rss_bytes": 88834048,
+        "isolated_fanout_peak_rss_bytes": 88555520,
+        "integration_source_commit": "d08f33b24860dabdec2ed5bbc1daa2fd1a155cb4",
+        "integration_branch": "feat/wave1-runtime-resource-guards-20261121",
+        "suggested_commit_message": "feat(runtime): add opt-in event resource envelopes and causal diagnostics"
       },
       "round_history": [
         {
@@ -1041,6 +1072,85 @@
           "ci_test_fix_commit": "9cd66f66ad5e6588728795e4d843522db81ff1e0",
           "ci_first_attempt_issue": "Initial GH Python CI failed in a Rich Panel CLI test: runner terminal width wraps the string \"line 2, column 10\" across lines; parser token source span was correct.",
           "ci_fix_evidence": "Replaced fragile combined Rich display assertion with wrap-independent checks for column 10 and the short ParserError diagnostic line; 7 targeted tests, 675 isolated tests with COLUMNS=80, 50 conformance and 0 scoped Ruff passed."
+        },
+        {
+          "round_label": "EventMachine causal-depth EventKey lexicographic ordering and cross-hashseed verification",
+          "started_from_baseline_directory": "/var/folders/_w/rzz6bs252_15ztt3z4d9hqsr0000gn/T/funnelscript_wave1_event_order_round_dx7ctodx",
+          "source_head_before_round": "30928979e4074c380cdf5a59ce829774b753299c",
+          "python_files": {
+            "src/funnelscript/core/event_machine.py": {
+              "added": 14,
+              "deleted": 13,
+              "net": 1
+            },
+            "tests/verification/test_event_causal_ordering.py": {
+              "added": 136,
+              "deleted": 0,
+              "net": 136
+            }
+          },
+          "python_diff_totals": {
+            "added": 150,
+            "deleted": 13,
+            "net": 137
+          },
+          "staged_source_commit_diff_totals": {
+            "added": 150,
+            "deleted": 13,
+            "net": 137
+          },
+          "metric_exclusions": [
+            "EXECUTION_STATE.json metadata",
+            "pre-existing or concurrent unrelated dirty worktree modifications"
+          ],
+          "what_done": [
+            "TDD RED: independently specified causal ordering test reproduced deep-before-shallow event dispatch under the previous time/priority/ordinal heap; GREEN after adding causal_depth.",
+            "EventMachine priority queue now uses lexicographic (time, priority, causal_depth, monotonic ordinal) with initial depth 0 and each emitted event inheriting parent depth + 1.",
+            "Pending queue ordering after until= horizon uses the same five-tuple key; no new API or dependencies and no changes to world/ledger math.",
+            "Six new test functions verify exact equal-time ordering, horizon pending order, 60 Hypothesis translations/seeds, priority dominance, five isolated PYTHONHASHSEED subprocess runs including RNG draws, and generic API subscription.",
+            "Existing Python 3.12+ event kernel Generic/TypeVar and import lint debt modernized in this touched module, with a real public generic-subscript runtime regression test.",
+            "Full current worktree 779 tests and 58 subtests passed; 50 World conformance; scoped Ruff zero; global Ruff 481 findings in dirty worktree.",
+            "Independent HEAD plus precisely two staged files passed 681 tests and 58 subtests at COLUMNS=80; World conformance 50; Ruff zero.",
+            "100,000 due-event resource benchmark completed without failed caps: baseline 0.916s, changed 0.905s, isolated candidate 0.895s; treat timings as uncalibrated single samples, not a validated speedup.",
+            "Nine protected preexisting governance/roadmap files matched SHA256 before and after; code commit ce4642933a0808a40edb6dbde2bb6e334be607f1 contains only the two authorized code/test paths."
+          ],
+          "what_remaining": [
+            "Complete Event State Machine deterministic keyed RNG invariants and multi-fixture hash-seed World/ledger replay verification; this round tests only the EventMachine hash-seed behavior.",
+            "Add per-tick zero-delay/Zeno event depth guards, queue and max-events limits, structured causal chain diagnostics (source_rule_span, parent IDs).",
+            "Implement bit-exact World+agent+financial-ledger snapshot/restore, including event key and RNG state, and Hypothesis split-run equivalence.",
+            "Static compiler linter for dead/unreachable handlers, orphan events, shadowed names and unused declared parameters, with truthful source spans.",
+            "Improve other imported-module errors with typed source provenance; complete physical span attribution for legacy StrategyAST/Pydantic/linter fields.",
+            "Canonical .fnl formatter, full valid-corpus AST round trip and grammar drift guard blocked by read-only spec/grammar.ebnf Phase 1 freeze conflict.",
+            "Repository-wide Ruff remains 481 findings in dirty worktree; isolate and remedy independently without altering in-progress user work.",
+            "Existing unrelated CLI, sales capacity, marketing/solver/calibration and web modifications remain untouched and not included in this Wave 1 PR.",
+            "Do not start Wave 2 until all Wave 1 exit gates pass and explicit user approval is obtained."
+          ],
+          "new_tests_added": 6,
+          "hypothesis_examples": 60,
+          "hashseed_variants": [
+            0,
+            1,
+            7,
+            79,
+            999
+          ],
+          "full_pytest_passed": 779,
+          "full_pytest_failed": 0,
+          "full_pytest_skipped": 0,
+          "full_pytest_subtests_passed": 58,
+          "conformance_passed": 50,
+          "global_ruff_errors": 481,
+          "isolated_staged_pytest_passed": 681,
+          "isolated_staged_conformance_passed": 50,
+          "isolated_staged_ruff_findings": 0,
+          "protected_existing_docs_unchanged": 9,
+          "benchmark_100000_due_before_seconds": 0.9156143750005867,
+          "benchmark_100000_due_after_seconds": 0.9048616669988405,
+          "benchmark_100000_due_isolated_seconds": 0.8953640419986186,
+          "benchmark_100000_due_process_peak_rss_bytes": 88850432,
+          "integration_source_commit": "ce4642933a0808a40edb6dbde2bb6e334be607f1",
+          "integration_branch": "feat/wave1-causal-eventkey-20261121",
+          "suggested_commit_message": "feat(runtime): apply causal-depth event ordering"
         }
       ]
     },
@@ -1251,9 +1361,9 @@
   },
   "status": "IN_PROGRESS",
   "next_wave": 1,
-  "next_wave_execution_permitted": true,
-  "user_approval_needed": "Wave 1 exit gates are incomplete; do not advance to Wave 2 until VERIFIED and explicit approval.",
-  "suggested_commit_message": "feat(runtime): apply causal-depth event ordering",
+  "next_wave_execution_permitted": false,
+  "user_approval_needed": "Wave 1 exit gates incomplete; explicit approval required only after all Wave 1 gates pass. Do not advance to Wave 2.",
+  "suggested_commit_message": "feat(runtime): add opt-in event resource envelopes and causal diagnostics",
   "history": [
     {
       "timestamp_utc": "2026-11-21T13:25:55+00:00",
@@ -1340,6 +1450,17 @@
       },
       "integration_source_commit": "ce4642933a0808a40edb6dbde2bb6e334be607f1",
       "global_ruff_errors": 481
+    },
+    {
+      "timestamp_utc": "2026-11-21T15:57:11.908699+00:00",
+      "action": "Wave 1 Core99 B2 opt-in queue/tick/zero-delay budgets with typed causal diagnostics, 19 tests, 80 Hypothesis cases, default-path perf repaired, full 798 pass, staged 700 pass.",
+      "round_python_diff_totals": {
+        "added": 378,
+        "deleted": 26,
+        "net": 352
+      },
+      "integration_source_commit": "d08f33b24860dabdec2ed5bbc1daa2fd1a155cb4",
+      "global_ruff_errors": 480
     }
   ]
 }
