@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "project": "FunnelScript",
   "created_utc": "2026-11-21T13:25:55+00:00",
-  "updated_utc": "2026-11-21T14:42:08.859734+00:00",
+  "updated_utc": "2026-11-21T14:57:17.885205+00:00",
   "repository_root": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect/funnelscript",
   "workspace_parent": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect",
   "python_single_source_of_truth": "src/funnelscript/",
@@ -363,7 +363,7 @@
         },
         {
           "name": "Static semantic and module checks",
-          "status": "PENDING"
+          "status": "IN_PROGRESS"
         },
         {
           "name": "Deterministic event ordering and keyed RNG",
@@ -405,6 +405,11 @@
           "name": "JSON/Pydantic structured CLI validation diagnostics",
           "status": "VERIFIED",
           "note": "8 new tests, 735 full-worktree tests, 668 isolated integration tests, 50 World conformance, zero scoped Ruff findings."
+        },
+        {
+          "name": "World cyclic module imports with exact file chain and source token",
+          "status": "VERIFIED",
+          "note": "7 tests, 675 isolated integration, 100 related regression, 50 conformance, 0 changed-file Ruff findings"
         }
       ],
       "target_files_modified_by_wave": [
@@ -419,23 +424,24 @@
         "tests/verification/test_world_type_diagnostics.py",
         "src/funnelscript/cli.py",
         "src/funnelscript/compiler/diagnostics.py",
-        "tests/verification/test_structured_validation_diagnostics.py"
+        "tests/verification/test_structured_validation_diagnostics.py",
+        "tests/verification/test_world_module_cycles.py"
       ],
-      "git_commit_hash": "004485d6ecea56c6f9babfa45dcc00eb53532539",
+      "git_commit_hash": "83a7fd65296471a04f5ce8574cc3ba136dda755a",
       "new_commit_created": true,
-      "test_pass_count": 735,
+      "test_pass_count": 743,
       "exit_gate_metrics": {
         "gate": "Core 99 roadmap criteria including spans, formatter, 10k parser fuzz, five hash-seed checks, snapshot/replay and 100k events",
         "passed": false,
         "observed": {
-          "full_pytest_passed": 735,
+          "full_pytest_passed": 743,
           "full_pytest_failed": 0,
           "full_pytest_skipped": 0,
           "full_pytest_subtests_passed": 58,
           "conformance_passed": 50,
           "hypothesis_unicode_inputs": 10000,
           "focused_ruff_scoped_passed": true,
-          "global_ruff_errors": 486,
+          "global_ruff_errors": 491,
           "hashseed_variants_verified_for_one_fixture": [
             0,
             1,
@@ -483,17 +489,30 @@
           "validation_diagnostics_bounded": 32,
           "staged_validation_pytest_passed": 668,
           "staged_validation_conformance_passed": 50,
-          "staged_validation_ruff_findings": 0
+          "staged_validation_ruff_findings": 0,
+          "module_cycle_new_tests": 7,
+          "module_cycle_exact_paths": true,
+          "module_cycle_import_token_provenance": true,
+          "module_cycle_diamond_safe": true,
+          "module_cycle_same_basename_safe": true,
+          "module_cycle_minimal_backedge_trace": true,
+          "staged_module_cycle_pytest_passed": 675,
+          "staged_module_cycle_conformance_passed": 50,
+          "staged_module_cycle_ruff_findings": 0,
+          "cycle_ci_wrap_invariant_test_fixed": true,
+          "cycle_ci_wrap_test_fixed_commit": "9cd66f66ad5e6588728795e4d843522db81ff1e0",
+          "module_cycle_total_added": 134,
+          "module_cycle_total_deleted": 8
         }
       },
-      "new_pytest_cases": 76,
-      "research_anchor": "Pydantic structured field locators and JSONDecoder.pos-derived accurate line/column provenance; no fabricated schema source spans.",
-      "falsifiable_hypothesis": "Invalid JSON source yields a physical caret at JSONDecodeError.lineno/colno, while invalid schema values yield bounded Pydantic field paths and never expose raw validation input or tracebacks.",
-      "invariant": "Physical source spans must come from the decoder or original AST; schema field locators are not physical coordinates; every invalid input returns nonzero and no unhandled traceback.",
+      "new_pytest_cases": 83,
+      "research_anchor": "Graph-theoretic DFS active-recursion back-edge cycle detection with canonical Path.resolve identity and precise parser token provenance.",
+      "falsifiable_hypothesis": "A cyclic World import always reports a minimal closed chain of resolved file paths and the importing source token; acyclic diamond imports and identically named modules in distinct directories continue to load.",
+      "invariant": "A module is cyclic iff its resolved path appears in the active import ancestor stack, never merely because a sibling branch loaded the same module.",
       "blockers": [
         {
           "id": "W1-SPANS",
-          "finding": "World syntax/type spans and JSON FNL-E103 exact caret diagnostics complete; JSON/Pydantic schema FNL-T202 field paths complete. Physical StrategyAST/Pydantic/linter spans and unified lint renderer still missing."
+          "finding": "World lexer/parser/type spans, JSON/schema diagnostics, and cyclic module import trace now sourced. Legacy .fnl StrategyAST/Pydantic/linter field spans still unavailable."
         },
         {
           "id": "W1-FMT",
@@ -501,7 +520,7 @@
         },
         {
           "id": "W1-LINT",
-          "finding": "486 pre-existing repository-wide Ruff findings remain. Three-file isolated CLI diagnostic PR has zero Ruff findings."
+          "finding": "491 repository-wide Ruff findings in current dirty worktree, including 5 newly introduced independently in packages/leadgen/sales_capacity/engine.py. The two-file cycle import slice has zero Ruff findings."
         },
         {
           "id": "W1-EVENT",
@@ -513,76 +532,75 @@
         }
       ],
       "last_round": {
-        "round_label": "Bounded Pydantic/JSON diagnostic renderer with CLI lint cleanup",
-        "started_from_baseline_directory": "/var/folders/_w/rzz6bs252_15ztt3z4d9hqsr0000gn/T/funnelscript_wave1_validation_round_6d9c4ux0",
-        "source_head_before_round": "3bba95faa86c55659a8a24b78bab17aa6ce348b5",
+        "round_label": "Source-mapped cyclic World module import graph diagnostics",
+        "started_from_baseline_directory": "/var/folders/_w/rzz6bs252_15ztt3z4d9hqsr0000gn/T/funnelscript_wave1_cycle_round_qv2dlvy1",
+        "source_head_before_round": "d0708acd74c4618485a0944071dc9ce1c221c2ef",
         "python_files": {
-          "src/funnelscript/cli.py": {
-            "added": 5,
-            "deleted": 3,
-            "net": 2
+          "src/funnelscript/parser.py": {
+            "added": 11,
+            "deleted": 8,
+            "net": 3
           },
-          "src/funnelscript/compiler/diagnostics.py": {
-            "added": 67,
+          "tests/verification/test_world_module_cycles.py": {
+            "added": 123,
             "deleted": 0,
-            "net": 67
-          },
-          "tests/verification/test_structured_validation_diagnostics.py": {
-            "added": 141,
-            "deleted": 0,
-            "net": 141
+            "net": 123
           }
         },
         "python_diff_totals": {
-          "added": 213,
-          "deleted": 3,
-          "net": 210
+          "added": 134,
+          "deleted": 8,
+          "net": 126
         },
         "staged_source_commit_diff_totals": {
-          "added": 219,
-          "deleted": 9,
-          "net": 210
+          "added": 134,
+          "deleted": 8,
+          "net": 126
         },
         "metric_exclusions": [
           "EXECUTION_STATE.json metadata",
-          "pre-existing unrelated dirty worktree modifications",
-          "pre-existing CLI improvements already present in dirty worktree when measuring per-round diffs"
+          "preexisting and concurrent unrelated dirty worktree modifications"
         ],
         "what_done": [
-          "TDD proved JSON/Pydantic CLI error rendering gaps, then added structured diagnostics with FNL-E103 for exact JSON decoder line/column/caret and FNL-T202 for Pydantic structural field locators.",
-          "Validation output caps visible errors at 32, redacts Pydantic raw input/url/context details, limits message length, and states explicitly when physical source coordinates cannot be established.",
-          "Retained legacy LexerError, ParserError and WorldTypeError error strings; Rich display escapes user-originating markup and preserves terminal non-traceback error returns.",
-          "Reused the diagnostic renderer in both check_command and simulate_command; preserved errors and return codes for valid scripts and failure cases.",
-          "Fixed pre-existing CLI import sorting and removed unused export_trajectories_to_csv import; changed run-world wrong AST type from ValueError to TypeError without changing user-visible return behavior.",
-          "Added eight new tests: JSON syntax and EOF spans, nested schema paths, multi-error cap, Pydantic root validator, legacy error messages, simulation errors and run-world wrong type.",
-          "Full user worktree regression passed 735, 58 subtests, 0 failed/skipped; World conformance passed 50.",
-          "Final staged-only source checkout passed 668, 58 subtests, 50 World conformance; Ruff for three staged files 0. Global worktree Ruff 486 pre-existing findings.",
-          "Created source commit 004485d6ecea56c6f9babfa45dcc00eb53532539 from staged-only three-file patch; all 9 protected existing source documents remain SHA-256 identical."
+          "TDD RED: cycle trace test failed against unlocalized ParserError; GREEN: 7 dedicated module import cases passed without rewriting the existing import resolver.",
+          "World module import cycles now report the exact resolved-file back-edge path and FNL-E102 source location at the triggering import STRING token.",
+          "Ancestor-stack cycle detection still differentiates completed sibling imports from active recursion: self-cycle, two-file and three-file cycles rejected; diamond graph and same-name independent modules compile.",
+          "A cycle below the entry file reports only the minimal closed loop, not the unrelated ancestor prefix.",
+          "The check command returns nonzero with a sourced error and no traceback for cycle imports.",
+          "100 related parser/source-span/conformance tests passed; whole dirty working tree 743 tests and 58 subtests passed.",
+          "HEAD + exact staged two-file source patch independently passed 675 tests with 58 subtests and 50 conformance; Ruff reported 0 on both staged files.",
+          "Global Ruff findings 491, consisting of the previous 486 plus 5 added solely by independently changed packages/leadgen/sales_capacity/engine.py; no findings from the two source paths in this round.",
+          "Nine protected existing governing documents unchanged by SHA-256; isolated source commit 83a7fd65296471a04f5ce8574cc3ba136dda755a prepared.",
+          "Found and repaired CI-only Rich Panel line-wrap assertion, without modifying parser semantics. GitHub first run failed 1 test out of 675 due to rendering only; fixed test and reran 675 isolated tests at COLUMNS=80, 50 conformance and Ruff zero."
         ],
         "what_remaining": [
-          "Unified physical source spans for legacy StrategyAST/Pydantic schema/linter diagnostics in .fnl where parsing currently discards token-to-field provenance; avoid invented source positions.",
-          "World module graph and static linter passes: import cycles, event handler reachability, shadowed identifiers and dead events with exact proven spans.",
-          "Deterministic funnelscript fmt with valid corpus AST round-trip and grammar synchronization, requiring resolution of read-only spec/grammar.ebnf freeze.",
-          "Event calendar EventKey strict total order and keyed RNG reproducibility under varying PYTHONHASHSEED and adversarial reentrant execution.",
-          "Zeno chain detection, maximum queue and per-tick resource bounds, snapshot/restore and bit-exact split-run replay.",
-          "Repository-wide Ruff remains 486 findings; fix only separately tested, scoped groups and keep Wave 1 exit gate open.",
-          "Other existing web decoupling, legacy CLI commands, package/marketing/calibration/solver files remain in user worktree and are excluded from this Wave 1 integration.",
-          "No advancement to Wave 2 until all Wave 1 exit gates are VERIFIED with explicit approval."
+          "World static semantic lint: dead/unreachable event handlers, orphan events, shadowed names and unused parameters, preserving correct event ingress behavior.",
+          "Imported-module errors outside true cycles (not found, invalid manifest, maximum import depth) require additional typed provenance improvements.",
+          "Legacy StrategyAST and .fnl linter physical source span provenance remains incomplete; do not invent source positions.",
+          "Canonical formatter with 100% valid corpus round-trip and grammar drift guard blocked by active read-only spec/grammar.ebnf freeze conflict.",
+          "Deterministic keyed RNG/event priority total order under randomized PYTHONHASHSEED, plus Zeno causal diagnostics and queue resource envelope.",
+          "Bit-exact snapshot/restore covering world state, event calendar, RNG and financial ledger.",
+          "Repository-wide Ruff remains 491 findings in this dirty worktree (5 new in unrelated sales_capacity package); handle as independently verified code slices.",
+          "Existing unrelated CLI, marketing/solver/calibration and web user worktree modifications remain unmerged to avoid contaminating Wave 1.",
+          "Do not proceed to Wave 2 until all Wave 1 exit criteria verified and explicit user approval."
         ],
-        "new_tests_added": 8,
-        "full_pytest_passed": 735,
+        "new_tests_added": 7,
+        "full_pytest_passed": 743,
         "full_pytest_failed": 0,
         "full_pytest_skipped": 0,
         "full_pytest_subtests_passed": 58,
         "conformance_passed": 50,
-        "global_ruff_errors": 486,
-        "isolated_staged_pytest_passed": 668,
+        "global_ruff_errors": 491,
+        "isolated_staged_pytest_passed": 675,
         "isolated_staged_conformance_passed": 50,
         "isolated_staged_ruff_findings": 0,
         "protected_existing_docs_unchanged": 9,
-        "integration_source_commit": "004485d6ecea56c6f9babfa45dcc00eb53532539",
-        "integration_branch": "feat/wave1-structured-validation-20261121",
-        "suggested_commit_message": "feat(compiler): render bounded JSON and schema diagnostics"
+        "integration_source_commit": "83a7fd65296471a04f5ce8574cc3ba136dda755a",
+        "integration_branch": "feat/wave1-module-cycle-trace-20261121",
+        "suggested_commit_message": "feat(parser): trace cyclic World imports to source tokens",
+        "ci_test_fix_commit": "9cd66f66ad5e6588728795e4d843522db81ff1e0",
+        "ci_first_attempt_issue": "Initial GH Python CI failed in a Rich Panel CLI test: runner terminal width wraps the string \"line 2, column 10\" across lines; parser token source span was correct.",
+        "ci_fix_evidence": "Replaced fragile combined Rich display assertion with wrap-independent checks for column 10 and the short ParserError diagnostic line; 7 targeted tests, 675 isolated tests with COLUMNS=80, 50 conformance and 0 scoped Ruff passed."
       },
       "round_history": [
         {
@@ -849,6 +867,78 @@
           "integration_source_commit": "30cc64abf64d5fe892929678883847090e71ebc2",
           "integration_branch": "feat/wave1-compiler-diagnostics-20261121",
           "suggested_commit_message": "feat(parser): source-map World syntax and type diagnostics"
+        },
+        {
+          "round_label": "Bounded Pydantic/JSON diagnostic renderer with CLI lint cleanup",
+          "started_from_baseline_directory": "/var/folders/_w/rzz6bs252_15ztt3z4d9hqsr0000gn/T/funnelscript_wave1_validation_round_6d9c4ux0",
+          "source_head_before_round": "3bba95faa86c55659a8a24b78bab17aa6ce348b5",
+          "python_files": {
+            "src/funnelscript/cli.py": {
+              "added": 5,
+              "deleted": 3,
+              "net": 2
+            },
+            "src/funnelscript/compiler/diagnostics.py": {
+              "added": 67,
+              "deleted": 0,
+              "net": 67
+            },
+            "tests/verification/test_structured_validation_diagnostics.py": {
+              "added": 141,
+              "deleted": 0,
+              "net": 141
+            }
+          },
+          "python_diff_totals": {
+            "added": 213,
+            "deleted": 3,
+            "net": 210
+          },
+          "staged_source_commit_diff_totals": {
+            "added": 219,
+            "deleted": 9,
+            "net": 210
+          },
+          "metric_exclusions": [
+            "EXECUTION_STATE.json metadata",
+            "pre-existing unrelated dirty worktree modifications",
+            "pre-existing CLI improvements already present in dirty worktree when measuring per-round diffs"
+          ],
+          "what_done": [
+            "TDD proved JSON/Pydantic CLI error rendering gaps, then added structured diagnostics with FNL-E103 for exact JSON decoder line/column/caret and FNL-T202 for Pydantic structural field locators.",
+            "Validation output caps visible errors at 32, redacts Pydantic raw input/url/context details, limits message length, and states explicitly when physical source coordinates cannot be established.",
+            "Retained legacy LexerError, ParserError and WorldTypeError error strings; Rich display escapes user-originating markup and preserves terminal non-traceback error returns.",
+            "Reused the diagnostic renderer in both check_command and simulate_command; preserved errors and return codes for valid scripts and failure cases.",
+            "Fixed pre-existing CLI import sorting and removed unused export_trajectories_to_csv import; changed run-world wrong AST type from ValueError to TypeError without changing user-visible return behavior.",
+            "Added eight new tests: JSON syntax and EOF spans, nested schema paths, multi-error cap, Pydantic root validator, legacy error messages, simulation errors and run-world wrong type.",
+            "Full user worktree regression passed 735, 58 subtests, 0 failed/skipped; World conformance passed 50.",
+            "Final staged-only source checkout passed 668, 58 subtests, 50 World conformance; Ruff for three staged files 0. Global worktree Ruff 486 pre-existing findings.",
+            "Created source commit 004485d6ecea56c6f9babfa45dcc00eb53532539 from staged-only three-file patch; all 9 protected existing source documents remain SHA-256 identical."
+          ],
+          "what_remaining": [
+            "Unified physical source spans for legacy StrategyAST/Pydantic schema/linter diagnostics in .fnl where parsing currently discards token-to-field provenance; avoid invented source positions.",
+            "World module graph and static linter passes: import cycles, event handler reachability, shadowed identifiers and dead events with exact proven spans.",
+            "Deterministic funnelscript fmt with valid corpus AST round-trip and grammar synchronization, requiring resolution of read-only spec/grammar.ebnf freeze.",
+            "Event calendar EventKey strict total order and keyed RNG reproducibility under varying PYTHONHASHSEED and adversarial reentrant execution.",
+            "Zeno chain detection, maximum queue and per-tick resource bounds, snapshot/restore and bit-exact split-run replay.",
+            "Repository-wide Ruff remains 486 findings; fix only separately tested, scoped groups and keep Wave 1 exit gate open.",
+            "Other existing web decoupling, legacy CLI commands, package/marketing/calibration/solver files remain in user worktree and are excluded from this Wave 1 integration.",
+            "No advancement to Wave 2 until all Wave 1 exit gates are VERIFIED with explicit approval."
+          ],
+          "new_tests_added": 8,
+          "full_pytest_passed": 735,
+          "full_pytest_failed": 0,
+          "full_pytest_skipped": 0,
+          "full_pytest_subtests_passed": 58,
+          "conformance_passed": 50,
+          "global_ruff_errors": 486,
+          "isolated_staged_pytest_passed": 668,
+          "isolated_staged_conformance_passed": 50,
+          "isolated_staged_ruff_findings": 0,
+          "protected_existing_docs_unchanged": 9,
+          "integration_source_commit": "004485d6ecea56c6f9babfa45dcc00eb53532539",
+          "integration_branch": "feat/wave1-structured-validation-20261121",
+          "suggested_commit_message": "feat(compiler): render bounded JSON and schema diagnostics"
         }
       ]
     },
@@ -1060,8 +1150,8 @@
   "status": "IN_PROGRESS",
   "next_wave": 1,
   "next_wave_execution_permitted": true,
-  "user_approval_needed": "Wave 1 exit gates remain incomplete; Wave 2 blocked until all gates VERIFIED and explicit user approval.",
-  "suggested_commit_message": "feat(compiler): render bounded JSON and schema diagnostics",
+  "user_approval_needed": "Wave 1 exit gates remain incomplete; Wave 2 blocked until all gates VERIFIED and explicit approval.",
+  "suggested_commit_message": "feat(parser): trace cyclic World imports to source tokens",
   "history": [
     {
       "timestamp_utc": "2026-11-21T13:25:55+00:00",
@@ -1112,6 +1202,31 @@
         "net": 210
       },
       "integration_source_commit": "004485d6ecea56c6f9babfa45dcc00eb53532539"
+    },
+    {
+      "timestamp_utc": "2026-11-21T14:53:25.217482+00:00",
+      "action": "Wave 1 cycle graph source-mapped diagnostics committed; 7 tests, isolated 675 passed, 50 conformance; full worktree 743 passed; 0 scoped Ruff.",
+      "round_python_diff_totals": {
+        "added": 134,
+        "deleted": 8,
+        "net": 126
+      },
+      "integration_source_commit": "83a7fd65296471a04f5ce8574cc3ba136dda755a",
+      "global_ruff_out_of_scope_increase": {
+        "from": 486,
+        "to": 491,
+        "location": "packages/leadgen/sales_capacity/engine.py"
+      }
+    },
+    {
+      "timestamp_utc": "2026-11-21T14:57:17.885205+00:00",
+      "action": "CI feedback on PR #12: Rich terminal wrapping caused brittle CLI assertion; test corrected, COLUMNS=80 independent suite 675 passed, 50 conformance, 0 scoped Ruff.",
+      "fix_commit": "9cd66f66ad5e6588728795e4d843522db81ff1e0",
+      "round_python_diff_totals": {
+        "added": 134,
+        "deleted": 8,
+        "net": 126
+      }
     }
   ]
 }

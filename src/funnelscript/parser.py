@@ -71,11 +71,14 @@ class Parser:
 
     @staticmethod
     def _load_file(
-        path: Path, ancestors: tuple[Path, ...]
+        path: Path, ancestors: tuple[Path, ...],
+        via: Token | None = None,
     ) -> StrategyAST | WorldAST:
         resolved = path.resolve()
         if resolved in ancestors:
-            raise ParserError("Cyclic World module import")
+            cycle = (*ancestors[ancestors.index(resolved):], resolved)
+            trace = " -> ".join(str(module) for module in cycle)
+            raise ParserError(f"Cyclic World module import: {trace}", via)
         if len(ancestors) >= 16:
             raise ParserError("World module import depth limit exceeded")
         if not resolved.is_file():
@@ -395,7 +398,7 @@ class Parser:
         name = str(self.expect(TokenType.IDENTIFIER).value)
         self.expect(TokenType.LBRACE)
         declarations: list[dict[str, Any] | EntityDefinition | AgentDefinition] = []
-        imports: list[tuple[str, list[tuple[str | None, str]]]] = []
+        imports: list[tuple[str, list[tuple[str | None, str]], Token]] = []
         while self.current().type != TokenType.RBRACE:
             declaration_start = self.pos
             if self.current().type == TokenType.EOF:
@@ -419,9 +422,9 @@ class Parser:
 
         if imports and source_path is None:
             raise ParserError("World module imports require a source file path")
-        for reference, selected in imports:
+        for reference, selected, source_token in imports:
             path = self._module_path(reference, source_path)
-            module = self._load_file(path, ancestors)
+            module = self._load_file(path, ancestors, via=source_token)
             if not isinstance(module, WorldAST):
                 raise ParserError("World module must contain a world declaration")
             if selected[0][0] is None and len(module.declarations) != 1:
@@ -443,15 +446,15 @@ class Parser:
     def _parse_world_declaration(
         self,
         declarations: list[dict[str, Any] | EntityDefinition | AgentDefinition],
-        imports: list[tuple[str, list[tuple[str | None, str]]]],
+        imports: list[tuple[str, list[tuple[str | None, str]], Token]],
     ) -> None:
         declaration_start = self.pos
         kind = self.expect(TokenType.IDENTIFIER)
         if kind.value == "import":
-            reference = str(self.expect(TokenType.STRING).value)
+            source_token = self.expect(TokenType.STRING)
             selected = self._parse_import_bindings()
             self.expect(TokenType.SEMICOLON)
-            imports.append((reference, selected))
+            imports.append((str(source_token.value), selected, source_token))
             return
         if kind.value not in ("entity", "agent"):
             raise ParserError("Expected entity, agent or import declaration", kind)
