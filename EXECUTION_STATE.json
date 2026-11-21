@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "project": "FunnelScript",
   "created_utc": "2026-11-21T13:25:55+00:00",
-  "updated_utc": "2026-11-21T19:12:25.130282+00:00",
+  "updated_utc": "2026-11-21T19:36:49.049180+00:00",
   "repository_root": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect/funnelscript",
   "workspace_parent": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect",
   "python_single_source_of_truth": "src/funnelscript/",
@@ -436,6 +436,11 @@
           "name": "Five hashseed cross-process C-ORDER priority-collision and emitted-event replays",
           "status": "VERIFIED",
           "note": "Fixed independent C-ORDER oracle, 5 process hash seeds, 1 negative-order control, 2 pytest tests; 722 full suite and 50 conformance passed."
+        },
+        {
+          "name": "Five-hashseed append-only financial audit replay with settlement, cost, writeoff and adversarial amount variant",
+          "status": "VERIFIED",
+          "note": "Two new tests on a real .fnl Population/World fixture; same revised SHA across reordered external actions and independently checked cash, receivables, profit, writeoffs."
         }
       ],
       "target_files_modified_by_wave": [
@@ -461,14 +466,14 @@
         "tests/verification/test_world_ledger_hashseed.py",
         "tests/verification/test_world_priority_emission_hashseed.py"
       ],
-      "git_commit_hash": "f7763bb79080e9a34b9828ad2cbd89ea17422467",
+      "git_commit_hash": "855850164708806b2de506aad09a5408afb3526f",
       "new_commit_created": true,
-      "test_pass_count": 722,
+      "test_pass_count": 724,
       "exit_gate_metrics": {
         "gate": "Core 99 roadmap criteria including spans, formatter, 10k parser fuzz, five hash-seed checks, snapshot/replay and 100k events",
         "passed": false,
         "observed": {
-          "full_pytest_passed": 722,
+          "full_pytest_passed": 724,
           "full_pytest_failed": 0,
           "full_pytest_skipped": 0,
           "full_pytest_subtests_passed": 58,
@@ -603,10 +608,21 @@
           ],
           "world_crossprocess_priority_emission_golden_verified": true,
           "world_crossprocess_priority_emission_negative_order_control": true,
-          "world_crossprocess_independent_fixture_count": 2
+          "world_crossprocess_independent_fixture_count": 2,
+          "financial_audit_append_only_replay_verified_hashseeds": [
+            0,
+            1,
+            7,
+            79,
+            999
+          ],
+          "financial_audit_replay_reordered_authorized_inputs": true,
+          "financial_audit_replay_restorable_with_anchor": true,
+          "financial_audit_replay_idempotent_exact_duplicate_deliveries": true,
+          "financial_audit_replay_adversarial_amount_delta_sar": "1.00"
         }
       },
-      "new_pytest_cases": 130,
+      "new_pytest_cases": 132,
       "research_anchor": "DEVS event calendar with bounded admission, runtime-resource-envelope-v0 proposal H-RQ1/H-RQ2/H-RT1 and population-identity-rng-v0; do not treat proposed names as stable public contract.",
       "falsifiable_hypothesis": "When opt-in Lq,Lt,Lz are passed to World/Population, each agent-local EventMachine rejects exactly at cap+1; when caps do not bind, World state, processed, pending, traces, population partition and seeded RNG are unchanged.",
       "invariant": "For each agent a and t, |Q_a|<=Lq; count_due(a,t)<=Lt; consecutive_same_time_depth<=Lz; guarded output == unguarded output when nonbinding; any limit error has original category+cap+count+chain and population agent_id note.",
@@ -633,21 +649,21 @@
         }
       ],
       "last_round": {
-        "round_label": "Cross-process priority collision and same-tick emitted-event golden replay",
-        "source_head_before_round": "9ec05d8ffafe00b83355e49fba1d5135b7ad2d8b",
-        "integration_branch": "feat/wave1-event-priority-replay-20261121",
-        "integration_source_commit": "f7763bb79080e9a34b9828ad2cbd89ea17422467",
+        "round_label": "Cross-process authorized financial audit replay after settlement, cost and writeoff append",
+        "source_head_before_round": "0c390fe",
+        "integration_branch": "feat/wave1-financial-audit-replay-20261121",
+        "integration_source_commit": "855850164708806b2de506aad09a5408afb3526f",
         "python_files": {
-          "tests/verification/test_world_priority_emission_hashseed.py": {
-            "added": 107,
-            "deleted": 0,
-            "net": 107
+          "tests/verification/test_world_ledger_hashseed.py": {
+            "added": 76,
+            "deleted": 1,
+            "net": 75
           }
         },
         "python_diff_totals": {
-          "added": 107,
-          "deleted": 0,
-          "net": 107
+          "added": 76,
+          "deleted": 1,
+          "net": 75
         },
         "production_python_diff": {
           "added": 0,
@@ -655,27 +671,29 @@
           "net": 0
         },
         "test_python_diff": {
-          "added": 107,
-          "deleted": 0,
-          "net": 107
+          "added": 76,
+          "deleted": 1,
+          "net": 75
         },
         "metric_exclusions": [
           "EXECUTION_STATE.json governance metadata",
-          "original dirty checkout and unmerged local fpm commit 8f083c9"
+          "unmerged local fpm commit 8f083c9 and original 55 dirty changes"
         ],
         "what_done": [
-          "Verified the published origin/main base 9ec05d8 (merged PR #16) before opening a clean, isolated Wave 1 worktree; original checkout retains unrelated user WIP and local fpm commit.",
-          "Read the governing ORCHESTRATOR_PROMPT.md and Core 99 B1 specification; identified the missing independent cross-process priority-collision and emitted-event regression.",
-          "Research anchor: deterministic discrete-event total order (time, priority, causal depth, monotonic insertion sequence). Hypothesis: fixed ingress yields bit-identical World trace across PYTHONHASHSEED. Invariant: the canonical trace matches the independent C-ORDER golden fixture.",
-          "Reused the existing C-ORDER .fnl world and its fixed golden oracle, which includes same-tick priority -1/0, equal-priority insertion collision, and an emitted same-tick Mark event.",
-          "Five separate Python processes with PYTHONHASHSEED 0, 1, 7, 79 and 999 produced byte-identical canonical World result SHA-256 hashes and exact processed event payload order [2, None, 1, 3, 4].",
-          "Adversarial control swapped equal-priority ingress events. The processed trace and SHA-256 changed, while state Log.sum stayed 10, so the oracle distinguishes order changes even when final state remains the same.",
-          "Added exactly two new pytest test functions in one verification file; code/test line diff +107/-0, production Python +0/-0, repository tracker modifications excluded from code diff.",
-          "Fresh clean-worktree verification: 722 full pytest passed plus 58 subtests; World conformance 50 passed; touched-file Ruff clean; git diff --check clean. Global Ruff still reports 374 pre-existing violations."
+          "Fetched origin/main at merge commit 0c390fe, confirmed no open PRs, and used a new clean worktree. The primary checkout's 55 local changes and separate fpm commit were not touched.",
+          "Research anchor: deterministic append-only event sourcing and exact double-entry-adjacent journal conservation. Falsifiable hypothesis: authorized financial replay gives the same canonical audit after permutation of external input under five Python hash seeds.",
+          "Defined exact monetary oracles: cash=100.00-27.75+37.25=109.50 SAR and receivables=60.00-37.25-7.25=15.50 SAR, with profit=25.00 and writeoffs=7.25 SAR.",
+          "Established a TDD red state: both newly introduced tests failed against the prior subprocess contract because revised-audit evidence was absent; implemented only the test-harness scenario and observed green.",
+          "Extended the existing independent-process .fnl Population and World fixture to append 3 externally authorized financial actions: 2.75 SAR other cost, 7.25 SAR settlement, and 2.25 SAR writeoff.",
+          "Verified that randomized set iteration actually changes enrollment and authorized-action delivery order across PYTHONHASHSEED values 0,1,7,79,999, but both original and revised World-linked audit hashes and revised ledger balances remain identical.",
+          "Verified canonical export/restore with an externally supplied SHA-256 anchor, and that duplicated deliveries of the exact same authorized financial actions are idempotent.",
+          "Negative control changed new other cost from 2.75 to 3.75 SAR. The World and original audit hashes stayed unchanged; revised audit SHA-256 changed and revised cash/profit each fell exactly 1.00 SAR.",
+          "Fresh verification: 724 full pytest passed plus 58 subtests, 50 World conformance passed, scoped Ruff and git diff --check clean, whole-repo Ruff baseline 374 pre-existing findings.",
+          "Committed a one-file Python test diff of +76/-1 at 8558501; no runtime production source or protected .md was edited, and tracker lines are excluded from this source diff."
         ],
         "what_remaining": [
           "Full compiler/static lint: orphan/dead events, unreachable rules, unused parameters, shadowed identifiers and imported-module diagnostics with precise .fnl spans.",
-          "Cross-process World/ledger replay now covers two independent .fnl fixtures: identity-keyed Population plus linked financial audit, and C-ORDER priority-collision with emitted same-tick event. Alternative financial actions, ledger restatements and larger competing event graphs still need independent hashseed invariance tests; do not claim complete B1 coverage.",
+          "B1 cross-process deterministic evidence covers three categories: identity-keyed Population plus original financial audit, C-ORDER priority collisions with same-tick emission, and authorized append-only financial audit replay with settlement/writeoff/cost and a negative cost-amount control. True retroactive conversion restatement semantics and larger competing financial/event graphs are not yet validated. Do not treat append-only replay as completed platform attribution restatement.",
           "World and ledger event_id/parent_event_id causal provenance, source_rule_span propagation, and true source-linked resource-limit diagnostics remain incomplete.",
           "Bit-exact snapshot/restore including World/Population state, pending EventKey, keyed RNG counters, and ledger split-run invariant.",
           "Complete legal formatter with AST round-trip corpus invariants and EBNF grammar drift checks; Phase1 freezes spec/ additions until accepted.",
@@ -688,7 +706,7 @@
         ],
         "new_tests_added": 2,
         "new_test_functions": 2,
-        "full_pytest_passed": 722,
+        "full_pytest_passed": 724,
         "full_pytest_failed": 0,
         "full_pytest_subtests_passed": 58,
         "conformance_passed": 50,
@@ -701,12 +719,19 @@
           79,
           999
         ],
-        "hashseed_fixture": "tests/fixtures/world-conformance/ordering.fnl",
-        "golden_oracle": "tests/fixtures/world-conformance/cases.json:C-ORDER",
-        "adversarial_equal_priority_input_permutation": true,
-        "emitted_event_checked": true,
+        "hashseed_fixture": "tests/fixtures/population-reference/identity-rng.fnl",
+        "original_and_revised_audit_hashes_stable": true,
+        "input_delivery_order_permuted": true,
+        "idempotent_duplicate_action_replay": true,
+        "tamper_evident_restoration_with_anchor": true,
+        "negative_control_other_cost_delta_sar": "1.00",
+        "baseline_cash_sar": "105.00",
+        "revised_cash_sar": "109.50",
+        "revised_receivables_sar": "15.50",
+        "revised_writeoffs_sar": "7.25",
+        "revised_profit_sar": "25.00",
         "source_isolated_worktree_verified": true,
-        "suggested_commit_message": "test(runtime): lock priority collision and emitted event replay across hash seeds"
+        "suggested_commit_message": "test(runtime): verify financial audit replay across hash seeds"
       },
       "round_history": [
         {
@@ -1432,6 +1457,91 @@
           "emitted_event_checked": true,
           "source_isolated_worktree_verified": true,
           "suggested_commit_message": "test(runtime): lock priority collision and emitted event replay across hash seeds"
+        },
+        {
+          "round_label": "Cross-process authorized financial audit replay after settlement, cost and writeoff append",
+          "source_head_before_round": "0c390fe",
+          "integration_branch": "feat/wave1-financial-audit-replay-20261121",
+          "integration_source_commit": "855850164708806b2de506aad09a5408afb3526f",
+          "python_files": {
+            "tests/verification/test_world_ledger_hashseed.py": {
+              "added": 76,
+              "deleted": 1,
+              "net": 75
+            }
+          },
+          "python_diff_totals": {
+            "added": 76,
+            "deleted": 1,
+            "net": 75
+          },
+          "production_python_diff": {
+            "added": 0,
+            "deleted": 0,
+            "net": 0
+          },
+          "test_python_diff": {
+            "added": 76,
+            "deleted": 1,
+            "net": 75
+          },
+          "metric_exclusions": [
+            "EXECUTION_STATE.json governance metadata",
+            "unmerged local fpm commit 8f083c9 and original 55 dirty changes"
+          ],
+          "what_done": [
+            "Fetched origin/main at merge commit 0c390fe, confirmed no open PRs, and used a new clean worktree. The primary checkout's 55 local changes and separate fpm commit were not touched.",
+            "Research anchor: deterministic append-only event sourcing and exact double-entry-adjacent journal conservation. Falsifiable hypothesis: authorized financial replay gives the same canonical audit after permutation of external input under five Python hash seeds.",
+            "Defined exact monetary oracles: cash=100.00-27.75+37.25=109.50 SAR and receivables=60.00-37.25-7.25=15.50 SAR, with profit=25.00 and writeoffs=7.25 SAR.",
+            "Established a TDD red state: both newly introduced tests failed against the prior subprocess contract because revised-audit evidence was absent; implemented only the test-harness scenario and observed green.",
+            "Extended the existing independent-process .fnl Population and World fixture to append 3 externally authorized financial actions: 2.75 SAR other cost, 7.25 SAR settlement, and 2.25 SAR writeoff.",
+            "Verified that randomized set iteration actually changes enrollment and authorized-action delivery order across PYTHONHASHSEED values 0,1,7,79,999, but both original and revised World-linked audit hashes and revised ledger balances remain identical.",
+            "Verified canonical export/restore with an externally supplied SHA-256 anchor, and that duplicated deliveries of the exact same authorized financial actions are idempotent.",
+            "Negative control changed new other cost from 2.75 to 3.75 SAR. The World and original audit hashes stayed unchanged; revised audit SHA-256 changed and revised cash/profit each fell exactly 1.00 SAR.",
+            "Fresh verification: 724 full pytest passed plus 58 subtests, 50 World conformance passed, scoped Ruff and git diff --check clean, whole-repo Ruff baseline 374 pre-existing findings.",
+            "Committed a one-file Python test diff of +76/-1 at 8558501; no runtime production source or protected .md was edited, and tracker lines are excluded from this source diff."
+          ],
+          "what_remaining": [
+            "Full compiler/static lint: orphan/dead events, unreachable rules, unused parameters, shadowed identifiers and imported-module diagnostics with precise .fnl spans.",
+            "B1 cross-process deterministic evidence covers three categories: identity-keyed Population plus original financial audit, C-ORDER priority collisions with same-tick emission, and authorized append-only financial audit replay with settlement/writeoff/cost and a negative cost-amount control. True retroactive conversion restatement semantics and larger competing financial/event graphs are not yet validated. Do not treat append-only replay as completed platform attribution restatement.",
+            "World and ledger event_id/parent_event_id causal provenance, source_rule_span propagation, and true source-linked resource-limit diagnostics remain incomplete.",
+            "Bit-exact snapshot/restore including World/Population state, pending EventKey, keyed RNG counters, and ledger split-run invariant.",
+            "Complete legal formatter with AST round-trip corpus invariants and EBNF grammar drift checks; Phase1 freezes spec/ additions until accepted.",
+            "Retention quotas for processed history and effects, per-resource typed failures, and World/Population scale workloads are still unverified.",
+            "CLI/API exposure of opt-in resource caps is not part of this runtime-only PR; public resource API is still PROPOSED and awaits contract acceptance.",
+            "Representative 1k, 10k, and 100k World population benchmark matrix remains unrun; no unsupported memory/performance claims.",
+            "Global Ruff debt 374 findings in isolated main-based worktree (original dirty checkout findings can be higher), outside these touched files.",
+            "Review the unrelated local fpm commit 8f083c9 and other contributors WIP independently, then merge only with separate proof and green CI; do not commit it accidentally in this PR.",
+            "Waves 2 through 7 remain pending until all Wave1 exit checks pass and the user explicitly authorizes next-wave progression."
+          ],
+          "new_tests_added": 2,
+          "new_test_functions": 2,
+          "full_pytest_passed": 724,
+          "full_pytest_failed": 0,
+          "full_pytest_subtests_passed": 58,
+          "conformance_passed": 50,
+          "global_ruff_errors": 374,
+          "source_scoped_ruff_findings": 0,
+          "hashseed_variants": [
+            0,
+            1,
+            7,
+            79,
+            999
+          ],
+          "hashseed_fixture": "tests/fixtures/population-reference/identity-rng.fnl",
+          "original_and_revised_audit_hashes_stable": true,
+          "input_delivery_order_permuted": true,
+          "idempotent_duplicate_action_replay": true,
+          "tamper_evident_restoration_with_anchor": true,
+          "negative_control_other_cost_delta_sar": "1.00",
+          "baseline_cash_sar": "105.00",
+          "revised_cash_sar": "109.50",
+          "revised_receivables_sar": "15.50",
+          "revised_writeoffs_sar": "7.25",
+          "revised_profit_sar": "25.00",
+          "source_isolated_worktree_verified": true,
+          "suggested_commit_message": "test(runtime): verify financial audit replay across hash seeds"
         }
       ]
     },
@@ -1644,7 +1754,7 @@
   "next_wave": 1,
   "next_wave_execution_permitted": false,
   "user_approval_needed": true,
-  "suggested_commit_message": "test(runtime): lock priority collision and emitted event replay across hash seeds",
+  "suggested_commit_message": "test(runtime): verify financial audit replay across hash seeds",
   "history": [
     {
       "timestamp_utc": "2026-11-21T13:25:55+00:00",
@@ -1774,6 +1884,17 @@
         "net": 107
       },
       "integration_source_commit": "f7763bb79080e9a34b9828ad2cbd89ea17422467",
+      "global_ruff_errors": 374
+    },
+    {
+      "timestamp_utc": "2026-11-21T19:36:49.049180+00:00",
+      "action": "Wave 1 cross-process authorized audit append-only replay after expense/settlement/writeoff, with changed-amount negative control: 724 pytest, 50 conformance and 374 inherited Ruff findings.",
+      "round_python_diff_totals": {
+        "added": 76,
+        "deleted": 1,
+        "net": 75
+      },
+      "integration_source_commit": "855850164708806b2de506aad09a5408afb3526f",
       "global_ruff_errors": 374
     }
   ]

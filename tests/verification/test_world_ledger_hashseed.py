@@ -80,6 +80,26 @@ posted = marketing.post_authorized_trial(
     cash_initial=Decimal("100.00"), settlement_delay=2, horizon=3,
 )
 audit = marketing.export_audit(population, policy, posted)
+revision_cost = "2.75" if os.environ["FNL_REVISION_VARIANT"] == "0" else "3.75"
+amendments = (
+    action("rev-cost", "other_cost", 3, revision_cost),
+    action("rev-receipt", "settlement", 3, "7.25", sales[1].entry.tx_id),
+    action("rev-loss", "writeoff", 3, "2.25", sales[2].entry.tx_id),
+)
+# Deliberately deliver different permutations from separate Python processes.
+revision_delivery = tuple(set(amendments))
+revision = marketing.replay_audit(
+    audit, population, policy, actions=revision_delivery,
+)
+revision_retries = marketing.replay_audit(
+    audit, population, policy, actions=(*amendments, *amendments),
+)
+revision_audit = marketing.export_audit(population, policy, revision)
+restored_revision = marketing.restore_audit(
+    revision_audit, population, policy,
+    expected_sha256=sha256(revision_audit).hexdigest(),
+)
+revised_balance = revision.ledger.evaluate()
 world = {
     agent_id: {
         "state": population.results[agent_id].state,
@@ -104,6 +124,15 @@ print(json.dumps({
     "enrollment_order": enrollment,
     "world_sha256": sha256(canonical_world).hexdigest(),
     "audit_sha256": sha256(audit).hexdigest(),
+    "revision_sha256": sha256(revision_audit).hexdigest(),
+    "revision_ingress_order": [item.entry.tx_id for item in revision_delivery],
+    "revision_is_restorable": restored_revision == revision,
+    "revision_retries_are_idempotent": revision_retries == revision,
+    "revision_entries": len(revision.ledger.entries),
+    "revision_cash": str(revised_balance.cash),
+    "revision_receivables": str(revised_balance.receivables),
+    "revision_writeoffs": str(revised_balance.writeoffs),
+    "revision_profit": str(revised_balance.profit),
     "draws": {
         agent_id: world[agent_id]["state"]["Visitor"]["draw"]
         for agent_id in sorted(events)
@@ -116,11 +145,12 @@ print(json.dumps({
 """
 
 
-def _run_replay(hash_seed: int, model_seed: int) -> dict:
+def _run_replay(hash_seed: int, model_seed: int, *, revision_variant: int = 0) -> dict:
     env = {
         **os.environ,
         "PYTHONHASHSEED": str(hash_seed),
         "FNL_MODEL_SEED": str(model_seed),
+        "FNL_REVISION_VARIANT": str(revision_variant),
         "PYTHONPATH": os.pathsep.join(sys.path),
     }
     run = subprocess.run(
@@ -135,7 +165,9 @@ def _run_replay(hash_seed: int, model_seed: int) -> dict:
 def test_world_trace_draws_and_financial_audit_are_hashseed_independent():
     outputs = [_run_replay(seed, model_seed=11) for seed in (0, 1, 7, 79, 999)]
     enrollment_orders = {tuple(item.pop("enrollment_order")) for item in outputs}
+    revision_orders = {tuple(item.pop("revision_ingress_order")) for item in outputs}
     assert len(enrollment_orders) > 1
+    assert len(revision_orders) > 1
     assert outputs == [outputs[0]] * 5
     result = outputs[0]
     assert result["recognized_sales"] == 3
@@ -154,3 +186,46 @@ def test_changed_model_seed_changes_world_draws_not_hashseed_invariant():
     assert original["draws"] != changed["draws"]
     assert original["world_sha256"] != changed["world_sha256"]
     assert changed["recognized_sales"] == original["recognized_sales"] == 3
+
+
+def test_authorized_financial_revision_is_hashseed_independent_and_balanced():
+    """External journal ordering cannot affect canonical financial replay.
+
+    Anchor: deterministic append-only financial event sourcing.
+    H: revised audit bytes are identical across five randomized Python hash seeds.
+    Invariants: cash = initial - cash costs + settled receipts;
+    receivables = recognized sales - settled receipts - writeoffs.
+    """
+    outputs = [_run_replay(seed, model_seed=11) for seed in (0, 1, 7, 79, 999)]
+    orders = {tuple(item.pop("enrollment_order")) for item in outputs}
+    revisions = {tuple(item.pop("revision_ingress_order")) for item in outputs}
+    assert len(orders) > 1
+    assert len(revisions) > 1
+    assert outputs == [outputs[0]] * 5
+    result = outputs[0]
+    assert result["revision_sha256"] != result["audit_sha256"]
+    assert result["revision_is_restorable"] is True
+    assert result["revision_retries_are_idempotent"] is True
+    assert result["revision_entries"] == 12
+    assert Decimal(result["revision_cash"]) == Decimal("109.50")
+    assert Decimal(result["revision_receivables"]) == Decimal("15.50")
+    assert Decimal(result["revision_writeoffs"]) == Decimal("7.25")
+    assert Decimal(result["revision_profit"]) == Decimal("25.00")
+    assert Decimal(result["revision_cash"]) == (
+        Decimal(100) - Decimal("27.75") + Decimal("37.25")
+    )
+    assert Decimal(result["revision_receivables"]) == (
+        Decimal(60) - Decimal("37.25") - Decimal("7.25")
+    )
+
+
+def test_changed_external_revision_changes_audit_not_world_or_baseline():
+    original = _run_replay(79, model_seed=11, revision_variant=0)
+    changed = _run_replay(79, model_seed=11, revision_variant=1)
+    assert original["world_sha256"] == changed["world_sha256"]
+    assert original["audit_sha256"] == changed["audit_sha256"]
+    assert original["revision_sha256"] != changed["revision_sha256"]
+    assert Decimal(original["revision_cash"]) - Decimal(changed["revision_cash"]) == 1
+    assert original["revision_receivables"] == changed["revision_receivables"]
+    assert original["revision_writeoffs"] == changed["revision_writeoffs"]
+    assert Decimal(original["revision_profit"]) - Decimal(changed["revision_profit"]) == 1
