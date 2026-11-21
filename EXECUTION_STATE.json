@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "project": "FunnelScript",
   "created_utc": "2026-11-21T13:25:55+00:00",
-  "updated_utc": "2026-11-21T20:02:20.257858+00:00",
+  "updated_utc": "2026-11-21T20:23:07.919919+00:00",
   "repository_root": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect/funnelscript",
   "workspace_parent": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect",
   "python_single_source_of_truth": "src/funnelscript/",
@@ -456,6 +456,21 @@
           "name": "Source-accurate World static hygiene diagnostics with advisory CLI output",
           "status": "VERIFIED",
           "note": "Verified in the 791-pass full pytest suite, 50-pass conformance suite, scoped Ruff and standalone differential oracle."
+        },
+        {
+          "name": "Identity-keyed aggregate population snapshot/resume including seed derivation manifests",
+          "status": "VERIFIED",
+          "note": "850 full pytest passed, 50 World conformance, 250 baseline differential cases, and 100k-event canonical checksum comparison."
+        },
+        {
+          "name": "Cross-process restored population calendar and exact-Decimal conservation invariants",
+          "status": "VERIFIED",
+          "note": "850 full pytest passed, 50 World conformance, 250 baseline differential cases, and 100k-event canonical checksum comparison."
+        },
+        {
+          "name": "100k real World Population event checksum and diagnostic resource benchmark",
+          "status": "VERIFIED",
+          "note": "850 full pytest passed, 50 World conformance, 250 baseline differential cases, and 100k-event canonical checksum comparison."
         }
       ],
       "target_files_modified_by_wave": [
@@ -484,16 +499,21 @@
         "tests/verification/test_event_checkpoint_resume.py",
         "tests/verification/test_world_checkpoint_hashseed.py",
         "tests/verification/test_world_checkpoint_resume.py",
-        "tests/verification/test_world_static_hygiene.py"
+        "tests/verification/test_world_static_hygiene.py",
+        "scripts/benchmark_population_checkpoint.py",
+        "tests/test_population_checkpoint_benchmark.py",
+        "tests/verification/test_population_checkpoint_contract.py",
+        "tests/verification/test_population_checkpoint_financial_consistency.py",
+        "tests/verification/test_population_checkpoint_hashseed.py"
       ],
-      "git_commit_hash": "8d4392f3fd0a5ef647c6097fc269dfe498be5c50",
+      "git_commit_hash": "f45873a",
       "new_commit_created": true,
-      "test_pass_count": 791,
+      "test_pass_count": 850,
       "exit_gate_metrics": {
         "gate": "Core 99 roadmap criteria including spans, formatter, 10k parser fuzz, five hash-seed checks, snapshot/replay and 100k events",
         "passed": false,
         "observed": {
-          "full_pytest_passed": 791,
+          "full_pytest_passed": 850,
           "full_pytest_failed": 0,
           "full_pytest_skipped": 0,
           "full_pytest_subtests_passed": 58,
@@ -656,10 +676,25 @@
             "FNL-W304"
           ],
           "kernel_differential_oracle_scenarios": 500,
-          "kernel_benchmark_100000_due_seconds": 0.7509095
+          "kernel_benchmark_100000_due_seconds": 0.7509095,
+          "population_aggregate_snapshot_verified": true,
+          "population_snapshot_hashseed_variants": [
+            0,
+            1,
+            7,
+            99,
+            999
+          ],
+          "population_ledger_uncommitted_buffers_captured": false,
+          "population_differential_oracle_cases": 250,
+          "population_differential_oracle_sha256": "9327962fec57fe63ecd867da4d25322db5b3118b773061cb491fd7586bf97518",
+          "population_benchmark_real_world_100000_agents": 1000,
+          "population_benchmark_real_world_100000_events": 100000,
+          "population_benchmark_checkpoint_100000_seconds": 1.9757869159948314,
+          "population_benchmark_continuous_100000_seconds": 0.38525258399749873
         }
       },
-      "new_pytest_cases": 199,
+      "new_pytest_cases": 258,
       "research_anchor": "DEVS event calendar with bounded admission, runtime-resource-envelope-v0 proposal H-RQ1/H-RQ2/H-RT1 and population-identity-rng-v0; do not treat proposed names as stable public contract.",
       "falsifiable_hypothesis": "When opt-in Lq,Lt,Lz are passed to World/Population, each agent-local EventMachine rejects exactly at cap+1; when caps do not bind, World state, processed, pending, traces, population partition and seeded RNG are unchanged.",
       "invariant": "For each agent a and t, |Q_a|<=Lq; count_due(a,t)<=Lt; consecutive_same_time_depth<=Lz; guarded output == unguarded output when nonbinding; any limit error has original category+cap+count+chain and population agent_id note.",
@@ -686,114 +721,105 @@
         }
       ],
       "last_round": {
-        "round_label": "Wave 1 large sprint: EventSession snapshot/restore, World identity bindings and source-located World hygiene",
-        "source_head_before_round": "d2c5ef6",
-        "integration_branch": "feat/wave1-core-hardening-bigsprint-20261121",
-        "integration_source_commit": "8d4392f3fd0a5ef647c6097fc269dfe498be5c50",
+        "round_label": "Wave 1 large sprint: identity-keyed aggregate Population checkpoints and financial/resource replay",
+        "source_head_before_round": "52a012b",
+        "integration_branch": "feat/wave1-population-checkpoint-20261121",
+        "integration_source_commit": "f45873a",
         "integration_source_commits": [
-          "d6969fb17e18fec8459b31b45c2c53be06aa43fd",
-          "45a2270f40b34fa0786a5be31e8a76e51a146e64",
-          "8d4392f3fd0a5ef647c6097fc269dfe498be5c50"
+          "e3327a7",
+          "4da4d61",
+          "f45873a"
         ],
         "python_files": {
-          "src/funnelscript/cli.py": {
-            "added": 10,
-            "deleted": 0,
-            "net": 10
-          },
-          "src/funnelscript/compiler/world_lint.py": {
-            "added": 194,
-            "deleted": 0,
-            "net": 194
-          },
-          "src/funnelscript/core/__init__.py": {
-            "added": 4,
-            "deleted": 0,
-            "net": 4
-          },
-          "src/funnelscript/core/event_machine.py": {
-            "added": 227,
-            "deleted": 67,
-            "net": 160
-          },
           "src/funnelscript/runtime/world_executor.py": {
-            "added": 31,
-            "deleted": 0,
-            "net": 31
-          },
-          "tests/verification/test_event_checkpoint_resume.py": {
-            "added": 385,
-            "deleted": 0,
-            "net": 385
-          },
-          "tests/verification/test_world_checkpoint_hashseed.py": {
-            "added": 111,
-            "deleted": 0,
-            "net": 111
-          },
-          "tests/verification/test_world_checkpoint_resume.py": {
             "added": 217,
-            "deleted": 0,
-            "net": 217
+            "deleted": 29,
+            "net": 188
           },
-          "tests/verification/test_world_static_hygiene.py": {
-            "added": 302,
+          "scripts/benchmark_population_checkpoint.py": {
+            "added": 154,
             "deleted": 0,
-            "net": 302
+            "net": 154
+          },
+          "tests/test_population_checkpoint_benchmark.py": {
+            "added": 119,
+            "deleted": 0,
+            "net": 119
+          },
+          "tests/verification/test_population_checkpoint_contract.py": {
+            "added": 364,
+            "deleted": 0,
+            "net": 364
+          },
+          "tests/verification/test_population_checkpoint_financial_consistency.py": {
+            "added": 235,
+            "deleted": 0,
+            "net": 235
+          },
+          "tests/verification/test_population_checkpoint_hashseed.py": {
+            "added": 195,
+            "deleted": 0,
+            "net": 195
           }
         },
         "python_diff_totals": {
-          "added": 1481,
-          "deleted": 67,
-          "net": 1414
+          "added": 1284,
+          "deleted": 29,
+          "net": 1255
         },
-        "production_python_diff": {
-          "added": 466,
-          "deleted": 67,
-          "net": 399
+        "production_runtime_python_diff": {
+          "added": 217,
+          "deleted": 29,
+          "net": 188
+        },
+        "benchmark_python_diff": {
+          "added": 154,
+          "deleted": 0,
+          "net": 154
         },
         "test_python_diff": {
-          "added": 1015,
+          "added": 913,
           "deleted": 0,
-          "net": 1015
+          "net": 913
         },
         "metric_exclusions": [
           "EXECUTION_STATE.json governance metadata",
-          "unchanged primary worktree dirty files and separate fpm local commit",
-          "temporary standalone baseline-versus-candidate benchmark workspace"
+          "standalone /tmp differential oracle code",
+          "pre-existing primary checkout working changes"
         ],
         "what_done": [
-          "Fetched accepted origin/main d2c5ef6 after PR #18 and preserved the primary checkout's 55 dirty paths plus its separate local fpm commit 8f083c9 by using a clean isolated worktree.",
-          "Recorded hypothesis-first research anchors and DEVS/AST invariants in EXECUTION_STATE.json before changing code. Kept all protected Markdown governance, roadmap, and source spec files unchanged.",
-          "Shipped the EventSession.start/advance and EventSnapshot.snapshot/restore kernel API, retaining the exact EventKey order, next sequence counter, causal depths, pending queue, MT19937/Gaussian RNG state, processed history, inert intents, and per-tick/total resource budgets.",
-          "Refactored EventMachine.run to one canonical dispatch implementation rather than duplicating the event loop, with the accepted prior public API and contract-preserving validation.",
-          "Added explicit rejection of snapshots or further advancement after an invalid/partially failed event dispatch; invalid non-dispatch argument validation remains recoverable without corrupting a session.",
-          "Added model-identity-bound WorldExecutor.start/restore, rejecting checkpoints from different World AST semantics while permitting equivalent source definitions stored under different file paths.",
-          "Verified real .fnl split-run behavior with stochastic samplers, same-tick priority collisions, emitted payloads, typed dispatch failures, per-agent PopulationExecutor identity-derived RNG streams, and one-thousand-event multi-checkpoint replay.",
-          "Verified trusted checkpoint round-tripping with pickle and five independently launched Python hash-seed processes; full canonical state, event trace, intents, and pending audit digest was unchanged.",
-          "Added WorldLinter source-located advisory diagnostics FNL-W301/W302/W303/W304 for unhandled event declarations, unused payload fields, demonstrably immutable-state contradictory guards, and handlers without transitions or emissions; connected warnings to World CLI check.",
-          "Verified imported-module diagnostics retain original filename/line/column and excerpts, invalid assumptions are not made about externally injected events or mutable guards, and all existing golden World corpus checks pass.",
-          "Fresh full test verification: 791 passed and 58 subtests; 50 World conformance passed. Scoped Ruff and git diff --check clean; global repository Ruff unchanged at 374 inherited errors.",
-          "Independent 500-scenario differential oracle comparing original accepted EventMachine with refactored version produced identical SHA-256 02dd4703a37b0660d131561299f0ab7b4e304f7ee97bc0673f53d64c7834d089.",
-          "Measured 1k, 10k and 100k event kernel due scenarios plus 100k initial and fanout against the original accepted baseline on the same Mac. Representative due 100k elapsed 0.751 s vs 0.794 s previous; no claim of statistically guaranteed performance.",
-          "Separated implementation into three reviewable code commits: kernel d6969fb, World checkpoint 45a2270, and World hygiene 8d4392f. The combined Python diff is +1481/-67, comprising production +466/-67 and test +1015/0."
+          "Started on accepted origin/main 52a012b after PR #19 and preserved all 55 dirty primary-checkout entries and separate local fpm commit 8f083c9 using an isolated clean worktree.",
+          "Recorded DEVS/ABM research anchors, falsifiable aggregate split-run hypotheses, and exhaustive disjoint population partition invariants in EXECUTION_STATE.json before changing code.",
+          "Implemented PopulationExecutor.start() and PopulationSession.advance(), capturing one independently seeded World EventSession for every enrolled agent with optional event, queue and tick resource envelopes.",
+          "Implemented versioned PopulationSnapshot / PopulationExecutor.restore(), serializing each complete EventSnapshot alongside the trial, World AST identity, exact enrollment/cohort/segment membership, allowable phase states, seed derivation manifest, and RNG stream namespace.",
+          "Rejected cross-trial, cross-seed, cross-World, cross-enrollment, cross-phase and cross-RNG-stream attempts to restore a population checkpoint before any agent event executes.",
+          "Allowed benign enrollment permutation while preserving identity-derived RNG streams and per-agent event calendars; partial partitions remain mutually disjoint and cover all enrolled IDs.",
+          "Enforced failed population-session poisoning and agent identity notes when a World event, resource envelope, or partition invariant fails; no invalid checkpoint can be emitted from a failed session.",
+          "Consolidated the legacy uninterrupted PopulationExecutor.run() and new PopulationSession.advance() onto a single exhaustive identity/segment/cohort partition helper without changing the established trace-bearing run contract.",
+          "Added property-based split-horizon and split-count tests with random per-agent calendars and seeds, trusted local pickle roundtrips, snapshot aliasing tests, resource cap continuity, and malformed envelope rejection.",
+          "Verified independent Python process restore using randomized 0, 1, 7, 99 and 999 PYTHONHASHSEED values and randomized set enrollment order; complete canonical World state and trace SHA256 matches direct full runs.",
+          "Verified exact Decimal financial cash, accrual receivables, delayed settlements, and terminal conversion count across random cohorts and 10/100/1000 real .fnl agents; a 0.01 SAR settlement counterfactual changed cash and receivables without altering RNG traces.",
+          "Added an independent actual .fnl Population benchmark probe plus CLI smoke tests. Measured 1000/10000/100000 World agent-events in continuous versus checkpointed execution with equal complete SHA256 per case; 100k uses 1000 enrolled agents.",
+          "Compared baseline accepted PopulationExecutor.run against candidate using 250 deterministic random scenarios including optional trace, time horizons, agent membership permutation, and mixed event types: canonical SHA256 9327962fec57fe63ecd867da4d25322db5b3118b773061cb491fd7586bf97518 identical.",
+          "Fresh full test suite: 850 passed, 58 subtests passed; World conformance 50 passed; scoped Ruff and diff whitespace clean; repository-wide Ruff remains at 374 pre-existing errors.",
+          "Source Python diff: +1284/-29, net +1255. Runtime +217/-29, benchmark +154/0, new test code +913/0. Files in spec/, source docs and protected Markdown unchanged."
         ],
         "what_remaining": [
           "World static diagnostics now cover unhandled declared event schemas, unused payload fields, provably contradictory immutable-state guards, inert handlers and imported-module source spans. Broader shadowing, unreachable paths under interdependent state transitions, unused non-payload parameters, and complete module-graph lints are not yet covered; preserve external event roots.",
-          "B1 now includes the previously accepted identity-keyed Population plus original/revised financial audit, C-ORDER priority/emission, and newly cross-process-restored World checkpoint tested under five Python hash seeds. True retroactive attribution restatements and larger competing finance graphs remain unverified.",
+          "B1 verifies keyed Population independent hashseed execution, original and revised financial audit, C-ORDER event priority and full cross-process population checkpoint restore with deterministic SHA256. Retroactive attribution restatements and larger competing financial/event graphs remain unverified.",
           "World and ledger event_id/parent_event_id causal provenance, source_rule_span propagation, and true source-linked resource-limit diagnostics remain incomplete.",
-          "Core EventSession and single-World checkpoint/restore now preserve exact queue ordering, RNG state, quotas, pending events and emitted effects; selected real .fnl and per-agent keyed Population replay are proven. Full aggregate Population checkpoint packaging, ledger crash-recovery/uncommitted buffers, persistent authenticated snapshot transport, and complete World/Population/ledger split-run invariant are not yet implemented.",
+          "EventSession, definition-bound World checkpoint, and now aggregate PopulationSession/PopulationSnapshot preserve all per-agent pending calendars, exact MT RNG states, identities, partitions, event-resource budgets and completed traces. Authenticated portable snapshot formats, financial ledger uncommitted transaction buffers and crash-recovery coordination are still not complete, so the full World/Population/ledger atomic restart invariant remains unverified.",
           "Complete legal formatter with AST round-trip corpus invariants and EBNF grammar drift checks; Phase1 freezes spec/ additions until accepted.",
           "Retention quotas for processed history and effects, per-resource typed failures, and World/Population scale workloads are still unverified.",
           "CLI/API exposure of opt-in resource caps is not part of this runtime-only PR; public resource API is still PROPOSED and awaits contract acceptance.",
-          "EventMachine benchmark matrix (1k/10k/100k due, 100k initial and 100k fanout) was executed against baseline and candidate; World 100 and 1000-event checkpoint smoke tests passed. Representative 1k/10k/100k Population World workload resource matrix and regression budgets remain unverified.",
+          "New independent real .fnl 1k/10k/100k population event benchmarks verify canonical output SHA for continuous versus checkpointed runs using 1000 agents, plus existing standalone kernel benchmark matrix. New diagnostic probe has no agreed CI performance release threshold and does not prove 1k/10k/100k distinct agent populations.",
           "Global Ruff debt 374 findings in isolated main-based worktree (original dirty checkout findings can be higher), outside these touched files.",
           "Review the unrelated local fpm commit 8f083c9 and other contributors WIP independently, then merge only with separate proof and green CI; do not commit it accidentally in this PR.",
           "Waves 2 through 7 remain pending until all Wave1 exit checks pass and the user explicitly authorizes next-wave progression."
         ],
-        "new_tests_added": 67,
-        "new_test_functions": 49,
-        "full_pytest_passed": 791,
+        "new_tests_added": 59,
+        "new_test_functions": 32,
+        "full_pytest_passed": 850,
         "full_pytest_failed": 0,
         "full_pytest_subtests_passed": 58,
         "conformance_passed": 50,
@@ -803,47 +829,40 @@
           0,
           1,
           7,
-          79,
+          99,
           999
         ],
-        "checkpoint_cross_process_hashseed_verified": true,
-        "snapshot_state_rng_heap_seq_intents_quotas_verified": true,
-        "world_definition_fingerprint_bound": true,
-        "snapshot_rejects_failed_dispatch": true,
-        "independent_baseline_kernel_scenarios": 500,
-        "independent_kernel_reference_sha256": "02dd4703a37b0660d131561299f0ab7b4e304f7ee97bc0673f53d64c7834d089",
-        "world_static_diagnostics": [
-          "FNL-W301",
-          "FNL-W302",
-          "FNL-W303",
-          "FNL-W304"
-        ],
+        "baseline_unchanged_cases": 250,
+        "baseline_unchanged_sha256": "9327962fec57fe63ecd867da4d25322db5b3118b773061cb491fd7586bf97518",
+        "financial_counterfactual_sar": "0.01",
+        "population_aggregate_checkpoint_verified": true,
+        "ledger_uncommitted_checkpoint_verified": false,
         "benchmarks": {
+          "scope": "Real .fnl, 1000 agents, one measured process per mode; diagnostic only",
           "units": "seconds",
-          "scope": "single-run diagnostic measurements, not release SLA",
-          "due_1000": {
-            "accepted_main": 0.006239875,
-            "candidate": 0.005778041
+          "events_1000": {
+            "continuous": 0.022660750000795815,
+            "checkpoint": 0.14726454199990258,
+            "checkpoint_bytes": 3972885,
+            "sha256": "508f2325972cc39987fe668497da1db6993f0ad7da94935c7a77593258996b95"
           },
-          "due_10000": {
-            "accepted_main": 0.066045792,
-            "candidate": 0.065027917
+          "events_10000": {
+            "continuous": 0.056284124999365304,
+            "checkpoint": 0.31714991699845996,
+            "checkpoint_bytes": 4438948,
+            "sha256": "97ea572d63f36fe126f93ecc5965c3655bf46c54adf49642eb3dd02d74d246ae"
           },
-          "due_100000": {
-            "accepted_main": 0.794306666,
-            "candidate": 0.7509095
-          },
-          "initial_100000": {
-            "accepted_main": 0.364900334,
-            "candidate": 0.402623459
-          },
-          "fanout_100000": {
-            "accepted_main": 0.415344917,
-            "candidate": 0.424015291
+          "events_100000": {
+            "continuous": 0.38525258399749873,
+            "checkpoint": 1.9757869159948314,
+            "checkpoint_bytes": 8970569,
+            "checkpoint_peak_rss_bytes": 184057856,
+            "continuous_peak_rss_bytes": 57573376,
+            "sha256": "ee13ddb64e1a88e769db8472814edc7032b71c7e252cf764bf45142f983d9dde"
           }
         },
         "source_isolated_worktree_verified": true,
-        "suggested_commit_message": "feat(core): checkpoint EventSession and lint World static hygiene"
+        "suggested_commit_message": "feat(runtime): checkpoint complete identity-keyed World populations"
       },
       "round_history": [
         {
@@ -1814,30 +1833,175 @@
           },
           "source_isolated_worktree_verified": true,
           "suggested_commit_message": "feat(core): checkpoint EventSession and lint World static hygiene"
+        },
+        {
+          "round_label": "Wave 1 large sprint: identity-keyed aggregate Population checkpoints and financial/resource replay",
+          "source_head_before_round": "52a012b",
+          "integration_branch": "feat/wave1-population-checkpoint-20261121",
+          "integration_source_commit": "f45873a",
+          "integration_source_commits": [
+            "e3327a7",
+            "4da4d61",
+            "f45873a"
+          ],
+          "python_files": {
+            "src/funnelscript/runtime/world_executor.py": {
+              "added": 217,
+              "deleted": 29,
+              "net": 188
+            },
+            "scripts/benchmark_population_checkpoint.py": {
+              "added": 154,
+              "deleted": 0,
+              "net": 154
+            },
+            "tests/test_population_checkpoint_benchmark.py": {
+              "added": 119,
+              "deleted": 0,
+              "net": 119
+            },
+            "tests/verification/test_population_checkpoint_contract.py": {
+              "added": 364,
+              "deleted": 0,
+              "net": 364
+            },
+            "tests/verification/test_population_checkpoint_financial_consistency.py": {
+              "added": 235,
+              "deleted": 0,
+              "net": 235
+            },
+            "tests/verification/test_population_checkpoint_hashseed.py": {
+              "added": 195,
+              "deleted": 0,
+              "net": 195
+            }
+          },
+          "python_diff_totals": {
+            "added": 1284,
+            "deleted": 29,
+            "net": 1255
+          },
+          "production_runtime_python_diff": {
+            "added": 217,
+            "deleted": 29,
+            "net": 188
+          },
+          "benchmark_python_diff": {
+            "added": 154,
+            "deleted": 0,
+            "net": 154
+          },
+          "test_python_diff": {
+            "added": 913,
+            "deleted": 0,
+            "net": 913
+          },
+          "metric_exclusions": [
+            "EXECUTION_STATE.json governance metadata",
+            "standalone /tmp differential oracle code",
+            "pre-existing primary checkout working changes"
+          ],
+          "what_done": [
+            "Started on accepted origin/main 52a012b after PR #19 and preserved all 55 dirty primary-checkout entries and separate local fpm commit 8f083c9 using an isolated clean worktree.",
+            "Recorded DEVS/ABM research anchors, falsifiable aggregate split-run hypotheses, and exhaustive disjoint population partition invariants in EXECUTION_STATE.json before changing code.",
+            "Implemented PopulationExecutor.start() and PopulationSession.advance(), capturing one independently seeded World EventSession for every enrolled agent with optional event, queue and tick resource envelopes.",
+            "Implemented versioned PopulationSnapshot / PopulationExecutor.restore(), serializing each complete EventSnapshot alongside the trial, World AST identity, exact enrollment/cohort/segment membership, allowable phase states, seed derivation manifest, and RNG stream namespace.",
+            "Rejected cross-trial, cross-seed, cross-World, cross-enrollment, cross-phase and cross-RNG-stream attempts to restore a population checkpoint before any agent event executes.",
+            "Allowed benign enrollment permutation while preserving identity-derived RNG streams and per-agent event calendars; partial partitions remain mutually disjoint and cover all enrolled IDs.",
+            "Enforced failed population-session poisoning and agent identity notes when a World event, resource envelope, or partition invariant fails; no invalid checkpoint can be emitted from a failed session.",
+            "Consolidated the legacy uninterrupted PopulationExecutor.run() and new PopulationSession.advance() onto a single exhaustive identity/segment/cohort partition helper without changing the established trace-bearing run contract.",
+            "Added property-based split-horizon and split-count tests with random per-agent calendars and seeds, trusted local pickle roundtrips, snapshot aliasing tests, resource cap continuity, and malformed envelope rejection.",
+            "Verified independent Python process restore using randomized 0, 1, 7, 99 and 999 PYTHONHASHSEED values and randomized set enrollment order; complete canonical World state and trace SHA256 matches direct full runs.",
+            "Verified exact Decimal financial cash, accrual receivables, delayed settlements, and terminal conversion count across random cohorts and 10/100/1000 real .fnl agents; a 0.01 SAR settlement counterfactual changed cash and receivables without altering RNG traces.",
+            "Added an independent actual .fnl Population benchmark probe plus CLI smoke tests. Measured 1000/10000/100000 World agent-events in continuous versus checkpointed execution with equal complete SHA256 per case; 100k uses 1000 enrolled agents.",
+            "Compared baseline accepted PopulationExecutor.run against candidate using 250 deterministic random scenarios including optional trace, time horizons, agent membership permutation, and mixed event types: canonical SHA256 9327962fec57fe63ecd867da4d25322db5b3118b773061cb491fd7586bf97518 identical.",
+            "Fresh full test suite: 850 passed, 58 subtests passed; World conformance 50 passed; scoped Ruff and diff whitespace clean; repository-wide Ruff remains at 374 pre-existing errors.",
+            "Source Python diff: +1284/-29, net +1255. Runtime +217/-29, benchmark +154/0, new test code +913/0. Files in spec/, source docs and protected Markdown unchanged."
+          ],
+          "what_remaining": [
+            "World static diagnostics now cover unhandled declared event schemas, unused payload fields, provably contradictory immutable-state guards, inert handlers and imported-module source spans. Broader shadowing, unreachable paths under interdependent state transitions, unused non-payload parameters, and complete module-graph lints are not yet covered; preserve external event roots.",
+            "B1 verifies keyed Population independent hashseed execution, original and revised financial audit, C-ORDER event priority and full cross-process population checkpoint restore with deterministic SHA256. Retroactive attribution restatements and larger competing financial/event graphs remain unverified.",
+            "World and ledger event_id/parent_event_id causal provenance, source_rule_span propagation, and true source-linked resource-limit diagnostics remain incomplete.",
+            "EventSession, definition-bound World checkpoint, and now aggregate PopulationSession/PopulationSnapshot preserve all per-agent pending calendars, exact MT RNG states, identities, partitions, event-resource budgets and completed traces. Authenticated portable snapshot formats, financial ledger uncommitted transaction buffers and crash-recovery coordination are still not complete, so the full World/Population/ledger atomic restart invariant remains unverified.",
+            "Complete legal formatter with AST round-trip corpus invariants and EBNF grammar drift checks; Phase1 freezes spec/ additions until accepted.",
+            "Retention quotas for processed history and effects, per-resource typed failures, and World/Population scale workloads are still unverified.",
+            "CLI/API exposure of opt-in resource caps is not part of this runtime-only PR; public resource API is still PROPOSED and awaits contract acceptance.",
+            "New independent real .fnl 1k/10k/100k population event benchmarks verify canonical output SHA for continuous versus checkpointed runs using 1000 agents, plus existing standalone kernel benchmark matrix. New diagnostic probe has no agreed CI performance release threshold and does not prove 1k/10k/100k distinct agent populations.",
+            "Global Ruff debt 374 findings in isolated main-based worktree (original dirty checkout findings can be higher), outside these touched files.",
+            "Review the unrelated local fpm commit 8f083c9 and other contributors WIP independently, then merge only with separate proof and green CI; do not commit it accidentally in this PR.",
+            "Waves 2 through 7 remain pending until all Wave1 exit checks pass and the user explicitly authorizes next-wave progression."
+          ],
+          "new_tests_added": 59,
+          "new_test_functions": 32,
+          "full_pytest_passed": 850,
+          "full_pytest_failed": 0,
+          "full_pytest_subtests_passed": 58,
+          "conformance_passed": 50,
+          "global_ruff_errors": 374,
+          "source_scoped_ruff_findings": 0,
+          "hashseed_variants": [
+            0,
+            1,
+            7,
+            99,
+            999
+          ],
+          "baseline_unchanged_cases": 250,
+          "baseline_unchanged_sha256": "9327962fec57fe63ecd867da4d25322db5b3118b773061cb491fd7586bf97518",
+          "financial_counterfactual_sar": "0.01",
+          "population_aggregate_checkpoint_verified": true,
+          "ledger_uncommitted_checkpoint_verified": false,
+          "benchmarks": {
+            "scope": "Real .fnl, 1000 agents, one measured process per mode; diagnostic only",
+            "units": "seconds",
+            "events_1000": {
+              "continuous": 0.022660750000795815,
+              "checkpoint": 0.14726454199990258,
+              "checkpoint_bytes": 3972885,
+              "sha256": "508f2325972cc39987fe668497da1db6993f0ad7da94935c7a77593258996b95"
+            },
+            "events_10000": {
+              "continuous": 0.056284124999365304,
+              "checkpoint": 0.31714991699845996,
+              "checkpoint_bytes": 4438948,
+              "sha256": "97ea572d63f36fe126f93ecc5965c3655bf46c54adf49642eb3dd02d74d246ae"
+            },
+            "events_100000": {
+              "continuous": 0.38525258399749873,
+              "checkpoint": 1.9757869159948314,
+              "checkpoint_bytes": 8970569,
+              "checkpoint_peak_rss_bytes": 184057856,
+              "continuous_peak_rss_bytes": 57573376,
+              "sha256": "ee13ddb64e1a88e769db8472814edc7032b71c7e252cf764bf45142f983d9dde"
+            }
+          },
+          "source_isolated_worktree_verified": true,
+          "suggested_commit_message": "feat(runtime): checkpoint complete identity-keyed World populations"
         }
       ],
       "active_sprint": {
-        "name": "Wave 1 large sprint: checkpoint/resume, World static diagnostics, and independent falsification",
-        "anchor": "Discrete-event simulation Markov state restoration, strict total-order event calendar, deterministic PRNG state, and path-sensitive constant-guard reachability.",
-        "hypotheses": [
-          "For any split horizon, resumed event queue including causality, sequence and PRNG state yields identical RunResult to continuous execution on the same initial state and seed.",
-          "Read-only snapshot is isolated from later state mutations and cannot change future event scheduling.",
-          "Static diagnostics report only semantically demonstrable inactive rules or unused/dead schemas and point to original .fnl source spans."
-        ],
-        "invariants": [
-          "full_run(S0, Q0, seed, T) = restore(snapshot(run_until(t))).advance(T) for 0<=t<=T",
-          "event ordering (timestamp, priority, causal_depth, monotonic_sequence) and per-tick budgets survive restore",
-          "World static warnings do not change checked World AST or simulation semantics"
-        ],
-        "planned_slices": [
-          "event session checkpoint/resume with Hypothesis property and lifecycle tests",
-          "World static diagnostics with source spans and CLI checks",
-          "integration replay involving World keyed agent and financial audit; independent scale smoke"
-        ],
-        "constraint": "Never change frozen markdown or dirty primary checkout. No padding to reach requested 1000 LOC; report actual changed LOC.",
+        "label": "Wave 1 Population aggregate snapshot and replay",
         "status": "VERIFIED",
-        "production_python_loc_added": 466,
-        "test_python_loc_added": 1015
+        "research_anchor": "DEVS independent event calendars; identity-based counter RNG namespace; content-addressed immutable model contracts and state partition conservation.",
+        "hypotheses": [
+          "Starting, pausing, serializing and resuming a population of identity-keyed isolated Worlds yields exactly the same per-agent event trace, RNG draws and final partition result as an uninterrupted PopulationExecutor.run() across arbitrary split horizons and event budgets.",
+          "Population checkpoint cannot silently replay under changed trial, seed, World semantics, agent enrollment, allowed states or stream namespace.",
+          "Identity-preserving reorder of agent enrollment cannot alter per-agent PRNG sequences, cohort totals, or eventual population results."
+        ],
+        "mathematical_invariants": [
+          "for all agent ids i: run_i(E_i, K(trial, seed, i, role)) == restore(snapshot(advance_i(E_i))).advance_i()",
+          "sum_{s in allowed_states} |partition_s| == |agent_ids| and partitions are pairwise disjoint",
+          "for every registered agent i, segment and cohort memberships remain stable across split-run and restore"
+        ],
+        "constraints": [
+          "Existing World and EventMachine result contract preserved; existing run(trace=True) unchanged",
+          "No new DSL syntax or protected Markdown changes; do not claim financial uncommitted buffers are captured",
+          "Use clean worktree only; track exact code additions and deletions"
+        ],
+        "production_python_loc_added": 217,
+        "benchmark_python_loc_added": 154,
+        "test_python_loc_added": 913,
+        "python_loc_deleted": 29
       }
     },
     "2": {
@@ -2049,7 +2213,7 @@
   "next_wave": 1,
   "next_wave_execution_permitted": false,
   "user_approval_needed": true,
-  "suggested_commit_message": "feat(core): checkpoint EventSession and lint World static hygiene",
+  "suggested_commit_message": "feat(runtime): checkpoint complete identity-keyed World populations",
   "history": [
     {
       "timestamp_utc": "2026-11-21T13:25:55+00:00",
@@ -2205,6 +2369,21 @@
         "45a2270f40b34fa0786a5be31e8a76e51a146e64",
         "8d4392f3fd0a5ef647c6097fc269dfe498be5c50"
       ],
+      "global_ruff_errors": 374
+    },
+    {
+      "timestamp_utc": "2026-11-21T20:23:07.919919+00:00",
+      "action": "Wave 1 aggregate Population snapshot/restore, cross-process RNG and exact finance invariants, 100k real World events; +1284/-29 Python, 850 pytest, 50 conformance, 250 baseline parity scenarios",
+      "integration_source_commits": [
+        "e3327a7",
+        "4da4d61",
+        "f45873a"
+      ],
+      "round_python_diff_totals": {
+        "added": 1284,
+        "deleted": 29,
+        "net": 1255
+      },
       "global_ruff_errors": 374
     }
   ]
