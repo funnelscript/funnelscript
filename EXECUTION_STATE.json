@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "project": "FunnelScript",
   "created_utc": "2026-11-21T13:25:55+00:00",
-  "updated_utc": "2026-11-21T18:41:06.779299+00:00",
+  "updated_utc": "2026-11-21T19:12:25.130282+00:00",
   "repository_root": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect/funnelscript",
   "workspace_parent": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect",
   "python_single_source_of_truth": "src/funnelscript/",
@@ -431,6 +431,11 @@
           "name": "Five cross-process World and linked financial audit hashseed replays",
           "status": "VERIFIED",
           "note": "One real .fnl population fixture, five hash seeds and a model-seed negative control, 2 tests, 720 full pytest, 50 conformance, 0 scoped Ruff findings."
+        },
+        {
+          "name": "Five hashseed cross-process C-ORDER priority-collision and emitted-event replays",
+          "status": "VERIFIED",
+          "note": "Fixed independent C-ORDER oracle, 5 process hash seeds, 1 negative-order control, 2 pytest tests; 722 full suite and 50 conformance passed."
         }
       ],
       "target_files_modified_by_wave": [
@@ -453,16 +458,17 @@
         "tests/verification/test_event_resource_envelope.py",
         "src/funnelscript/runtime/world_executor.py",
         "tests/verification/test_world_resource_propagation.py",
-        "tests/verification/test_world_ledger_hashseed.py"
+        "tests/verification/test_world_ledger_hashseed.py",
+        "tests/verification/test_world_priority_emission_hashseed.py"
       ],
-      "git_commit_hash": "c1e12dba763e42844351cc0ddb9060044d8cc2e9",
+      "git_commit_hash": "f7763bb79080e9a34b9828ad2cbd89ea17422467",
       "new_commit_created": true,
-      "test_pass_count": 720,
+      "test_pass_count": 722,
       "exit_gate_metrics": {
         "gate": "Core 99 roadmap criteria including spans, formatter, 10k parser fuzz, five hash-seed checks, snapshot/replay and 100k events",
         "passed": false,
         "observed": {
-          "full_pytest_passed": 720,
+          "full_pytest_passed": 722,
           "full_pytest_failed": 0,
           "full_pytest_skipped": 0,
           "full_pytest_subtests_passed": 58,
@@ -587,10 +593,20 @@
             999
           ],
           "world_ledger_cross_process_fixtures_verified": 1,
-          "world_ledger_model_seed_negative_control": true
+          "world_ledger_model_seed_negative_control": true,
+          "world_crossprocess_priority_emission_hashseed_values": [
+            0,
+            1,
+            7,
+            79,
+            999
+          ],
+          "world_crossprocess_priority_emission_golden_verified": true,
+          "world_crossprocess_priority_emission_negative_order_control": true,
+          "world_crossprocess_independent_fixture_count": 2
         }
       },
-      "new_pytest_cases": 128,
+      "new_pytest_cases": 130,
       "research_anchor": "DEVS event calendar with bounded admission, runtime-resource-envelope-v0 proposal H-RQ1/H-RQ2/H-RT1 and population-identity-rng-v0; do not treat proposed names as stable public contract.",
       "falsifiable_hypothesis": "When opt-in Lq,Lt,Lz are passed to World/Population, each agent-local EventMachine rejects exactly at cap+1; when caps do not bind, World state, processed, pending, traces, population partition and seeded RNG are unchanged.",
       "invariant": "For each agent a and t, |Q_a|<=Lq; count_due(a,t)<=Lt; consecutive_same_time_depth<=Lz; guarded output == unguarded output when nonbinding; any limit error has original category+cap+count+chain and population agent_id note.",
@@ -617,21 +633,21 @@
         }
       ],
       "last_round": {
-        "round_label": "Cross-process .fnl World, keyed RNG and financial audit SHA-256 reproducibility",
-        "source_head_before_round": "1600d6086a14216eab94035196e9b043051a95c9",
-        "integration_branch": "feat/wave1-world-ledger-cross-hashseed-20261121",
-        "integration_source_commit": "c1e12dba763e42844351cc0ddb9060044d8cc2e9",
+        "round_label": "Cross-process priority collision and same-tick emitted-event golden replay",
+        "source_head_before_round": "9ec05d8ffafe00b83355e49fba1d5135b7ad2d8b",
+        "integration_branch": "feat/wave1-event-priority-replay-20261121",
+        "integration_source_commit": "f7763bb79080e9a34b9828ad2cbd89ea17422467",
         "python_files": {
-          "tests/verification/test_world_ledger_hashseed.py": {
-            "added": 156,
+          "tests/verification/test_world_priority_emission_hashseed.py": {
+            "added": 107,
             "deleted": 0,
-            "net": 156
+            "net": 107
           }
         },
         "python_diff_totals": {
-          "added": 156,
+          "added": 107,
           "deleted": 0,
-          "net": 156
+          "net": 107
         },
         "production_python_diff": {
           "added": 0,
@@ -639,29 +655,27 @@
           "net": 0
         },
         "test_python_diff": {
-          "added": 156,
+          "added": 107,
           "deleted": 0,
-          "net": 156
+          "net": 107
         },
         "metric_exclusions": [
-          "EXECUTION_STATE.json tracking metadata",
-          "unrelated original checkout WIP and unmerged local fpm commit 8f083c9"
+          "EXECUTION_STATE.json governance metadata",
+          "original dirty checkout and unmerged local fpm commit 8f083c9"
         ],
         "what_done": [
-          "Started from independently verified merged origin/main 1600d608 (PR #15, all three GitHub CI jobs green) in a separate clean worktree; original checkout and unrelated local fpm commit 8f083c9 remain untouched.",
-          "Read Core99 B1 cross-process determinism acceptance criterion and existing World/Population-to-financial-audit public APIs before writing the reproducibility tests.",
-          "Research anchor: deterministic discrete-event replay, identity-keyed seeded RNG, canonical SHA-256 financial audit. Hypothesis: varying PYTHONHASHSEED while holding source, events and model seed fixed cannot alter events, draws, ledger balances or audit bytes.",
-          "Created one independent subprocess replay of the real identity-rng.fnl World fixture through PopulationExecutor, event-sale provenance, authorized settlement/writeoff and marketing.export_audit.",
-          "Five independent Python processes with PYTHONHASHSEED values 0, 1, 7, 79 and 999 produced identical canonical full World steps, event-calendar traces, keyed RNG draws and financial audit SHA-256 hashes.",
-          "Deliberately built population enrollment from a hash-randomized set and verified at least two distinct enrollment orders occurred, proving the process test is not a vacuous same-order replay.",
-          "Independent financial oracle: exactly 3 recognized sales, cash 105 SAR, receivables 25 SAR and recognized revenue 60 SAR following a 5 SAR writeoff.",
-          "Negative control: model seed 11 versus 12 changes keyed random draws and the World SHA-256 digest while population sale count remains 3.",
-          "Two new pytest tests passed; complete suite 720 passed with 58 subtests, World conformance 50 passed, targeted Ruff and git diff --check clean; repository-wide Ruff 374 prior findings unchanged.",
-          "Changed exactly one new Python verification file, 156 added/0 deleted; excluded EXECUTION_STATE.json metadata and all pre-existing user WIP from the code/test line count."
+          "Verified the published origin/main base 9ec05d8 (merged PR #16) before opening a clean, isolated Wave 1 worktree; original checkout retains unrelated user WIP and local fpm commit.",
+          "Read the governing ORCHESTRATOR_PROMPT.md and Core 99 B1 specification; identified the missing independent cross-process priority-collision and emitted-event regression.",
+          "Research anchor: deterministic discrete-event total order (time, priority, causal depth, monotonic insertion sequence). Hypothesis: fixed ingress yields bit-identical World trace across PYTHONHASHSEED. Invariant: the canonical trace matches the independent C-ORDER golden fixture.",
+          "Reused the existing C-ORDER .fnl world and its fixed golden oracle, which includes same-tick priority -1/0, equal-priority insertion collision, and an emitted same-tick Mark event.",
+          "Five separate Python processes with PYTHONHASHSEED 0, 1, 7, 79 and 999 produced byte-identical canonical World result SHA-256 hashes and exact processed event payload order [2, None, 1, 3, 4].",
+          "Adversarial control swapped equal-priority ingress events. The processed trace and SHA-256 changed, while state Log.sum stayed 10, so the oracle distinguishes order changes even when final state remains the same.",
+          "Added exactly two new pytest test functions in one verification file; code/test line diff +107/-0, production Python +0/-0, repository tracker modifications excluded from code diff.",
+          "Fresh clean-worktree verification: 722 full pytest passed plus 58 subtests; World conformance 50 passed; touched-file Ruff clean; git diff --check clean. Global Ruff still reports 374 pre-existing violations."
         ],
         "what_remaining": [
           "Full compiler/static lint: orphan/dead events, unreachable rules, unused parameters, shadowed identifiers and imported-module diagnostics with precise .fnl spans.",
-          "Extend cross-process World and ledger replay beyond this verified .fnl population fixture to priority-collision, emitted-event and alternative financial scenarios; do not claim universal determinism from one fixture.",
+          "Cross-process World/ledger replay now covers two independent .fnl fixtures: identity-keyed Population plus linked financial audit, and C-ORDER priority-collision with emitted same-tick event. Alternative financial actions, ledger restatements and larger competing event graphs still need independent hashseed invariance tests; do not claim complete B1 coverage.",
           "World and ledger event_id/parent_event_id causal provenance, source_rule_span propagation, and true source-linked resource-limit diagnostics remain incomplete.",
           "Bit-exact snapshot/restore including World/Population state, pending EventKey, keyed RNG counters, and ledger split-run invariant.",
           "Complete legal formatter with AST round-trip corpus invariants and EBNF grammar drift checks; Phase1 freezes spec/ additions until accepted.",
@@ -674,7 +688,7 @@
         ],
         "new_tests_added": 2,
         "new_test_functions": 2,
-        "full_pytest_passed": 720,
+        "full_pytest_passed": 722,
         "full_pytest_failed": 0,
         "full_pytest_subtests_passed": 58,
         "conformance_passed": 50,
@@ -687,11 +701,12 @@
           79,
           999
         ],
-        "hashseed_fixture": "tests/fixtures/population-reference/identity-rng.fnl",
-        "explicit_enrollment_order_variation": true,
-        "seed_variation_negative_control": true,
+        "hashseed_fixture": "tests/fixtures/world-conformance/ordering.fnl",
+        "golden_oracle": "tests/fixtures/world-conformance/cases.json:C-ORDER",
+        "adversarial_equal_priority_input_permutation": true,
+        "emitted_event_checked": true,
         "source_isolated_worktree_verified": true,
-        "suggested_commit_message": "test(runtime): verify World and ledger hashes across Python hash seeds"
+        "suggested_commit_message": "test(runtime): lock priority collision and emitted event replay across hash seeds"
       },
       "round_history": [
         {
@@ -1341,6 +1356,82 @@
           "seed_variation_negative_control": true,
           "source_isolated_worktree_verified": true,
           "suggested_commit_message": "test(runtime): verify World and ledger hashes across Python hash seeds"
+        },
+        {
+          "round_label": "Cross-process priority collision and same-tick emitted-event golden replay",
+          "source_head_before_round": "9ec05d8ffafe00b83355e49fba1d5135b7ad2d8b",
+          "integration_branch": "feat/wave1-event-priority-replay-20261121",
+          "integration_source_commit": "f7763bb79080e9a34b9828ad2cbd89ea17422467",
+          "python_files": {
+            "tests/verification/test_world_priority_emission_hashseed.py": {
+              "added": 107,
+              "deleted": 0,
+              "net": 107
+            }
+          },
+          "python_diff_totals": {
+            "added": 107,
+            "deleted": 0,
+            "net": 107
+          },
+          "production_python_diff": {
+            "added": 0,
+            "deleted": 0,
+            "net": 0
+          },
+          "test_python_diff": {
+            "added": 107,
+            "deleted": 0,
+            "net": 107
+          },
+          "metric_exclusions": [
+            "EXECUTION_STATE.json governance metadata",
+            "original dirty checkout and unmerged local fpm commit 8f083c9"
+          ],
+          "what_done": [
+            "Verified the published origin/main base 9ec05d8 (merged PR #16) before opening a clean, isolated Wave 1 worktree; original checkout retains unrelated user WIP and local fpm commit.",
+            "Read the governing ORCHESTRATOR_PROMPT.md and Core 99 B1 specification; identified the missing independent cross-process priority-collision and emitted-event regression.",
+            "Research anchor: deterministic discrete-event total order (time, priority, causal depth, monotonic insertion sequence). Hypothesis: fixed ingress yields bit-identical World trace across PYTHONHASHSEED. Invariant: the canonical trace matches the independent C-ORDER golden fixture.",
+            "Reused the existing C-ORDER .fnl world and its fixed golden oracle, which includes same-tick priority -1/0, equal-priority insertion collision, and an emitted same-tick Mark event.",
+            "Five separate Python processes with PYTHONHASHSEED 0, 1, 7, 79 and 999 produced byte-identical canonical World result SHA-256 hashes and exact processed event payload order [2, None, 1, 3, 4].",
+            "Adversarial control swapped equal-priority ingress events. The processed trace and SHA-256 changed, while state Log.sum stayed 10, so the oracle distinguishes order changes even when final state remains the same.",
+            "Added exactly two new pytest test functions in one verification file; code/test line diff +107/-0, production Python +0/-0, repository tracker modifications excluded from code diff.",
+            "Fresh clean-worktree verification: 722 full pytest passed plus 58 subtests; World conformance 50 passed; touched-file Ruff clean; git diff --check clean. Global Ruff still reports 374 pre-existing violations."
+          ],
+          "what_remaining": [
+            "Full compiler/static lint: orphan/dead events, unreachable rules, unused parameters, shadowed identifiers and imported-module diagnostics with precise .fnl spans.",
+            "Cross-process World/ledger replay now covers two independent .fnl fixtures: identity-keyed Population plus linked financial audit, and C-ORDER priority-collision with emitted same-tick event. Alternative financial actions, ledger restatements and larger competing event graphs still need independent hashseed invariance tests; do not claim complete B1 coverage.",
+            "World and ledger event_id/parent_event_id causal provenance, source_rule_span propagation, and true source-linked resource-limit diagnostics remain incomplete.",
+            "Bit-exact snapshot/restore including World/Population state, pending EventKey, keyed RNG counters, and ledger split-run invariant.",
+            "Complete legal formatter with AST round-trip corpus invariants and EBNF grammar drift checks; Phase1 freezes spec/ additions until accepted.",
+            "Retention quotas for processed history and effects, per-resource typed failures, and World/Population scale workloads are still unverified.",
+            "CLI/API exposure of opt-in resource caps is not part of this runtime-only PR; public resource API is still PROPOSED and awaits contract acceptance.",
+            "Representative 1k, 10k, and 100k World population benchmark matrix remains unrun; no unsupported memory/performance claims.",
+            "Global Ruff debt 374 findings in isolated main-based worktree (original dirty checkout findings can be higher), outside these touched files.",
+            "Review the unrelated local fpm commit 8f083c9 and other contributors WIP independently, then merge only with separate proof and green CI; do not commit it accidentally in this PR.",
+            "Waves 2 through 7 remain pending until all Wave1 exit checks pass and the user explicitly authorizes next-wave progression."
+          ],
+          "new_tests_added": 2,
+          "new_test_functions": 2,
+          "full_pytest_passed": 722,
+          "full_pytest_failed": 0,
+          "full_pytest_subtests_passed": 58,
+          "conformance_passed": 50,
+          "global_ruff_errors": 374,
+          "source_scoped_ruff_findings": 0,
+          "hashseed_variants": [
+            0,
+            1,
+            7,
+            79,
+            999
+          ],
+          "hashseed_fixture": "tests/fixtures/world-conformance/ordering.fnl",
+          "golden_oracle": "tests/fixtures/world-conformance/cases.json:C-ORDER",
+          "adversarial_equal_priority_input_permutation": true,
+          "emitted_event_checked": true,
+          "source_isolated_worktree_verified": true,
+          "suggested_commit_message": "test(runtime): lock priority collision and emitted event replay across hash seeds"
         }
       ]
     },
@@ -1553,7 +1644,7 @@
   "next_wave": 1,
   "next_wave_execution_permitted": false,
   "user_approval_needed": true,
-  "suggested_commit_message": "test(runtime): verify World and ledger hashes across Python hash seeds",
+  "suggested_commit_message": "test(runtime): lock priority collision and emitted event replay across hash seeds",
   "history": [
     {
       "timestamp_utc": "2026-11-21T13:25:55+00:00",
@@ -1672,6 +1763,17 @@
         "net": 156
       },
       "integration_source_commit": "c1e12dba763e42844351cc0ddb9060044d8cc2e9",
+      "global_ruff_errors": 374
+    },
+    {
+      "timestamp_utc": "2026-11-21T19:12:25.130282+00:00",
+      "action": "Wave 1 C-ORDER five-process PYTHONHASHSEED golden World trace replay and adversarial same-priority input perturbation; 2 tests, 722 full pytest, 50 conformance.",
+      "round_python_diff_totals": {
+        "added": 107,
+        "deleted": 0,
+        "net": 107
+      },
+      "integration_source_commit": "f7763bb79080e9a34b9828ad2cbd89ea17422467",
       "global_ruff_errors": 374
     }
   ]
