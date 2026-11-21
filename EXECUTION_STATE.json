@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "project": "FunnelScript",
   "created_utc": "2026-11-21T13:25:55+00:00",
-  "updated_utc": "2026-11-21T15:57:11.908699+00:00",
+  "updated_utc": "2026-11-21T18:09:43.593246+00:00",
   "repository_root": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect/funnelscript",
   "workspace_parent": "/Users/mamdouhaboammar/Documents/M-Research/Funnel-Script-ProJect",
   "python_single_source_of_truth": "src/funnelscript/",
@@ -373,7 +373,7 @@
         {
           "name": "Snapshot/replay and Zeno/resource properties",
           "status": "IN_PROGRESS",
-          "note": "EventMachine opt-in queue, per-tick and zero-delay budgets independently verified; World propagation, B4 causal IDs, complete snapshot and ledger split-run remain."
+          "note": "Opt-in EventMachine and World/Population resource guards verified. Ledger/World snapshot, retention quotas, full causal provenance and 100k population benchmarks remain."
         },
         {
           "name": "Typed malformed numeric lexer errors and 10,000-input Unicode property check",
@@ -421,6 +421,11 @@
           "name": "Opt-in EventMachine resource envelopes and causal diagnostics",
           "status": "VERIFIED",
           "note": "19 fresh cases incl. 80 Hypothesis examples; isolated 700 pytest, 50 World conformance, scoped Ruff 0, 100k event resource benchmarks completed."
+        },
+        {
+          "name": "World and Population opt-in resource guard propagation",
+          "status": "VERIFIED",
+          "note": "18 tests, 13 test functions, 80 Hypothesis cases; World and per-agent Population exact queue/tick/Zeno cap propagation; 718 isolated tests, 50 conformance, scoped Ruff 0."
         }
       ],
       "target_files_modified_by_wave": [
@@ -440,23 +445,25 @@
         "src/funnelscript/core/event_machine.py",
         "tests/verification/test_event_causal_ordering.py",
         "src/funnelscript/core/__init__.py",
-        "tests/verification/test_event_resource_envelope.py"
+        "tests/verification/test_event_resource_envelope.py",
+        "src/funnelscript/runtime/world_executor.py",
+        "tests/verification/test_world_resource_propagation.py"
       ],
-      "git_commit_hash": "d08f33b24860dabdec2ed5bbc1daa2fd1a155cb4",
+      "git_commit_hash": "becd1e56bb75420387436ef8f2e0ee60345c94c0",
       "new_commit_created": true,
-      "test_pass_count": 798,
+      "test_pass_count": 718,
       "exit_gate_metrics": {
         "gate": "Core 99 roadmap criteria including spans, formatter, 10k parser fuzz, five hash-seed checks, snapshot/replay and 100k events",
         "passed": false,
         "observed": {
-          "full_pytest_passed": 798,
+          "full_pytest_passed": 718,
           "full_pytest_failed": 0,
           "full_pytest_skipped": 0,
           "full_pytest_subtests_passed": 58,
           "conformance_passed": 50,
           "hypothesis_unicode_inputs": 10000,
           "focused_ruff_scoped_passed": true,
-          "global_ruff_errors": 480,
+          "global_ruff_errors": 374,
           "hashseed_variants_verified_for_one_fixture": [
             0,
             1,
@@ -551,13 +558,27 @@
           "event_resource_due_100000_elapsed_seconds": 0.826611166998191,
           "event_resource_fanout_100000_elapsed_seconds": 0.40723016599804396,
           "event_resource_due_100000_peak_rss_bytes": 88834048,
-          "event_resource_fanout_100000_peak_rss_bytes": 88555520
+          "event_resource_fanout_100000_peak_rss_bytes": 88555520,
+          "world_resource_new_pytest_cases": 18,
+          "world_resource_new_test_functions": 13,
+          "world_resource_hypothesis_examples": 80,
+          "world_resource_initial_queue_bound": true,
+          "world_resource_emitted_fanout_bound": true,
+          "world_resource_tick_bound": true,
+          "world_resource_zero_delay_guard": true,
+          "world_resource_population_independent_agent_limits": true,
+          "world_resource_population_agent_id_error_note": true,
+          "world_resource_random_nonbinding_parity": true,
+          "world_resource_isolated_pytest_passed": 718,
+          "world_resource_isolated_conformance_passed": 50,
+          "world_resource_isolated_ruff_findings": 0,
+          "world_resource_scoped_preexisting_ruff_fixed": 2
         }
       },
-      "new_pytest_cases": 108,
-      "research_anchor": "Core99 B2 plus research runtime-resource-envelope-v0 H-RQ1/H-RQ2/H-RT1 (PROPOSED, not accepted), DEVS zero-delay Zeno semantics. Preserve original behavior absent optional bounds.",
-      "falsifiable_hypothesis": "When explicit budgets bind, resource failures occur exactly at queue length Lq+1, per-tick count Lt+1 or zero-delay ancestor depth Lz+1 with source event lineage; without binding limits, complete results and RNG draws are unchanged.",
-      "invariant": "Successful bounded runs have |Q|<=Lq; processed_per_timestamp<=Lt; consecutive-zero-delay ancestry_depth<=Lz; output RunResult never silently truncated; invariant EventKey lexicographic ordering preserved.",
+      "new_pytest_cases": 126,
+      "research_anchor": "DEVS event calendar with bounded admission, runtime-resource-envelope-v0 proposal H-RQ1/H-RQ2/H-RT1 and population-identity-rng-v0; do not treat proposed names as stable public contract.",
+      "falsifiable_hypothesis": "When opt-in Lq,Lt,Lz are passed to World/Population, each agent-local EventMachine rejects exactly at cap+1; when caps do not bind, World state, processed, pending, traces, population partition and seeded RNG are unchanged.",
+      "invariant": "For each agent a and t, |Q_a|<=Lq; count_due(a,t)<=Lt; consecutive_same_time_depth<=Lz; guarded output == unguarded output when nonbinding; any limit error has original category+cap+count+chain and population agent_id note.",
       "blockers": [
         {
           "id": "W1-SPANS",
@@ -581,88 +602,79 @@
         }
       ],
       "last_round": {
-        "round_label": "Opt-in EventMachine resource envelopes, Zeno loop guard, typed causal diagnostics, and default-path performance preservation",
-        "source_head_before_round": "f81f2180e2ad24477a7715fd8a13016347f1a731",
-        "started_from_baseline_directory": "/var/folders/_w/rzz6bs252_15ztt3z4d9hqsr0000gn/T/funnelscript_wave1_resource_round_da326omf",
+        "round_label": "World and identity-isolated Population opt-in EventMachine guard propagation, typed agent attribution and 80 keyed-RNG replay examples",
+        "source_head_before_round": "a4af8a0cfb3713489c5f32ba62f36b5c71797047",
+        "integration_branch": "feat/wave1-world-resource-propagation-20261121",
+        "integration_source_commit": "becd1e56bb75420387436ef8f2e0ee60345c94c0",
         "python_files": {
-          "src/funnelscript/core/event_machine.py": {
-            "added": 160,
-            "deleted": 25,
-            "net": 135
+          "src/funnelscript/runtime/world_executor.py": {
+            "added": 33,
+            "deleted": 13,
+            "net": 20
           },
-          "src/funnelscript/core/__init__.py": {
-            "added": 3,
-            "deleted": 1,
-            "net": 2
-          },
-          "tests/verification/test_event_resource_envelope.py": {
-            "added": 215,
+          "tests/verification/test_world_resource_propagation.py": {
+            "added": 244,
             "deleted": 0,
-            "net": 215
+            "net": 244
           }
         },
         "python_diff_totals": {
-          "added": 378,
-          "deleted": 26,
-          "net": 352
+          "added": 277,
+          "deleted": 13,
+          "net": 264
         },
         "staged_source_commit_diff_totals": {
-          "added": 378,
-          "deleted": 26,
-          "net": 352
+          "added": 277,
+          "deleted": 13,
+          "net": 264
         },
         "metric_exclusions": [
           "EXECUTION_STATE.json metadata",
-          "unrelated preexisting or concurrent dirty working-tree modifications"
+          "all unrelated user dirty WIP and unreviewed local fpm commit 8f083c9"
         ],
         "what_done": [
-          "Read authoritative orchestration/Phase1/Core99 roadmap and proposed runtime-resource-envelope-v0 research; chose only additive opt-in bounds and preserved existing unspecified defaults.",
-          "TDD RED: first new tests failed because FunnelRuntimeLimitError did not exist; GREEN after adding typed failures and queue/tick/zero-delay guard invariants.",
-          "EventMachine.run optionally accepts max_queue_size, max_events_per_tick and max_zero_delay_depth; original max_events=100000 remains the unmodified total processing budget.",
-          "Admission cap rejects both potentially endless initial generators and model-emitted fanout at exact attempted_count, without publishing a partial RunResult or silently dropping events.",
-          "Per-time tick budget resets after clock advances; zero-delay depth resets on strictly positive time advances and counts ancestry, not unrelated sibling events.",
-          "FunnelRuntimeLimitError(RuntimeError) exposes limit_kind, configured_cap, attempted_count, timestamp, causal_chain and trace_complete; full ancestor trace when optional budgets enable provenance, explicit incompleteness label on an untraced default max_events violation.",
-          "Discovered full-suite regression: a legacy test matches the literal max_events reached; fixed production diagnostic wording and did not modify or weaken that test.",
-          "Added 13 new test functions representing 19 pytest cases, including an 80-example Hypothesis invariant, invalid input validation, horizon queue retention, bounded generator consumption and distinct typed failure categories.",
-          "Removed previously measured overhead from default execution by retaining 5-field EventKey tuples unless an optional resource guard activates causal trace links; all real-world performance claims remain outside this scope.",
-          "Full working tree 798 passed and 58 subtests, 50 World conformance, scoped Ruff zero, global unrelated Ruff 480; isolated HEAD + staged code 700 passed and 58 subtests, 50 conformance, scoped Ruff zero at 80 columns.",
-          "Isolated resource benchmarks for 100,000 due events: 0.82661s, 88.834MB RSS; fanout: 0.40723s, 88.556MB RSS; pre-round baseline respectively 0.87843s/88.687MB and 0.47772s/88.441MB, timing is noisy and not proof of speedup.",
-          "Nine protected existing governance files verified SHA-256 unchanged; code/test diff exactly +378/-26, excludes EXECUTION_STATE.json and unrelated dirty WIP."
+          "Read governing ORCHESTRATOR_PROMPT, implementation roadmap, Core99 B2, Phase1 freeze, repository AGENTS.md, research event-kernel-v0 and runtime-resource-envelope-v0 (proposal only).",
+          "Preserved one unreviewed concurrent local fpm commit 8f083c9 and 33 dirty tracked +21 untracked entries in the original checkout by branching from origin/main in an entirely separate clean git worktree.",
+          "Research anchor: DEVS event calendar, opt-in bounded admission H-RQ1/H-RQ2/H-RT1 and identity-isolated keyed RNG; falsifiable bounded queue/tick/zero-depth invariants fixed before writing tests.",
+          "TDD RED: WorldExecutor rejected max_queue_size as unexpected keyword; GREEN by passing three optional guard kwargs through WorldExecutor.run into the canonical EventMachine.run.",
+          "PopulationExecutor.run forwards the exact same opt-in guard kwargs into each agent-local WorldExecutor.run; caps are per agent and never incorrectly aggregated across the population.",
+          "Typed FunnelRuntimeLimitError propagates intact for per-agent limit failures and is annotated with the exact population agent_id using Python BaseException.add_note; incomplete PopulationResult is never returned.",
+          "World runtime tests cover bound on unbounded incoming generator, emitted fanout, simultaneous independent arrivals, zero-delay cyclic ancestry, positive-time depth reset, default max_events compatibility, and full event traces.",
+          "Population tests cover independent cap boundaries, error from one agent, exact causal chain, per-tick count, malformed cap rejection, and opt-in limits preserving keyed random streams.",
+          "Added 13 test functions with 18 pytest cases, including 80 randomized Hypothesis examples comparing default and guarded World+Population outputs.",
+          "Proved and repaired two pre-existing Ruff issues in the touched world_executor.py (unsorted imports, loop variable shadowing dataclasses.field); zero scoped Ruff findings and no function longer than 80 lines.",
+          "Clean independent origin/main + exactly this code/test slice: 718 pytest passed with 58 subtests, 50 World conformance passed, scoped Ruff 0; global Ruff 374 pre-existing non-scope findings.",
+          "Nine governing documentation files SHA-256 unchanged; exact code/test diff +277/-13 net +264; no changes to broader dirty working tree, parser, frontend, core, or research files."
         ],
         "what_remaining": [
-          "Resource budget propagation to WorldExecutor/PopulationExecutor, exact .fnl source_rule_span provenance for runtime limits, and full B4 event ID/parent ID causal tracing have not been implemented.",
-          "Opt-in runtime envelope is an implementation slice under a PROPOSED research contract; formal owner acceptance, history/intent retention quotas, representative scale benchmarks and public compatibility policy remain.",
-          "Default max_events failure retains RuntimeError-compatible wording but does not collect full ancestor chain when no opt-in guard was enabled; trace_complete explicitly marks that limitation.",
-          "Complete World and ledger bit-identical replay across five PYTHONHASHSEED values, not only the isolated EventMachine fixture.",
-          "Implement bit-exact snapshot/restore of World, agent, pending EventKey, keyed RNG counter, and ledger; Hypothesis split-run equivalence.",
-          "Static compiler linter for unreachable rules, orphan/dead events, shadowed identifiers, unused declared parameters, including truthful spans.",
-          "Complete physical spans for legacy StrategyAST/Pydantic and further imported-module error provenance, with no user-facing raw tracebacks.",
-          "Canonical .fnl formatter, full valid-corpus AST round trip, and EBNF drift checks require resolving the existing Phase 1 spec/grammar freeze conflict.",
-          "Global Ruff still reports 480 findings in the current dirty working tree, outside the touched code/test files.",
-          "Preserve unrelated web decoupling, API, solver, marketing/calibration and documentation WIP without staging or reverting it.",
-          "Do not start Wave 2 until every Wave 1 exit gate passes and the user explicitly approves proceeding."
+          "Full compiler/static lint: orphan/dead events, unreachable rules, unused parameters, shadowed identifiers and imported-module diagnostics with precise .fnl spans.",
+          "Full origin/world and ledger SHA256 reproducibility across five PYTHONHASHSEED environments, not only isolated EventMachine tests.",
+          "World and ledger event_id/parent_event_id causal provenance, source_rule_span propagation, and true source-linked resource-limit diagnostics remain incomplete.",
+          "Bit-exact snapshot/restore including World/Population state, pending EventKey, keyed RNG counters, and ledger split-run invariant.",
+          "Complete legal formatter with AST round-trip corpus invariants and EBNF grammar drift checks; Phase1 freezes spec/ additions until accepted.",
+          "Retention quotas for processed history and effects, per-resource typed failures, and World/Population scale workloads are still unverified.",
+          "CLI/API exposure of opt-in resource caps is not part of this runtime-only PR; public resource API is still PROPOSED and awaits contract acceptance.",
+          "Representative 1k, 10k, and 100k World population benchmark matrix remains unrun; no unsupported memory/performance claims.",
+          "Global Ruff debt 374 findings in isolated main-based worktree (original dirty checkout findings can be higher), outside these touched files.",
+          "Review the unrelated local fpm commit 8f083c9 and other contributors WIP independently, then merge only with separate proof and green CI; do not commit it accidentally in this PR.",
+          "Waves 2 through 7 remain pending until all Wave1 exit checks pass and the user explicitly authorizes next-wave progression."
         ],
-        "new_tests_added": 19,
+        "new_tests_added": 18,
         "new_test_functions": 13,
         "hypothesis_examples": 80,
-        "full_pytest_passed": 798,
+        "full_pytest_passed": 718,
         "full_pytest_failed": 0,
         "full_pytest_subtests_passed": 58,
         "conformance_passed": 50,
-        "global_ruff_errors": 480,
-        "isolated_staged_pytest_passed": 700,
+        "global_ruff_errors": 374,
+        "isolated_staged_pytest_passed": 718,
         "isolated_staged_conformance_passed": 50,
         "isolated_staged_ruff_findings": 0,
         "protected_existing_docs_unchanged": 9,
-        "baseline_benchmark_due_100000_seconds": 0.8784342079998169,
-        "baseline_benchmark_fanout_100000_seconds": 0.4777229579995037,
-        "isolated_benchmark_due_100000_seconds": 0.826611166998191,
-        "isolated_benchmark_fanout_100000_seconds": 0.40723016599804396,
-        "isolated_due_peak_rss_bytes": 88834048,
-        "isolated_fanout_peak_rss_bytes": 88555520,
-        "integration_source_commit": "d08f33b24860dabdec2ed5bbc1daa2fd1a155cb4",
-        "integration_branch": "feat/wave1-runtime-resource-guards-20261121",
-        "suggested_commit_message": "feat(runtime): add opt-in event resource envelopes and causal diagnostics"
+        "preexisting_scoped_ruff_findings_fixed": 2,
+        "source_isolated_worktree_verified": true,
+        "local_unrelated_main_ahead_commit": "8f083c9",
+        "suggested_commit_message": "feat(runtime): expose opt-in event guards in World and Population"
       },
       "round_history": [
         {
@@ -1151,6 +1163,90 @@
           "integration_source_commit": "ce4642933a0808a40edb6dbde2bb6e334be607f1",
           "integration_branch": "feat/wave1-causal-eventkey-20261121",
           "suggested_commit_message": "feat(runtime): apply causal-depth event ordering"
+        },
+        {
+          "round_label": "Opt-in EventMachine resource envelopes, Zeno loop guard, typed causal diagnostics, and default-path performance preservation",
+          "source_head_before_round": "f81f2180e2ad24477a7715fd8a13016347f1a731",
+          "started_from_baseline_directory": "/var/folders/_w/rzz6bs252_15ztt3z4d9hqsr0000gn/T/funnelscript_wave1_resource_round_da326omf",
+          "python_files": {
+            "src/funnelscript/core/event_machine.py": {
+              "added": 160,
+              "deleted": 25,
+              "net": 135
+            },
+            "src/funnelscript/core/__init__.py": {
+              "added": 3,
+              "deleted": 1,
+              "net": 2
+            },
+            "tests/verification/test_event_resource_envelope.py": {
+              "added": 215,
+              "deleted": 0,
+              "net": 215
+            }
+          },
+          "python_diff_totals": {
+            "added": 378,
+            "deleted": 26,
+            "net": 352
+          },
+          "staged_source_commit_diff_totals": {
+            "added": 378,
+            "deleted": 26,
+            "net": 352
+          },
+          "metric_exclusions": [
+            "EXECUTION_STATE.json metadata",
+            "unrelated preexisting or concurrent dirty working-tree modifications"
+          ],
+          "what_done": [
+            "Read authoritative orchestration/Phase1/Core99 roadmap and proposed runtime-resource-envelope-v0 research; chose only additive opt-in bounds and preserved existing unspecified defaults.",
+            "TDD RED: first new tests failed because FunnelRuntimeLimitError did not exist; GREEN after adding typed failures and queue/tick/zero-delay guard invariants.",
+            "EventMachine.run optionally accepts max_queue_size, max_events_per_tick and max_zero_delay_depth; original max_events=100000 remains the unmodified total processing budget.",
+            "Admission cap rejects both potentially endless initial generators and model-emitted fanout at exact attempted_count, without publishing a partial RunResult or silently dropping events.",
+            "Per-time tick budget resets after clock advances; zero-delay depth resets on strictly positive time advances and counts ancestry, not unrelated sibling events.",
+            "FunnelRuntimeLimitError(RuntimeError) exposes limit_kind, configured_cap, attempted_count, timestamp, causal_chain and trace_complete; full ancestor trace when optional budgets enable provenance, explicit incompleteness label on an untraced default max_events violation.",
+            "Discovered full-suite regression: a legacy test matches the literal max_events reached; fixed production diagnostic wording and did not modify or weaken that test.",
+            "Added 13 new test functions representing 19 pytest cases, including an 80-example Hypothesis invariant, invalid input validation, horizon queue retention, bounded generator consumption and distinct typed failure categories.",
+            "Removed previously measured overhead from default execution by retaining 5-field EventKey tuples unless an optional resource guard activates causal trace links; all real-world performance claims remain outside this scope.",
+            "Full working tree 798 passed and 58 subtests, 50 World conformance, scoped Ruff zero, global unrelated Ruff 480; isolated HEAD + staged code 700 passed and 58 subtests, 50 conformance, scoped Ruff zero at 80 columns.",
+            "Isolated resource benchmarks for 100,000 due events: 0.82661s, 88.834MB RSS; fanout: 0.40723s, 88.556MB RSS; pre-round baseline respectively 0.87843s/88.687MB and 0.47772s/88.441MB, timing is noisy and not proof of speedup.",
+            "Nine protected existing governance files verified SHA-256 unchanged; code/test diff exactly +378/-26, excludes EXECUTION_STATE.json and unrelated dirty WIP."
+          ],
+          "what_remaining": [
+            "Resource budget propagation to WorldExecutor/PopulationExecutor, exact .fnl source_rule_span provenance for runtime limits, and full B4 event ID/parent ID causal tracing have not been implemented.",
+            "Opt-in runtime envelope is an implementation slice under a PROPOSED research contract; formal owner acceptance, history/intent retention quotas, representative scale benchmarks and public compatibility policy remain.",
+            "Default max_events failure retains RuntimeError-compatible wording but does not collect full ancestor chain when no opt-in guard was enabled; trace_complete explicitly marks that limitation.",
+            "Complete World and ledger bit-identical replay across five PYTHONHASHSEED values, not only the isolated EventMachine fixture.",
+            "Implement bit-exact snapshot/restore of World, agent, pending EventKey, keyed RNG counter, and ledger; Hypothesis split-run equivalence.",
+            "Static compiler linter for unreachable rules, orphan/dead events, shadowed identifiers, unused declared parameters, including truthful spans.",
+            "Complete physical spans for legacy StrategyAST/Pydantic and further imported-module error provenance, with no user-facing raw tracebacks.",
+            "Canonical .fnl formatter, full valid-corpus AST round trip, and EBNF drift checks require resolving the existing Phase 1 spec/grammar freeze conflict.",
+            "Global Ruff still reports 480 findings in the current dirty working tree, outside the touched code/test files.",
+            "Preserve unrelated web decoupling, API, solver, marketing/calibration and documentation WIP without staging or reverting it.",
+            "Do not start Wave 2 until every Wave 1 exit gate passes and the user explicitly approves proceeding."
+          ],
+          "new_tests_added": 19,
+          "new_test_functions": 13,
+          "hypothesis_examples": 80,
+          "full_pytest_passed": 798,
+          "full_pytest_failed": 0,
+          "full_pytest_subtests_passed": 58,
+          "conformance_passed": 50,
+          "global_ruff_errors": 480,
+          "isolated_staged_pytest_passed": 700,
+          "isolated_staged_conformance_passed": 50,
+          "isolated_staged_ruff_findings": 0,
+          "protected_existing_docs_unchanged": 9,
+          "baseline_benchmark_due_100000_seconds": 0.8784342079998169,
+          "baseline_benchmark_fanout_100000_seconds": 0.4777229579995037,
+          "isolated_benchmark_due_100000_seconds": 0.826611166998191,
+          "isolated_benchmark_fanout_100000_seconds": 0.40723016599804396,
+          "isolated_due_peak_rss_bytes": 88834048,
+          "isolated_fanout_peak_rss_bytes": 88555520,
+          "integration_source_commit": "d08f33b24860dabdec2ed5bbc1daa2fd1a155cb4",
+          "integration_branch": "feat/wave1-runtime-resource-guards-20261121",
+          "suggested_commit_message": "feat(runtime): add opt-in event resource envelopes and causal diagnostics"
         }
       ]
     },
@@ -1362,8 +1458,8 @@
   "status": "IN_PROGRESS",
   "next_wave": 1,
   "next_wave_execution_permitted": false,
-  "user_approval_needed": "Wave 1 exit gates incomplete; explicit approval required only after all Wave 1 gates pass. Do not advance to Wave 2.",
-  "suggested_commit_message": "feat(runtime): add opt-in event resource envelopes and causal diagnostics",
+  "user_approval_needed": "Wave 1 exit gates incomplete; do not advance to Wave 2 until all gates pass and explicit next-wave approval.",
+  "suggested_commit_message": "feat(runtime): expose opt-in event guards in World and Population",
   "history": [
     {
       "timestamp_utc": "2026-11-21T13:25:55+00:00",
@@ -1461,6 +1557,17 @@
       },
       "integration_source_commit": "d08f33b24860dabdec2ed5bbc1daa2fd1a155cb4",
       "global_ruff_errors": 480
+    },
+    {
+      "timestamp_utc": "2026-11-21T18:09:43.593246+00:00",
+      "action": "Wave 1 World/Population opt-in queue/tick/zero-delay limit propagation, per-agent note attribution, 18 pytest cases/80 Hypothesis, isolated 718 pass 50 conformance.",
+      "round_python_diff_totals": {
+        "added": 277,
+        "deleted": 13,
+        "net": 264
+      },
+      "integration_source_commit": "becd1e56bb75420387436ef8f2e0ee60345c94c0",
+      "global_ruff_errors": 374
     }
   ]
 }
