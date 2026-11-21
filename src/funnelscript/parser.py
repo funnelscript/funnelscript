@@ -129,6 +129,32 @@ class Parser:
         if pkg_rel.is_absolute() or ".." in pkg_rel.parts:
             raise ParserError("Invalid World module path")
 
+        # 1. Resolve via .fpm/resolution-map.json if present
+        curr_fpm = source_path.parent.resolve()
+        for _ in range(6):
+            map_file = curr_fpm / ".fpm" / "resolution-map.json"
+            if map_file.is_file():
+                try:
+                    res_map = json.loads(map_file.read_text(encoding="utf-8"))
+                    packages = res_map.get("packages", {})
+                    parts = reference.split("/", 2)
+                    pkg_key = f"{parts[0]}/{parts[1]}" if len(parts) >= 2 else parts[0]
+                    if pkg_key in packages:
+                        pkg_info = packages[pkg_key]
+                        if len(parts) == 3 and "modules" in pkg_info and parts[2] in pkg_info["modules"]:
+                            target = Path(pkg_info["modules"][parts[2]]).resolve()
+                            if target.is_file():
+                                return target
+                        elif "entry" in pkg_info:
+                            target = Path(pkg_info["entry"]).resolve()
+                            if target.is_file():
+                                return target
+                except (json.JSONDecodeError, OSError, KeyError):
+                    pass
+            if curr_fpm.parent == curr_fpm:
+                break
+            curr_fpm = curr_fpm.parent
+
         search_dirs: list[Path] = [
             source_path.parent,
             source_path.parent / ".funnelscript_modules",
