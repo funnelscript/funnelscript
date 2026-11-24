@@ -86,3 +86,12 @@ coordinator.*/
 assets/video/
 sandbox/
 *.rea.json
+
+# Zero-Slop & Environment Hygiene
+agent-kernel/env-vault/
+*worktrees/
+*.wave.*
+coordinator.*/
+*.pem
+*.key
+.anti-slop/scratch/
