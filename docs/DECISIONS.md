@@ -445,9 +445,9 @@
 * **Status:** Accepted (experimental v0 contract, 2026-10-31)
 * **Context:** Domain-neutral World declarations and stochastic rules exist, but without source-level modules community authors cannot reuse standard marketing abstractions across Worlds. Introducing `campaign` or `conversion` as compiler keywords would contradict DEC-008/010.
 * **Decision:**
-  1. Support contextual `import "reference.fnl" as Alias;` statements inside a World, where `reference` is either a confined relative source path or a packaged `std:marketing/...` path. Compile imports into ordinary one-owner World declarations under the alias, then use the existing type checker and event kernel.
+  1. Support contextual `import "reference.fnls" as Alias;` statements inside a World, where `reference` is either a confined relative source path or a packaged `std:marketing/...` path. Compile imports into ordinary one-owner World declarations under the alias, then use the existing type checker and event kernel.
   2. Restrict the first module contract to **exactly one exported entity or agent**, aliased to one unique owner. Reject duplicate names, cycles, depth beyond 16 imports, non-World content, absent modules, absolute paths, parent traversal and symlink escapes before any runtime state transition.
-  3. Distribute the actual `stdlib/marketing/lead_response.fnl` World source inside the Python wheel. No Python execution, network retrieval, separate scheduler, marketing-only compiler semantics, or new core dependencies are introduced.
+  3. Distribute the actual `stdlib/marketing/lead_response.fnls` World source inside the Python wheel. No Python execution, network retrieval, separate scheduler, marketing-only compiler semantics, or new core dependencies are introduced.
   4. Define the first marketing library as a **single-exposure lead-response journey** with typed Impression/Checkout events, seeded Bernoulli conversion, one scheduled Checkout, and scenario-defined spend/revenue. A second Impression is deliberately ignored. It is not a consumer population model or empirical economic account.
   5. Treat `cpc`, `order_value`, and `conversion_probability` as user-provided assumptions. Existing float typing checks finiteness, but nonnegative money and real conversion fidelity remain explicit unsolved boundaries.
 * **Research and falsification:** `spec/marketing-stdlib-v0.md` (H-M1 to H-M4), `evals/marketing-stdlib-v0.md` and `tests/test_world_modules.py`. Packaged-wheel smoke runs outside the repository.
@@ -461,7 +461,7 @@
 * **Status:** Accepted for candidate v0.2.0a1 (2026-10-31); publication status is independently verified.
 * **Context:** A packageable language runtime and source-defined Marketing Standard Library exist, but the first-time user still needs a cloned checkout and manually authored source. No repository CI existed, and a green local build was not sufficient evidence for a distribution claim.
 * **Decision:**
-  1. Expose `funnelscript init-world TARGET.fnl` as a minimal, deterministic World starter with the existing `std:marketing/lead_response.fnl` import. Use exclusive create mode, reject wrong suffix/missing parent, and preserve existing user bytes on repeated invocation.
+  1. Expose `funnelscript init-world TARGET.fnls` as a minimal, deterministic World starter with the existing `std:marketing/lead_response.fnls` import. Use exclusive create mode, reject wrong suffix/missing parent, and preserve existing user bytes on repeated invocation.
   2. Designate PEP 440 `0.2.0a1` as the package candidate, with `v0.2.0a1` as its Git source reference if safely published. A Git source installation through `uvx --from git+https://...` is the experimental distribution channel; no PyPI or production release is claimed.
   3. Add pinned GitHub Actions steps for locked Python tests, source/wheel build, clean-directory installed-wheel execution, and Bun frontend lockfile tests/build. Artifacts are retained for 14 days. CI configuration is not evidence of actual remote success.
   4. Keep onboarding examples and disclaimers explicit: a single typed Impression with model-supplied probability, seeded Bernoulli and one delayed Checkout is a reproducible interpreter example, not a validated market prediction or authority to execute Live effects.
@@ -511,3 +511,13 @@
 ## Phase 007E — Implementation record, not an Accepted ADR (2026-11-01)
 
 An opt-in audit format (`funnelscript-financial-audit-v1`) and narrow single-writer checkpoint were implemented around `MarketingLedger`, with restore requiring independently supplied World execution trace and policy. Existing accepted decisions remain unchanged; no Accepted ADR is created. Unavailable trust roots, external authorization and multiple financial writers remain approval gates. See `docs/DEBATES.md` and the research spec.
+
+---
+
+## Decision Record: Canonical File Extension Migration (.fnl -> .fnls) (2026-11-22)
+
+* **Status:** Accepted pre-v1.0 language architecture decision.
+* **Context:** The original `.fnl` extension collided directly with Fennel Lisp in GitHub Linguist, text editor filetype associations, and syntax highlighter ecosystems, creating tooling friction and incorrect syntax detection.
+* **Decision:** Formally migrate the single canonical FunnelScript source file extension from `.fnl` to `.fnls` across the entire codebase, compiler, runtime, standard library, package manager contracts (`fpm`), examples, and test fixtures. No silent dual-extension fallback is retained in parser or module resolution. The CLI incorporates an explicit migration guard failing cleanly with helpful rename diagnostics when legacy `.fnl` paths are supplied.
+* **Scope & Rationale:** Clean, atomic pre-v1.0 break avoiding dual-extension technical debt. Preserves complete Git history via atomic `git mv`.
+* **Verification:** Zero remaining `.fnl` source files, CLI migration guard unit tests, and 100% green test passes across core and package suites.

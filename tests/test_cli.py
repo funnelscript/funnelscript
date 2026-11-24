@@ -7,13 +7,18 @@ Falsifiable Hypotheses:
 
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 from pathlib import Path
-import json
-import pytest
 
-from funnelscript.cli import check_command, init_command, schema_command, simulate_command
+import pytest
+from funnelscript.cli import (
+    check_command,
+    init_command,
+    schema_command,
+    simulate_command,
+)
 
 
 def test_cli_exit_code_file_not_found(tmp_path):
@@ -44,7 +49,7 @@ def test_cli_check_invalid_syntax(tmp_path):
 
 def test_cli_init_command(tmp_path):
     """init command generates clean, lintable starter strategy."""
-    target_fnl = tmp_path / "summer_launch.fnl.json"
+    target_fnl = tmp_path / "summer_launch.fnls.json"
     code = init_command("Summer Launch", str(target_fnl))
     assert code == 0
     assert target_fnl.exists()
@@ -103,6 +108,7 @@ def test_cli_subprocess_invocation():
 # Phase 002: keep user input errors separate from internal faults and I/O failures.
 def test_cli_check_propagates_unexpected_parser_fault(monkeypatch):
     from unittest.mock import Mock
+
     from funnelscript import cli
 
     monkeypatch.setattr(
@@ -114,6 +120,7 @@ def test_cli_check_propagates_unexpected_parser_fault(monkeypatch):
 
 def test_cli_simulate_propagates_unexpected_parser_fault(monkeypatch):
     from unittest.mock import Mock
+
     from funnelscript import cli
 
     monkeypatch.setattr(cli, "check_command", lambda *args, **kwargs: 0)
@@ -127,6 +134,7 @@ def test_cli_simulate_propagates_unexpected_parser_fault(monkeypatch):
 @pytest.mark.parametrize("command", ["check", "simulate"])
 def test_cli_parser_read_error_is_io_failure(monkeypatch, capsys, command):
     from unittest.mock import Mock
+
     from funnelscript import cli
 
     monkeypatch.setattr(
@@ -146,13 +154,15 @@ def test_cli_parser_read_error_is_io_failure(monkeypatch, capsys, command):
 
 def test_cli_world_lexer_error_is_controlled(monkeypatch, capsys):
     from unittest.mock import Mock
-    from funnelscript import cli
+
     from funnelscript.tokens import LexerError
+
+    from funnelscript import cli
 
     monkeypatch.setattr(
         cli.Parser, "from_file", Mock(side_effect=LexerError("invalid token", 1, 1))
     )
-    assert cli.check_command("examples/counter_world.fnl") == 1
+    assert cli.check_command("examples/counter_world.fnls") == 1
     assert "Parse Error" in capsys.readouterr().out
 
 
@@ -164,6 +174,7 @@ def test_cli_simulate_malformed_input_is_controlled(tmp_path):
 
 def test_cli_event_oversized_json_rejected_before_decode(monkeypatch):
     from unittest.mock import Mock
+
     from funnelscript import cli
 
     decoder = Mock(side_effect=AssertionError("decoder must not run"))
@@ -175,6 +186,7 @@ def test_cli_event_oversized_json_rejected_before_decode(monkeypatch):
 
 def test_cli_event_size_is_measured_in_utf8_bytes_before_decode(monkeypatch):
     from unittest.mock import Mock
+
     from funnelscript import cli
 
     decoder = Mock(side_effect=AssertionError("decoder must not run"))
@@ -235,3 +247,103 @@ def test_cli_export_absolute_destination_remains_allowed(tmp_path):
     )
     assert code == 0
     assert report_path.is_file()
+
+
+def test_cli_solve_command_success(capsys, tmp_path):
+    from funnelscript.cli import solve_command
+
+    out_file = tmp_path / "solution.json"
+    code = solve_command(
+        "examples/sample_solver_spec.json",
+        output_path=str(out_file),
+        as_json=False,
+    )
+    assert code == 0
+    assert out_file.exists()
+    captured = capsys.readouterr()
+    assert "Optimal Marketing Decision Allocation" in captured.out
+    assert "Expected Net Profit" in captured.out
+
+
+def test_cli_solve_command_missing_file(capsys):
+    from funnelscript.cli import solve_command
+
+    code = solve_command("non_existent_solver_spec.json")
+    assert code == 2
+    captured = capsys.readouterr()
+    assert "File not found" in captured.err
+
+
+def test_cli_calibrate_command(capsys, tmp_path):
+    from funnelscript.cli import calibrate_command
+
+    out_fnl = tmp_path / "calibrated.fnls"
+    code = calibrate_command(
+        "examples/data/ecommerce_campaign_30d.csv",
+        settlements_csv="examples/data/payment_settlement_logs.csv",
+        output_path=str(out_fnl),
+        campaign_name="CliTestWorld",
+        as_json=False,
+    )
+    assert code == 0
+    assert out_fnl.exists()
+    captured = capsys.readouterr()
+    assert "Empirical Calibration Report" in captured.out
+    assert "Blended CAC" in captured.out
+
+
+def test_cli_backtest_command(capsys, tmp_path):
+    from funnelscript.cli import backtest_command
+
+    out_report = tmp_path / "backtest_summary.txt"
+    code = backtest_command(
+        "examples/data/ecommerce_campaign_30d.csv",
+        settlements_csv="examples/data/payment_settlement_logs.csv",
+        split_ratio=0.5,
+        initial_cash=15000.0,
+        output_path=str(out_report),
+        as_json=False,
+    )
+    assert code == 0
+    assert out_report.exists()
+    captured = capsys.readouterr()
+    assert "Empirical Holdout Benchmark" in captured.out
+    assert "Cash Ruin Event" in captured.out
+
+
+def test_cli_fnl_extension_migration_guard(capsys):
+    """Passing a legacy .fnl file must exit non-zero with a clear .fnls migration message."""
+    from funnelscript.cli import check_command, init_world_command, run_world_command
+
+    # 1. check_command
+    code = check_command("legacy_model.fnl", quiet=False)
+    assert code != 0
+    captured = capsys.readouterr()
+    combined_check = captured.out + captured.err
+    assert "migrated from" in combined_check or "migration" in combined_check.lower()
+    assert ".fnls" in combined_check
+
+    # 2. run_world_command
+    code_rw = run_world_command("legacy_world.fnl", ["Prospect.Impression@0"])
+    assert code_rw != 0
+    captured_rw = capsys.readouterr()
+    assert ".fnls" in (captured_rw.out + captured_rw.err)
+
+    # 3. init_world_command
+    code_init = init_world_command("starter.fnl")
+    assert code_init != 0
+    captured_init = capsys.readouterr()
+    assert ".fnls" in (captured_init.out + captured_init.err)
+
+    # 4. CLI invocation via subprocess
+    res = subprocess.run(
+        [sys.executable, "-m", "funnelscript.cli", "check", "my_model.fnl"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert res.returncode != 0
+    combined_cli = res.stdout + res.stderr
+    assert ".fnls" in combined_cli
+
+

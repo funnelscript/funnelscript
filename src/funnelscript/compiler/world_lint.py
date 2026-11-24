@@ -14,6 +14,7 @@ from typing import ClassVar
 
 from funnelscript.compiler.world_ast import (
     BinaryExpression,
+    CallExpression,
     EntityDefinition,
     EventRuleDefinition,
     PayloadFieldExpression,
@@ -63,6 +64,11 @@ def _payload_refs(expression: StateExpression) -> set[str]:
         for argument in expression.arguments:
             referenced.update(_payload_refs(argument))
         return referenced
+    if isinstance(expression, CallExpression):
+        referenced = set()
+        for argument in expression.arguments:
+            referenced.update(_payload_refs(argument))
+        return referenced
     return set()
 
 
@@ -105,6 +111,8 @@ class WorldLinter:
     def _unhandled_events(self) -> list[WorldLintFinding]:
         result: list[WorldLintFinding] = []
         for decl in self.ast.declarations:
+            if not hasattr(decl, "rules") or not hasattr(decl, "events"):
+                continue
             handled = {rule.event for rule in decl.rules}
             for event in decl.events:
                 if event.name in handled:
@@ -121,6 +129,8 @@ class WorldLinter:
     def _unused_payload_fields(self) -> list[WorldLintFinding]:
         result: list[WorldLintFinding] = []
         for decl in self.ast.declarations:
+            if not hasattr(decl, "rules") or not hasattr(decl, "events"):
+                continue
             rules = {rule.event: rule for rule in decl.rules}
             for event in decl.events:
                 rule = rules.get(event.name)
@@ -144,6 +154,8 @@ class WorldLinter:
     def _unreachable_guards(self) -> list[WorldLintFinding]:
         result: list[WorldLintFinding] = []
         for decl in self.ast.declarations:
+            if not hasattr(decl, "rules") or not hasattr(decl, "states"):
+                continue
             result.extend(self._unreachable_in_declaration(decl))
         return result
 
@@ -179,6 +191,8 @@ class WorldLinter:
     def _noop_handlers(self) -> list[WorldLintFinding]:
         findings: list[WorldLintFinding] = []
         for decl in self.ast.declarations:
+            if not hasattr(decl, "rules"):
+                continue
             for rule in decl.rules:
                 if rule.transitions or rule.emissions:
                     continue

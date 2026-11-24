@@ -1,0 +1,22 @@
+world ValidMultiTraitWorld {
+  trait FinancialBinding {
+    currency: Currency;
+    clearing_account: LedgerAccount;
+    on_settlement(amount: Currency);
+  }
+
+  trait TimeDelayed {
+    transit_delay: Duration;
+  }
+
+  entity CODParcel implements FinancialBinding, TimeDelayed {
+    currency: Currency<EGP> = EGP;
+    ledger clearing_account: LedgerAccount<EGP>;
+    transit_delay: Duration<day> = 2;
+    state in_transit: Pool<CODParcel> = 0;
+
+    on_settlement -> {
+      post debit(clearing_account, 100), credit(bank_cash, 100);
+    }
+  }
+}

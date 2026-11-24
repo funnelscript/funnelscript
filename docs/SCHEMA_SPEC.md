@@ -1,6 +1,6 @@
 # FunnelScript Specification (Schema Draft 2020-12)
 
-FunnelScript documents (`.fnl.json` or `.fnl`) encode marketing architectures as declarative, executable State Transition Networks.
+FunnelScript documents (`.fnls.json` or `.fnls`) encode marketing architectures as declarative, executable State Transition Networks.
 
 ---
 

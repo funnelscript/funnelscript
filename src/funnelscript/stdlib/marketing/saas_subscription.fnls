@@ -1,0 +1,34 @@
+world SaasSubscription {
+  agent Subscriber {
+    state phase: string = "trial";
+    state active: bool = false;
+    state tenure_months: int = 0;
+    state mrr: float = 0.0;
+    state churned: bool = false;
+    state total_collected: float = 0.0;
+
+    event Signup(plan_fee: float, trial_success_rate: float);
+    event MonthlyRenewal(retention_rate: float);
+    event CancelSubscription(reason_code: int);
+
+    rule Onboard on event Signup when (active == false) {
+      transition active = sample bernoulli(payload.trial_success_rate);
+      transition mrr = payload.plan_fee;
+      transition phase = "active";
+      emit MonthlyRenewal(retention_rate = 0.95) after 1;
+    }
+
+    rule BillCycle on event MonthlyRenewal when (active == true) {
+      transition tenure_months = tenure_months + 1;
+      transition total_collected = total_collected + mrr;
+      transition churned = sample bernoulli(0.05);
+      emit MonthlyRenewal(retention_rate = 0.95) after 1;
+    }
+
+    rule Churn on event CancelSubscription when (active == true) {
+      transition active = false;
+      transition churned = true;
+      transition phase = "churned";
+    }
+  }
+}

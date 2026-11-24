@@ -1,0 +1,194 @@
+[package]
+name = "leadgen/sales_capacity"
+version = "0.1.0"
+description = "Flagship FunnelScript High-Ticket Lead Generation & Sales Capacity Constraint Package"
+author = "FunnelScript Core Team <core@funnelscript.org>"
+license = "MIT"
+funnelscript_version = ">=0.4.0"
+main = "index.fnls"
+
+[modules]
+acquisition = "acquisition.fnls"
+queue_and_sla = "queue_and_sla.fnls"
+pipeline_and_hiring = "pipeline_and_hiring.fnls"
+economics = "economics.fnls"
+entities = "entities.fnls"
+index = "index.fnls"
+
+[dependencies]
+"core/commerce_traits" = ">=0.1.0"
+
+[parameters.base_daily_ad_spend]
+type = "float"
+dimension = "Currency"
+unit = "USD"
+default = 2000.0
+min = 100.0
+max = 500000.0
+description = "Baseline daily paid acquisition budget"
+
+[parameters.scale_daily_ad_spend]
+type = "float"
+dimension = "Currency"
+unit = "USD"
+default = 5000.0
+min = 100.0
+max = 500000.0
+description = "Scaled daily paid acquisition budget during growth push"
+
+[parameters.deal_value]
+type = "float"
+dimension = "Currency"
+unit = "USD"
+default = 4500.0
+min = 100.0
+max = 1000000.0
+description = "Average deal value per closed-won customer"
+
+[parameters.active_reps]
+type = "int"
+dimension = "Count"
+default = 4
+min = 1
+max = 100
+description = "Initial active sales development & account executive headcount"
+
+[parameters.max_leads_per_rep_per_day]
+type = "int"
+dimension = "Count"
+default = 12
+min = 1
+max = 100
+description = "Maximum new qualified outreach handling capacity per rep per day"
+
+[parameters.baseline_response_minutes]
+type = "float"
+dimension = "Duration"
+unit = "minutes"
+default = 15.0
+min = 1.0
+max = 1440.0
+description = "Nominal speed-to-lead when queue is unconstrained"
+
+[parameters.lead_decay_half_life_minutes]
+type = "float"
+dimension = "Duration"
+unit = "minutes"
+default = 45.0
+min = 5.0
+max = 1440.0
+description = "Lead response time half-life governing exponential contact rate decay"
+
+[parameters.monthly_rep_salary]
+type = "float"
+dimension = "Currency"
+unit = "USD"
+default = 4000.0
+min = 0.0
+max = 50000.0
+description = "Monthly fixed base salary per sales representative"
+
+[parameters.sales_commission_rate]
+type = "float"
+dimension = "Ratio"
+default = 0.08
+min = 0.00
+max = 0.50
+description = "Commission rate paid to sales reps on collected deal revenue"
+
+[parameters.hiring_cost_per_rep]
+type = "float"
+dimension = "Currency"
+unit = "USD"
+default = 2500.0
+min = 0.0
+max = 50000.0
+description = "One-time recruitment and seat licensing cost per new hire"
+
+[parameters.planned_new_hires]
+type = "int"
+dimension = "Count"
+default = 0
+min = 0
+max = 50
+description = "Number of additional sales reps recruited during the campaign"
+
+[parameters.hire_start_day]
+type = "int"
+dimension = "Duration"
+unit = "days"
+default = 15
+min = 1
+max = 365
+description = "Day when new sales reps join payroll and begin onboarding"
+
+[parameters.onboarding_ramp_days]
+type = "int"
+dimension = "Duration"
+unit = "days"
+default = 14
+min = 0
+max = 90
+description = "Duration in days required for new hires to reach 100% capacity"
+
+[parameters.ramp_productivity_rate]
+type = "float"
+dimension = "Ratio"
+default = 0.40
+min = 0.00
+max = 1.00
+description = "Productivity fraction during the onboarding ramp period"
+
+[parameters.sales_cycle_days]
+type = "int"
+dimension = "Duration"
+unit = "days"
+default = 14
+min = 1
+max = 180
+description = "Average pipeline sales cycle from initial contact to close"
+
+[parameters.invoice_collection_days]
+type = "int"
+dimension = "Duration"
+unit = "days"
+default = 7
+min = 0
+max = 90
+description = "Accounts receivable collection delay after deal signing"
+
+[parameters.initial_cash]
+type = "float"
+dimension = "Currency"
+unit = "USD"
+default = 30000.0
+min = 0.0
+max = 10000000.0
+description = "Initial liquid operating cash reserves"
+
+[metrics.total_leads_generated]
+dimension = "Count"
+description = "Total raw leads generated through advertising channels"
+
+[metrics.avg_speed_to_lead_minutes]
+dimension = "Duration"
+unit = "minutes"
+description = "Average elapsed response time between lead arrival and first outreach"
+
+[metrics.peak_queue_backlog]
+dimension = "Count"
+description = "Maximum unprocessed lead backlog accumulated in the queue"
+
+[metrics.effective_close_rate]
+dimension = "Ratio"
+description = "Closed deals divided by total incoming leads (including queue-decayed)"
+
+[metrics.effective_cac]
+dimension = "Currency"
+unit = "USD"
+description = "Total combined marketing and sales costs per closed customer"
+
+[metrics.net_contribution_margin]
+dimension = "Currency"
+unit = "USD"
+description = "Collected deal revenue minus advertising, payroll, commissions, and hiring"

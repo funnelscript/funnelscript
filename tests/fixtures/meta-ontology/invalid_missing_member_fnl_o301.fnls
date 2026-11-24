@@ -1,0 +1,13 @@
+world InvalidMissingMemberWorld {
+  trait FinancialBinding {
+    currency: Currency;
+    clearing_account: LedgerAccount;
+    on_settlement(amount: Currency);
+  }
+
+  entity BrokenOrder implements FinancialBinding {
+    currency: Currency<USD> = USD;
+    // Missing clearing_account and on_settlement
+    state balance: int = 0;
+  }
+}

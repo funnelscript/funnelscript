@@ -1,0 +1,87 @@
+{
+  "schema": "funnelscript-event-playbook-v1",
+  "events": [
+    {
+      "name": "D2C.DailyAdSpend",
+      "time": 1,
+      "payload": {
+        "spend": 3000.0
+      }
+    },
+    {
+      "name": "D2C.NewOrder",
+      "time": 1,
+      "payload": {
+        "order_id": 1,
+        "order_value": 85.0,
+        "is_cod": true,
+        "cogs": 29.75,
+        "shipping": 4.5
+      }
+    },
+    {
+      "name": "D2C.NewOrder",
+      "time": 1,
+      "payload": {
+        "order_id": 2,
+        "order_value": 85.0,
+        "is_cod": false,
+        "cogs": 29.75,
+        "shipping": 4.5
+      }
+    },
+    {
+      "name": "D2C.DailyAdSpend",
+      "time": 8,
+      "payload": {
+        "spend": 6000.0
+      }
+    },
+    {
+      "name": "D2C.GatewaySettlement",
+      "time": 4,
+      "payload": {
+        "gross": 85.0,
+        "net": 80.0,
+        "fee": 2.47,
+        "reserve": 4.25
+      }
+    },
+    {
+      "name": "D2C.OrderDelivered",
+      "time": 5,
+      "payload": {
+        "order_id": 1,
+        "order_value": 85.0,
+        "is_cod": true,
+        "fee": 1.70,
+        "net_cash": 83.30
+      }
+    },
+    {
+      "name": "D2C.CODRemittance",
+      "time": 12,
+      "payload": {
+        "gross": 85.0,
+        "net": 83.30,
+        "fee": 1.70
+      }
+    },
+    {
+      "name": "D2C.OrderRTO",
+      "time": 12,
+      "payload": {
+        "order_id": 3,
+        "order_value": 85.0,
+        "return_shipping": 3.5
+      }
+    },
+    {
+      "name": "D2C.CheckSafetyThreshold",
+      "time": 15,
+      "payload": {
+        "day": 15
+      }
+    }
+  ]
+}

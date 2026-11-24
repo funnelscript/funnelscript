@@ -1,0 +1,10 @@
+world InvalidExtendsWorld {
+  entity ParentEntity {
+    state id: int = 1;
+  }
+
+  // FNL-O305: Unsupported class inheritance ('extends')
+  entity ChildEntity extends ParentEntity {
+    state count: int = 0;
+  }
+}

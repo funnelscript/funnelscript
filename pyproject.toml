@@ -15,6 +15,7 @@ dependencies = [
 dev = [
     "hypothesis==6.170.15",
     "pytest>=9.2.0",
+    "pytest-xdist>=3.8.0",
 ]
 
 [build-system]
@@ -25,8 +26,9 @@ build-backend = "setuptools.build_meta"
 funnelscript = "funnelscript.cli:main"
 
 [tool.setuptools.package-data]
-"funnelscript" = ["stdlib/marketing/*.fnl"]
+"funnelscript" = ["stdlib/marketing/*.fnls"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+addopts = "-n auto"

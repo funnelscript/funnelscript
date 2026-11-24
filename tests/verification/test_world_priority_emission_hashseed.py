@@ -1,4 +1,4 @@
-"""Independent cross-process .fnl World event-ordering regression.
+"""Independent cross-process .fnls World event-ordering regression.
 
 Research anchor: stable discrete-event scheduling with the total order
 (time, priority, causal depth, monotonic insertion sequence).

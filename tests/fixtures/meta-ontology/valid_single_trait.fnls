@@ -1,0 +1,17 @@
+world ValidSingleTraitWorld {
+  trait FinancialBinding {
+    currency: Currency;
+    clearing_account: LedgerAccount;
+    on_settlement(amount: Currency);
+  }
+
+  entity SimpleOrder implements FinancialBinding {
+    currency: Currency<USD> = USD;
+    ledger clearing_account: LedgerAccount<USD>;
+    state balance: int = 0;
+
+    on_settlement -> {
+      post debit(clearing_account, 50), credit(bank_cash, 50);
+    }
+  }
+}

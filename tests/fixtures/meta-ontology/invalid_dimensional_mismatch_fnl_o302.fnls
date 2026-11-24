@@ -1,0 +1,12 @@
+world InvalidDimensionalMismatchWorld {
+  trait FinancialBinding {
+    currency: Currency;
+    clearing_account: LedgerAccount;
+  }
+
+  entity DimensionallyBrokenOrder implements FinancialBinding {
+    // Expected Currency, but provided Duration!
+    currency: Duration<day> = 5;
+    ledger clearing_account: LedgerAccount<USD>;
+  }
+}

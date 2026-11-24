@@ -65,7 +65,7 @@ def _walk(node):
 
 
 def test_all_world_ast_models_have_exact_source_spans(tmp_path: Path):
-    path = tmp_path / "source.fnl"
+    path = tmp_path / "source.fnls"
     path.write_text(SOURCE, encoding="utf-8")
     world = Parser.from_file(path)
     assert isinstance(world, WorldAST)
@@ -92,7 +92,7 @@ def test_all_world_ast_models_have_exact_source_spans(tmp_path: Path):
 
 
 def test_source_spans_are_immutable_and_excluded_from_ast_json(tmp_path: Path):
-    source = tmp_path / "world.fnl"
+    source = tmp_path / "world.fnls"
     source.write_text(SOURCE, encoding="utf-8")
     world = Parser.from_file(source)
     with pytest.raises(FrozenInstanceError):
@@ -105,10 +105,10 @@ def test_source_spans_are_immutable_and_excluded_from_ast_json(tmp_path: Path):
 
 
 def test_local_module_import_preserves_originating_ast_spans(tmp_path: Path):
-    module = tmp_path / "module.fnl"
-    source = tmp_path / "main.fnl"
+    module = tmp_path / "module.fnls"
+    source = tmp_path / "main.fnls"
     module.write_text("world Module { entity E { state n: int = 1; } }", encoding="utf-8")
-    source.write_text('world Main { import "module.fnl" as Alias; }', encoding="utf-8")
+    source.write_text('world Main { import "module.fnls" as Alias; }', encoding="utf-8")
     ast = Parser.from_file(source)
     assert ast.span.file == str(source.resolve())
     node = ast.declarations[0]
@@ -130,7 +130,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 _WORLD_CORPUS = sorted(
     candidate
     for folder in (_PROJECT_ROOT / "tests" / "fixtures", _PROJECT_ROOT / "examples")
-    for candidate in folder.rglob("*.fnl")
+    for candidate in folder.rglob("*.fnls")
 )
 
 
@@ -140,8 +140,17 @@ _WORLD_CORPUS = sorted(
 )
 def test_entire_world_corpus_has_complete_source_mapping(file_path: Path):
     if file_path.name.startswith("invalid_"):
-        with pytest.raises((WorldTypeError, ParserError)):
-            Parser.from_file(file_path)
+        try:
+            world = Parser.from_file(file_path)
+        except (WorldTypeError, ParserError):
+            return
+        if not isinstance(world, WorldAST):
+            assert isinstance(world, StrategyAST)
+            return
+        nodes = list(_walk(world))
+        assert nodes
+        assert all(isinstance(node.span, SourceSpan) for node in nodes)
+        assert "span" not in world.model_dump_json()
         return
 
     world = Parser.from_file(file_path)

@@ -19,16 +19,16 @@ funnelscript [--help] <command> [options]
 | `run-world <file>` | Execute explicit events against typed World rules without external effects | `0` (pass), `1` (World or event error) |
 | `simulate <file>` | Vectorized Monte Carlo simulation & liquidity stress-testing | `0` (pass), `1` (lint error), `2` (I/O error) |
 | `init <name>` | Scaffold the legacy campaign JSON template | `0` (created) |
-| `init-world <file.fnl>` | Create a minimal source World using the Marketing Standard Library | `0` (created), `2` (invalid target or I/O failure) |
+| `init-world <file.fnls>` | Create a minimal source World using the Marketing Standard Library | `0` (created), `2` (invalid target or I/O failure) |
 | `schema` | Print or export the official Draft 2020-12 JSON Schema | `0` |
 
 ---
 
 ## Experimental first-run command
 
-`funnelscript --version` reports the installed distribution version. `funnelscript init-world first.fnl` writes a type-checkable World importing the packaged `std:marketing/lead_response.fnl` agent as `Prospect`. It refuses to overwrite existing files, requires a `.fnl` suffix, and does not create missing parent directories. The World is inert until an explicit input event is provided.
+`funnelscript --version` reports the installed distribution version. `funnelscript init-world first.fnls` writes a type-checkable World importing the packaged `std:marketing/lead_response.fnls` agent as `Prospect`. It refuses to overwrite existing files, requires a `.fnls` suffix, and does not create missing parent directories. The World is inert until an explicit input event is provided.
 
-Continue with `funnelscript check first.fnl`, then use `run-world --event` with the typed Impression payload. See the [Experimental Preview Guide](EXPERIMENTAL_PREVIEW.md) for the full reproducible invocation and limitations.
+Continue with `funnelscript check first.fnls`, then use `run-world --event` with the typed Impression payload. See the [Experimental Preview Guide](EXPERIMENTAL_PREVIEW.md) for the full reproducible invocation and limitations.
 
 ---
 
@@ -43,7 +43,7 @@ For a legacy strategy input, `check` runs marketing-specific analysis. For a sou
 - **Working Capital Ratio:** Alerts when settlement delay $\Delta_{\text{settle}}$ coupled with initial cash creates high insolvency exposure.
 
 ```bash
-funnelscript check strategy.fnl.json
+funnelscript check strategy.fnls.json
 ```
 
 ---
@@ -53,7 +53,7 @@ funnelscript check strategy.fnl.json
 Executes high-throughput agent-based discrete-event simulations over a multi-day timeline.
 
 ```bash
-funnelscript simulate strategy.fnl.json [options]
+funnelscript simulate strategy.fnls.json [options]
 ```
 
 #### Flags & Options:
@@ -65,7 +65,7 @@ funnelscript simulate strategy.fnl.json [options]
 
 #### Example:
 ```bash
-funnelscript simulate strategy.fnl.json \
+funnelscript simulate strategy.fnls.json \
   --trials 200 \
   --agents 50000 \
   --export-csv ./results/trials.csv \
@@ -79,12 +79,12 @@ funnelscript simulate strategy.fnl.json \
 Executes typed, domain-neutral World rules against explicit input events on the existing `EventMachine` calendar. This is a pure in-memory interpreter, not the legacy marketing simulator and not Live Execution.
 
 ```bash
-funnelscript check examples/counter_world.fnl
-funnelscript run-world examples/counter_world.fnl \
+funnelscript check examples/counter_world.fnls
+funnelscript run-world examples/counter_world.fnls \
   --event Counter.Pulse@0 --event Counter.Pulse@1 --seed 42
 ```
 
-* `file`: `.fnl` source with a `world` declaration containing `entity` / `agent`, typed `state`, and `rule` definitions.
+* `file`: `.fnls` source with a `world` declaration containing `entity` / `agent`, typed `state`, and `rule` definitions.
 * `--event OWNER.EVENT@TIME` or JSON: Provide a qualified event and non-negative finite timestamp; can be repeated. For typed payloads, use a JSON object with `name`, `time`, and `payload`, e.g. `--event '{"name":"Wallet.Credit","time":0,"payload":{"amount":8}}'`. The order of repeated flags is preserved. Each JSON event argument is limited to **64 KiB (65,536 UTF-8 bytes)**, including whitespace; oversized inputs fail before JSON decoding. This limit does not apply to the short `OWNER.EVENT@TIME` form. Duplicate or unexpected JSON fields, non-object JSON, invalid event times, and wrong typed payloads are rejected.
 * `--seed <int>`: Seed for the World run's pseudorandom stream (default `0`). Repeating the same source, ordered events and seed replays the same decisions; other seeds may yield the same result by chance.
 * `--max-events <int>`: Positive processing limit (default `100000`). It also bounds recursive zero-delay source emission.
@@ -92,7 +92,7 @@ funnelscript run-world examples/counter_world.fnl \
 Example with a source-level typed event payload:
 
 ```bash
-funnelscript run-world examples/payload_world.fnl --event '{"name":"Wallet.Credit","time":0,"payload":{"amount":8}}'
+funnelscript run-world examples/payload_world.fnls --event '{"name":"Wallet.Credit","time":0,"payload":{"amount":8}}'
 ```
 
 An explicit event declaration such as `event Credit(amount: int);` establishes exact field and primitive type checks for both input JSON events and source-emitted arguments. Invalid payloads fail before executing the handler, including when its guard is false. Plain `OWNER.EVENT@TIME` remains available for no-payload events.
@@ -100,7 +100,7 @@ An explicit event declaration such as `event Credit(amount: int);` establishes e
 Example with seeded stochastic transition expressions:
 
 ```bash
-funnelscript run-world examples/stochastic_world.fnl \
+funnelscript run-world examples/stochastic_world.fnls \
   --event '{"name":"Shopper.Impression","time":0,"payload":{"conversion_probability":0.25}}' \
   --seed 42
 ```
@@ -110,7 +110,7 @@ The run produces `Shopper.converted=false` and `Shopper.engagement_score=0.02501
 Example with a typed, self-terminating event guard:
 
 ```bash
-funnelscript run-world examples/guarded_world.fnl --event Counter.Tick@0 --max-events 5
+funnelscript run-world examples/guarded_world.fnls --event Counter.Tick@0 --max-events 5
 ```
 
 Expected output: `Counter.value = 3`, `processed_events = 4`, and zero pending events. `when (field OP literal)` evaluates typed primitive state before an event's transitions and local emissions. If false, neither action runs, but the input event is counted.
@@ -118,18 +118,18 @@ Expected output: `Counter.value = 3`, `processed_events = 4`, and zero pending e
 Example using the packaged Marketing Standard Library:
 
 ```bash
-funnelscript check examples/marketing_lead_response.fnl
-funnelscript run-world examples/marketing_lead_response.fnl \
+funnelscript check examples/marketing_lead_response.fnls
+funnelscript run-world examples/marketing_lead_response.fnls \
   --event '{"name":"Prospect.Impression","time":0,"payload":{"cpc":2.0,"conversion_probability":0.7,"order_value":100.0}}' \
   --seed 1
 ```
 
-The source `import "std:marketing/lead_response.fnl" as Prospect;` introduces one reusable single-journey agent as `Prospect` without changing the core grammar's domain neutrality. Seed 1 produces revenue 100.0 and spend 2.0; seed 2 produces revenue 0.0 and spend 2.0. This is an assumption-driven demo, not a market forecast.
+The source `import "std:marketing/lead_response.fnls" as Prospect;` introduces one reusable single-journey agent as `Prospect` without changing the core grammar's domain neutrality. Seed 1 produces revenue 100.0 and spend 2.0; seed 2 produces revenue 0.0 and spend 2.0. This is an assumption-driven demo, not a market forecast.
 
 Example with a three-event causal chain:
 
 ```bash
-funnelscript run-world examples/event_chain_world.fnl --event Worker.Start@1
+funnelscript run-world examples/event_chain_world.fnls --event Worker.Start@1
 ```
 
 Outputs JSON containing `world`, `state`, `processed_events`, and `pending_events`. A missing handler, type violation, invalid timestamp, non-World source, or event limit error returns a nonzero exit code with an explanatory stderr message. World rules may now generate additional **local** events using `emit Event after Delay;`, and these are included in `processed_events` and `pending_events`. Initial events still come from `--event`. No platform effects are executed. See [World Rules Language Reference](LANGUAGE_REFERENCE_WORLD_RULES.md).
@@ -141,7 +141,7 @@ Outputs JSON containing `world`, `state`, `processed_events`, and `pending_event
 Scaffolds a clean starter template complete with entities, touchpoints, budget controls, and retargeting conditional branches.
 
 ```bash
-funnelscript init "Holiday Campaign" --output ./holiday.fnl.json
+funnelscript init "Holiday Campaign" --output ./holiday.fnls.json
 ```
 
 ---
@@ -170,4 +170,4 @@ funnelscript schema --output spec/schema.json
 
 ### Phase 003 arithmetic and EOF diagnostic boundary
 
-World rules support one exact-typed binary `+`, `-`, `*`, or `/` expression (`state OP literal|state|payload.field`); `/` returns float, zero divisors and non-finite float arithmetic are rejected, and `//` remains a comment. Missing operands and exhausted parser streams raise deliberate parser errors. Use `--event Counter.Pulse@0` for `examples/counter_world.fnl`: `Counter.Tick@0` belongs to `examples/guarded_world.fnl` and is not declared in that counter example. See [World Rules Language Reference](LANGUAGE_REFERENCE_WORLD_RULES.md).
+World rules support one exact-typed binary `+`, `-`, `*`, or `/` expression (`state OP literal|state|payload.field`); `/` returns float, zero divisors and non-finite float arithmetic are rejected, and `//` remains a comment. Missing operands and exhausted parser streams raise deliberate parser errors. Use `--event Counter.Pulse@0` for `examples/counter_world.fnls`: `Counter.Tick@0` belongs to `examples/guarded_world.fnls` and is not declared in that counter example. See [World Rules Language Reference](LANGUAGE_REFERENCE_WORLD_RULES.md).

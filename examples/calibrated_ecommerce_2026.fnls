@@ -1,0 +1,45 @@
+// FunnelScript Calibrated World: Calibratedecommerceworld
+// Automatically fitted from historical telemetry (30 days)
+// Dataset Fingerprint: sha256:8e7b134808c035c1
+
+world Calibratedecommerceworld {
+  entity CampaignContext {
+    state total_budget: float = 132388.61;
+    state initial_cash: float = 52955.44;
+    state settlement_delay_days: int = 3;
+    state gateway_fee_rate: float = 0.0290;
+    state blended_cac: float = 54.98;
+    state average_order_value: float = 125.85;
+  }
+
+  // Channel: google_search (R² = 0.953)
+  entity GoogleSearch {
+    state v_max: float = 8310.05;
+    state k_sat: float = 1128.42;
+    state alpha: float = 1.500;
+    state min_spend: float = 877.39;
+    state max_spend: float = 3240.36;
+    state base_cpc: float = 2.19;
+    state base_cvr: float = 0.0454;
+  }
+
+  // Channel: meta_ads (R² = 0.927)
+  entity MetaAds {
+    state v_max: float = 22966.89;
+    state k_sat: float = 19460.85;
+    state alpha: float = 0.603;
+    state min_spend: float = 1125.11;
+    state max_spend: float = 3892.17;
+    state base_cpc: float = 1.47;
+    state base_cvr: float = 0.0236;
+  }
+
+  agent CustomerAcquisition {
+    state active: bool = true;
+    state conversions: int = 0;
+    event AdClick(cpc: float);
+    rule OnClick on event AdClick {
+      transition conversions = conversions + 1;
+    }
+  }
+}

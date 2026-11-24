@@ -1,0 +1,56 @@
+{
+  "total_budget": 50000.0,
+  "currency": "USD",
+  "avg_ticket_value": 100.0,
+  "cac_ceiling": 120.0,
+  "goal": "maximize_profit",
+  "lineage": {
+    "dataset_fingerprint": "sha256:4a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b",
+    "currency": "USD",
+    "population_hash": "sha256:99887766554433221100aabbccddeeff00112233"
+  },
+  "channels": [
+    {
+      "channel_id": "meta_ads",
+      "v_max": 120000.0,
+      "k_sat": 30000.0,
+      "alpha": 0.85,
+      "min_spend": 5000.0,
+      "max_spend": 45000.0,
+      "empirical_support": {
+        "min_observed_spend": 4000.0,
+        "max_observed_spend": 50000.0,
+        "observations_count": 180,
+        "classification": "EMPIRICALLY_SUPPORTED"
+      }
+    },
+    {
+      "channel_id": "google_search",
+      "v_max": 160000.0,
+      "k_sat": 40000.0,
+      "alpha": 0.80,
+      "min_spend": 8000.0,
+      "max_spend": 60000.0,
+      "empirical_support": {
+        "min_observed_spend": 7000.0,
+        "max_observed_spend": 65000.0,
+        "observations_count": 210,
+        "classification": "EMPIRICALLY_SUPPORTED"
+      }
+    },
+    {
+      "channel_id": "tiktok_ads",
+      "v_max": 70000.0,
+      "k_sat": 20000.0,
+      "alpha": 0.75,
+      "min_spend": 2000.0,
+      "max_spend": 25000.0,
+      "empirical_support": {
+        "min_observed_spend": 1000.0,
+        "max_observed_spend": 10000.0,
+        "observations_count": 45,
+        "classification": "EMPIRICALLY_SUPPORTED"
+      }
+    }
+  ]
+}

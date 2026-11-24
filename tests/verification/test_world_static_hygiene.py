@@ -42,7 +42,7 @@ WORLD = """world Analysis {
 
 
 def _parse(tmp_path: Path, body: str = WORLD) -> tuple[WorldAST, Path]:
-    file = tmp_path / "hygiene.fnl"
+    file = tmp_path / "hygiene.fnls"
     file.write_text(body, encoding="utf-8")
     ast = Parser.from_file(file)
     assert isinstance(ast, WorldAST)
@@ -196,8 +196,8 @@ def test_nested_payload_access_and_emissions_count_as_field_usage(tmp_path):
 
 
 def test_imported_module_warning_points_to_original_file(tmp_path):
-    module = tmp_path / "shared.fnl"
-    entry = tmp_path / "entry.fnl"
+    module = tmp_path / "shared.fnls"
+    entry = tmp_path / "entry.fnls"
     module.write_text(
         "world Shared {\n"
         "  entity E {\n"
@@ -206,7 +206,7 @@ def test_imported_module_warning_points_to_original_file(tmp_path):
         "}\n", encoding="utf-8",
     )
     entry.write_text(
-        'world Root {\n  import "shared.fnl" as Imported;\n}\n',
+        'world Root {\n  import "shared.fnls" as Imported;\n}\n',
         encoding="utf-8",
     )
     ast = Parser.from_file(entry)
@@ -225,7 +225,7 @@ def test_cli_world_check_reports_advisory_warnings_without_failure(
     output = capsys.readouterr().out
     for code in ("FNL-W301", "FNL-W302", "FNL-W303", "FNL-W304"):
         assert code in output
-    assert "hygiene.fnl" in output
+    assert "hygiene.fnls" in output
 
 
 def test_cli_world_check_quiet_stays_silent(tmp_path, capsys):
@@ -237,10 +237,10 @@ def test_cli_world_check_quiet_stays_silent(tmp_path, capsys):
 @pytest.mark.parametrize(
     "fixture",
     (
-        "examples/counter_world.fnl",
-        "tests/fixtures/world-conformance/typed.fnl",
-        "tests/fixtures/world-conformance/ordering.fnl",
-        "tests/fixtures/population-reference/identity-rng.fnl",
+        "examples/counter_world.fnls",
+        "tests/fixtures/world-conformance/typed.fnls",
+        "tests/fixtures/world-conformance/ordering.fnls",
+        "tests/fixtures/population-reference/identity-rng.fnls",
     ),
 )
 def test_existing_valid_world_examples_do_not_trigger_hygiene_diagnostics(

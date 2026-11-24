@@ -22,9 +22,9 @@ def _module(path: Path, body: str) -> Path:
 
 
 @pytest.mark.parametrize("names", [
-    ("a.fnl",),
-    ("a.fnl", "b.fnl"),
-    ("a.fnl", "b.fnl", "c.fnl"),
+    ("a.fnls",),
+    ("a.fnls", "b.fnls"),
+    ("a.fnls", "b.fnls", "c.fnls"),
 ])
 def test_cycle_trace_and_error_source_token(
     tmp_path: Path, names: tuple[str, ...],
@@ -53,16 +53,16 @@ def test_cycle_trace_and_error_source_token(
 
 
 def test_same_basename_in_different_directories_is_not_a_cycle(tmp_path: Path):
-    first = tmp_path / "x" / "index.fnl"
-    second = tmp_path / "y" / "index.fnl"
+    first = tmp_path / "x" / "index.fnls"
+    second = tmp_path / "y" / "index.fnls"
     first.parent.mkdir()
     second.parent.mkdir()
     _module(first, "  entity First {}\n")
     _module(second, "  entity Second {}\n")
     entry = _module(
-        tmp_path / "main.fnl",
-        '  import "x/index.fnl" as MyFirst;\n'
-        '  import "y/index.fnl" as MySecond;\n',
+        tmp_path / "main.fnls",
+        '  import "x/index.fnls" as MyFirst;\n'
+        '  import "y/index.fnls" as MySecond;\n',
     )
     world = Parser.from_file(entry)
     assert [decl.name for decl in world.declarations] == ["MyFirst", "MySecond"]
@@ -71,9 +71,9 @@ def test_same_basename_in_different_directories_is_not_a_cycle(tmp_path: Path):
 
 
 def test_cycle_reports_minimal_back_edge_not_unrelated_entry_prefix(tmp_path: Path):
-    entry = _module(tmp_path / "entry.fnl", '  import "middle.fnl" as Middle;\n')
-    middle = _module(tmp_path / "middle.fnl", '  import "leaf.fnl" as Leaf;\n')
-    leaf = _module(tmp_path / "leaf.fnl", '  import "middle.fnl" as Loop;\n')
+    entry = _module(tmp_path / "entry.fnls", '  import "middle.fnls" as Middle;\n')
+    middle = _module(tmp_path / "middle.fnls", '  import "leaf.fnls" as Leaf;\n')
+    leaf = _module(tmp_path / "leaf.fnls", '  import "middle.fnls" as Loop;\n')
     with pytest.raises(ParserError) as captured:
         Parser.from_file(entry)
     trace = " -> ".join(str(p.resolve()) for p in (middle, leaf, middle))
@@ -85,21 +85,21 @@ def test_cycle_reports_minimal_back_edge_not_unrelated_entry_prefix(tmp_path: Pa
 
 
 def test_diamond_import_is_not_a_cycle(tmp_path: Path):
-    common = _module(tmp_path / "common.fnl", "  entity Shared { state n: int = 1; }\n")
+    common = _module(tmp_path / "common.fnls", "  entity Shared { state n: int = 1; }\n")
     left = _module(
-        tmp_path / "left.fnl",
-        '  import "common.fnl" as CommonLeft;\n'
+        tmp_path / "left.fnls",
+        '  import "common.fnls" as CommonLeft;\n'
         '  entity Left { state n: int = 2; }\n',
     )
     right = _module(
-        tmp_path / "right.fnl",
-        '  import "common.fnl" as CommonRight;\n'
+        tmp_path / "right.fnls",
+        '  import "common.fnls" as CommonRight;\n'
         '  entity Right { state n: int = 3; }\n',
     )
     entry = _module(
-        tmp_path / "main.fnl",
-        '  import "left.fnl" { Left as MyLeft };\n'
-        '  import "right.fnl" { Right as MyRight };\n',
+        tmp_path / "main.fnls",
+        '  import "left.fnls" { Left as MyLeft };\n'
+        '  import "right.fnls" { Right as MyRight };\n',
     )
     world = Parser.from_file(entry)
     assert isinstance(world, WorldAST)
@@ -110,14 +110,14 @@ def test_diamond_import_is_not_a_cycle(tmp_path: Path):
 def test_cycle_cli_reports_originating_import_without_traceback(
     tmp_path: Path, capsys: pytest.CaptureFixture[str],
 ):
-    a = _module(tmp_path / "a.fnl", '  import "b.fnl" as B;\n')
-    _module(tmp_path / "b.fnl", '  import "a.fnl" as A;\n')
+    a = _module(tmp_path / "a.fnls", '  import "b.fnls" as B;\n')
+    _module(tmp_path / "b.fnls", '  import "a.fnls" as A;\n')
     assert check_command(str(a)) == 1
     output = capsys.readouterr()
     diagnostic = output.out + output.err
     assert "FNL-E102" in diagnostic
     assert "Cyclic World module import" in diagnostic
-    assert "b.fnl" in diagnostic
+    assert "b.fnls" in diagnostic
     assert "column 10" in diagnostic
     assert "ParserError at line 2, col 10" in diagnostic
     assert "Traceback" not in diagnostic

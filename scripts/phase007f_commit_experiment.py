@@ -21,7 +21,7 @@ from funnelscript.runtime.world_executor import PopulationAgent, PopulationExecu
 from funnelscript.stdlib import marketing
 from funnelscript.stdlib.marketing.provenance import PROVENANCE_VERSION
 
-SOURCE = Path(__file__).resolve().parents[1] / "tests/fixtures/population-reference/identity-rng.fnl"
+SOURCE = Path(__file__).resolve().parents[1] / "tests/fixtures/population-reference/identity-rng.fnls"
 POLICY = marketing.DeclaredSalePolicy(
     "Visitor.Tick", "phase", "new", "terminal", D(20), "SAR", "synthetic-campaign"
 )

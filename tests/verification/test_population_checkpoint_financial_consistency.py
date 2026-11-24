@@ -33,7 +33,7 @@ from funnelscript.stdlib.marketing import (
 
 D = Decimal
 SOURCE = Path(__file__).resolve().parents[2] / (
-    "tests/fixtures/population-reference/identity-rng.fnl"
+    "tests/fixtures/population-reference/identity-rng.fnls"
 )
 
 

@@ -16,9 +16,9 @@ The verified public `v0.2.0a1` Git tag is the release channel for this preview, 
 mkdir funnelscript-preview
 cd funnelscript-preview
 uvx --from "git+https://github.com/funnelscript/funnelscript@v0.2.0a1" funnelscript --version
-uvx --from "git+https://github.com/funnelscript/funnelscript@v0.2.0a1" funnelscript init-world first.fnl
-uvx --from "git+https://github.com/funnelscript/funnelscript@v0.2.0a1" funnelscript check first.fnl
-uvx --from "git+https://github.com/funnelscript/funnelscript@v0.2.0a1" funnelscript run-world first.fnl \
+uvx --from "git+https://github.com/funnelscript/funnelscript@v0.2.0a1" funnelscript init-world first.fnls
+uvx --from "git+https://github.com/funnelscript/funnelscript@v0.2.0a1" funnelscript check first.fnls
+uvx --from "git+https://github.com/funnelscript/funnelscript@v0.2.0a1" funnelscript run-world first.fnls \
   --event '{"name":"Prospect.Impression","time":0,"payload":{"cpc":2.0,"conversion_probability":0.7,"order_value":100.0}}' \
   --seed 1
 ```
@@ -27,7 +27,7 @@ The generated file is:
 
 ```funnelscript
 world MarketingPreview {
-  import "std:marketing/lead_response.fnl" as Prospect;
+  import "std:marketing/lead_response.fnls" as Prospect;
 }
 ```
 
@@ -37,7 +37,7 @@ The output is **conditioned on the input probability 0.7, which you supplied**. 
 
 ## Make your own World module
 
-Save the following next to `first.fnl` as `counter.fnl`:
+Save the following next to `first.fnls` as `counter.fnls`:
 
 ```funnelscript
 world CounterLibrary {
@@ -51,20 +51,20 @@ world CounterLibrary {
 }
 ```
 
-Add one line before the closing brace of `first.fnl`:
+Add one line before the closing brace of `first.fnls`:
 
 ```funnelscript
-  import "./counter.fnl" as Tracker;
+  import "./counter.fnls" as Tracker;
 ```
 
-Run `funnelscript check first.fnl` and `funnelscript run-world first.fnl --event Tracker.Pulse@0` using the same `uvx --from ...` prefix. You should see `Tracker.count=1`. The two imported owners are independent; cross-owner dispatch is not supported.
+Run `funnelscript check first.fnls` and `funnelscript run-world first.fnls --event Tracker.Pulse@0` using the same `uvx --from ...` prefix. You should see `Tracker.count=1`. The two imported owners are independent; cross-owner dispatch is not supported.
 
 A module can currently export exactly one `entity` or `agent`, and local imports stay within the importing file's directory. Missing modules, duplicate aliases, cycles, absolute paths, traversal, and symlink escapes are rejected before execution. The `std:` namespace resolves bundled modules from the installed Python distribution.
 
 ## Safety and failure behavior
 
-- `init-world first.fnl` refuses to overwrite an existing file, including an existing symbolic link. Choose a different filename or edit your file intentionally.
-- The target must end in `.fnl`; its parent directory must already exist.
+- `init-world first.fnls` refuses to overwrite an existing file, including an existing symbolic link. Choose a different filename or edit your file intentionally.
+- The target must end in `.fnls`; its parent directory must already exist.
 - `run-world` only simulates in memory. It does not buy media, contact customers, collect personal data, or execute external effects.
 - Use `--max-events` to cap event processing. Use an explicit `--seed` for replay.
 - This preview is **not** a financial forecast and cannot justify material spend without independent empirical validation.

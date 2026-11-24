@@ -92,16 +92,16 @@ Synthesizing historical marketing discipline through the lens of computational s
 ## 5. The Day-in-the-Life Workflow of a Marketing Systems Engineer
 
 ```
-1. Author Strategy (.fnl)  ──>  2. Static Verification  ──>  3. Stochastic Simulation  ──>  4. Deployment Plan
+1. Author Strategy (.fnls)  ──>  2. Static Verification  ──>  3. Stochastic Simulation  ──>  4. Deployment Plan
    [Declarative Code]            [funnelscript check]         [funnelscript simulate]        [funnelscript plan]
    - Audiences                   - Mass Conservation          - 100,000 Virtual Agents       - Provider Dags
    - Touchpoints                 - Acyclic Graphs             - ROAS Distribution            - Idempotent Sync
    - Budget Caps                 - Budget Gas Ceilings        - Insolvency Risk P(Ruin)      - Bounded Spend
 ```
 
-1. **Author:** Strategy written as declarative `.fnl` code in VS Code with syntax highlighting and LSP error checking.
-2. **Verify:** `funnelscript check campaign.fnl` validates DAG topology, guarantees mass conservation ($\sum P(\text{state}) = 1.0$), and verifies bounded spend limits in $< 30\text{ms}$.
-3. **Simulate:** `funnelscript simulate campaign.fnl --agents 100000` evaluates 100,000 virtual agents across 100 Monte Carlo trials, computing Value at Risk ($\text{VaR}_{95}$) and liquidity ruin probability.
+1. **Author:** Strategy written as declarative `.fnls` code in VS Code with syntax highlighting and LSP error checking.
+2. **Verify:** `funnelscript check campaign.fnls` validates DAG topology, guarantees mass conservation ($\sum P(\text{state}) = 1.0$), and verifies bounded spend limits in $< 30\text{ms}$.
+3. **Simulate:** `funnelscript simulate campaign.fnls --agents 100000` evaluates 100,000 virtual agents across 100 Monte Carlo trials, computing Value at Risk ($\text{VaR}_{95}$) and liquidity ruin probability.
 4. **Deploy:** Strategy is committed to Git, reviewed via Pull Request diffs, and executed with cryptographic idempotency keys across platform APIs.
 
 ## Phase 007E — Opt-in durable single-writer financial audit

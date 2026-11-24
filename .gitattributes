@@ -1,0 +1,2 @@
+# FunnelScript Linguist readiness and syntax association
+*.fnls linguist-language=FunnelScript linguist-detectable=true

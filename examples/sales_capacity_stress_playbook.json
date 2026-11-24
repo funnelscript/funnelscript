@@ -1,0 +1,60 @@
+{
+  "schema": "funnelscript-event-playbook-v1",
+  "events": [
+    {
+      "name": "SalesCap.DailyAdSpend",
+      "time": 1,
+      "payload": {
+        "spend": 5000.0,
+        "leads": 65
+      }
+    },
+    {
+      "name": "SalesCap.DeductDailyPayroll",
+      "time": 1,
+      "payload": {
+        "payroll_amount": 533.33
+      }
+    },
+    {
+      "name": "SalesCap.ProcessBacklog",
+      "time": 1,
+      "payload": {
+        "processed": 48,
+        "speed_to_lead": 185.0,
+        "contacted": 12
+      }
+    },
+    {
+      "name": "SalesCap.ScheduleDeal",
+      "time": 1,
+      "payload": {
+        "appointments": 5
+      }
+    },
+    {
+      "name": "SalesCap.CloseDeals",
+      "time": 15,
+      "payload": {
+        "deals_count": 1,
+        "deal_value": 4500.0
+      }
+    },
+    {
+      "name": "SalesCap.CollectDeals",
+      "time": 22,
+      "payload": {
+        "net_cash": 4140.0,
+        "gross_collected": 4500.0,
+        "commission": 360.0
+      }
+    },
+    {
+      "name": "SalesCap.CheckSafetyThreshold",
+      "time": 25,
+      "payload": {
+        "day": 25
+      }
+    }
+  ]
+}

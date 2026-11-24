@@ -20,7 +20,7 @@ from pathlib import Path
 import pytest
 
 SOURCE = Path(__file__).resolve().parents[2] / (
-    "tests/fixtures/population-reference/identity-rng.fnl"
+    "tests/fixtures/population-reference/identity-rng.fnls"
 )
 
 
@@ -171,7 +171,7 @@ def test_cross_process_restoration_is_idempotent_and_canonical():
 
 
 def test_equivalent_source_moved_to_another_path_is_accepted(tmp_path):
-    mirror = tmp_path / "equivalent.fnl"
+    mirror = tmp_path / "equivalent.fnls"
     mirror.write_text(SOURCE.read_text(encoding="utf-8"), encoding="utf-8")
     checkpoint = _run(0, "save")
     assert json.loads(_run(999, "resume", checkpoint, source=mirror)) == json.loads(
@@ -180,7 +180,7 @@ def test_equivalent_source_moved_to_another_path_is_accepted(tmp_path):
 
 
 def test_source_semantics_changed_between_processes_is_rejected(tmp_path):
-    altered = tmp_path / "changed.fnl"
+    altered = tmp_path / "changed.fnls"
     source = SOURCE.read_text(encoding="utf-8")
     assert 'transition phase = "terminal";' in source
     altered.write_text(

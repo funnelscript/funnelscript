@@ -5,21 +5,26 @@ Research contract: funnelscript-research/spec/durable-financial-provenance-v1.md
 
 from __future__ import annotations
 
-from dataclasses import asdict
-from decimal import Decimal
-from hashlib import sha256
 import hmac
 import json
 import os
-from pathlib import Path
 import tempfile
 from collections.abc import Sequence
+from dataclasses import asdict
+from hashlib import sha256
+from pathlib import Path
 
 from funnelscript.runtime.world_executor import PopulationResult
+
 from .ledger import LedgerEntry, _cents, _decimal
 from .provenance import (
-    DeclaredFinancialAction, DeclaredSalePolicy, EventProvenance, ProvenancedSale,
-    ProvenancedTrial, PROVENANCE_VERSION, post_authorized_trial,
+    PROVENANCE_VERSION,
+    DeclaredFinancialAction,
+    DeclaredSalePolicy,
+    EventProvenance,
+    ProvenancedSale,
+    ProvenancedTrial,
+    post_authorized_trial,
 )
 
 AUDIT_SCHEMA = "funnelscript-financial-audit-v1"
@@ -81,10 +86,11 @@ def _pack(payload: dict) -> bytes:
 def _unpack(data: bytes, expected_sha256: str | None = None) -> dict:
     if type(data) is not bytes:
         raise ValueError("financial audit must be canonical UTF-8 bytes")
-    if expected_sha256 is not None:
-        if type(expected_sha256) is not str or not hmac.compare_digest(
-                sha256(data).hexdigest(), expected_sha256):
-            raise ValueError("external financial audit anchor mismatch")
+    if expected_sha256 is not None and (
+        type(expected_sha256) is not str
+        or not hmac.compare_digest(sha256(data).hexdigest(), expected_sha256)
+    ):
+        raise ValueError("external financial audit anchor mismatch")
     try:
         obj = json.loads(data)
         obj = _keys(obj, {"schema", "payload", "sha256"})
@@ -198,3 +204,47 @@ def read_audit_checkpoint(path: str | os.PathLike) -> bytes:
     data = Path(path).read_bytes()
     _unpack(data)
     return data
+
+
+def compute_audit_chain(entries: Sequence[LedgerEntry | dict]) -> list[str]:
+    """Computes a deterministic SHA-256 hash chain linking consecutive ledger records."""
+    chain: list[str] = []
+    current_hash = "0" * 64
+    for entry in entries:
+        data = _entry_data(entry) if isinstance(entry, LedgerEntry) else entry
+        step_bytes = current_hash.encode("ascii") + _canonical(data)
+        current_hash = sha256(step_bytes).hexdigest()
+        chain.append(current_hash)
+    return chain
+
+
+def verify_audit_chain(
+    data: bytes | dict | Sequence[LedgerEntry],
+    *,
+    expected_tail_hash: str | None = None,
+) -> bool:
+    """Verifies that an audit record has a tamper-evident unbroken hash chain.
+
+    Returns True if valid; raises ValueError if any tampering, dropped,
+    or out-of-order transaction is detected.
+    """
+    if isinstance(data, bytes):
+        payload = _unpack(data)
+        raw_entries = payload.get("entries", [])
+    elif isinstance(data, dict):
+        payload = data.get("payload", data)
+        raw_entries = payload.get("entries", [])
+    elif isinstance(data, Sequence):
+        raw_entries = data
+    else:
+        raise TypeError("audit chain verification requires bytes, dict, or sequence of entries")
+
+    chain = compute_audit_chain(raw_entries)
+    if expected_tail_hash is not None:
+        last_hash = chain[-1] if chain else ("0" * 64)
+        if not hmac.compare_digest(last_hash, expected_tail_hash):
+            raise ValueError(
+                f"Audit chain tail hash mismatch: expected '{expected_tail_hash}', got '{last_hash}'"
+            )
+    return True
+

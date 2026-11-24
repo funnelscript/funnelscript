@@ -1,0 +1,5 @@
+world InvalidProbBounds {
+  entity AdChannel {
+    state cvr: Prob = 1.45;
+  }
+}

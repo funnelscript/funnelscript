@@ -1,0 +1,19 @@
+{
+  "$schema": "vscode://schemas/icon-theme",
+  "iconDefinitions": {
+    "_fnls": {
+      "iconPath": "./funnelscript-color.svg"
+    },
+    "_fnls_light": {
+      "iconPath": "./funnelscript-light.svg"
+    }
+  },
+  "fileExtensions": {
+    "fnls": "_fnls"
+  },
+  "light": {
+    "fileExtensions": {
+      "fnls": "_fnls_light"
+    }
+  }
+}

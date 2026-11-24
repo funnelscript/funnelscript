@@ -1,0 +1,17 @@
+world InvalidUnbalancedLedgerWorld {
+  trait FinancialBinding {
+    currency: Currency;
+    clearing_account: LedgerAccount;
+    on_settlement(amount: Currency);
+  }
+
+  entity UnbalancedOrder implements FinancialBinding {
+    currency: Currency<USD> = USD;
+    ledger clearing_account: LedgerAccount<USD>;
+
+    on_settlement -> {
+      // Unbalanced posting: debit is 100 but credit is 60!
+      post debit(clearing_account, 100), credit(bank_cash, 60);
+    }
+  }
+}

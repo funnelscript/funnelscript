@@ -1,0 +1,19 @@
+{
+  "name": "marketing/saas_plg",
+  "version": "0.1.0",
+  "description": "Product-Led Growth (PLG) SaaS Funnel Package with Multi-Tier Subscriptions, Expansion, sBG Churn, Net Dollar Retention (NDR), and Cash Runway Invariants",
+  "author": "FunnelScript Core Team <core@funnelscript.org>",
+  "license": "MIT",
+  "funnelscript_version": ">=0.2.0",
+  "main": "index.fnls",
+  "modules": {
+    "index": "index.fnls",
+    "acquisition": "acquisition.fnls",
+    "activation": "activation.fnls",
+    "subscription": "subscription.fnls",
+    "treasury": "treasury.fnls"
+  },
+  "dependencies": {
+    "core/commerce_traits": ">=0.1.0"
+  }
+}

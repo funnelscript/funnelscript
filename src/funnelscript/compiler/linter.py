@@ -3,6 +3,19 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any
+
+from funnelscript.compiler.diagnostics import TraitConformanceError
+from funnelscript.compiler.dimensions import DimensionParser
+from funnelscript.compiler.world_ast import (
+    EntityDefinition,
+    LiteralExpression,
+    PayloadFieldExpression,
+    PostStatementDefinition,
+    ReferenceExpression,
+    TraitDefinition,
+    TraitMemberDefinition,
+    WorldAST,
+)
 from funnelscript.models import StrategyAST
 
 
@@ -278,3 +291,196 @@ class FunnelLinter:
 
     def _add(self, code: str, severity: LintSeverity, message: str, path: str, remediation: str) -> None:
         self.findings.append(LintFinding(code=code, severity=severity, message=message, path=path, remediation=remediation))
+
+
+class WorldLinter:
+    """Static Trait resolution, conformance, and dimensional invariant verifier for WorldAST."""
+
+    def __init__(self, world: WorldAST) -> None:
+        self.world = world
+        self.errors: list[TraitConformanceError] = []
+
+    def lint(self) -> list[TraitConformanceError]:
+        self.errors.clear()
+        traits: dict[str, TraitDefinition] = {
+            d.name: d for d in self.world.declarations if isinstance(d, TraitDefinition)
+        }
+        for decl in self.world.declarations:
+            if isinstance(decl, EntityDefinition):
+                self._check_entity_traits(decl, traits)
+                self._check_entity_postings(decl)
+        from funnelscript.compiler.dimensions import DimensionalTypeChecker
+        dim_errors = DimensionalTypeChecker.check_world(self.world)
+        self.errors.extend(dim_errors)
+        return list(self.errors)
+
+    def check(self) -> None:
+        errors = self.lint()
+        if errors:
+            raise errors[0]
+
+    def _check_entity_traits(self, entity: EntityDefinition, traits: dict[str, TraitDefinition]) -> None:
+        # Check for diamond collisions across implemented traits
+        member_sources: dict[str, list[tuple[str, TraitMemberDefinition]]] = {}
+        for trait_name in entity.implements:
+            base_trait_name = trait_name.split(".")[-1]
+            trait_def = traits.get(trait_name) or traits.get(base_trait_name)
+            if not trait_def:
+                self.errors.append(
+                    TraitConformanceError(
+                        code="FNL-O301",
+                        message=f"Entity '{entity.name}' implements unknown trait '{trait_name}'",
+                        span=entity.span,
+                        remediation=f"Declare or import trait '{trait_name}' before implementing it.",
+                    )
+                )
+                continue
+
+            for member in trait_def.members:
+                member_sources.setdefault(member.name, []).append((trait_name, member))
+
+        # Check FNL-O304: Diamond collision
+        for member_name, sources in member_sources.items():
+            if len(sources) > 1:
+                types = {src[1].type_name for src in sources if src[1].type_name is not None}
+                if len(types) > 1:
+                    trait_names = ", ".join(f"'{src[0]}'" for src in sources)
+                    self.errors.append(
+                        TraitConformanceError(
+                            code="FNL-O304",
+                            message=f"Ambiguous Trait diamond collision: member '{member_name}' is defined with conflicting signatures by {trait_names} without disambiguation",
+                            span=entity.span,
+                            remediation=f"Explicitly qualify '{member_name}' in entity '{entity.name}' or harmonize trait member types.",
+                        )
+                    )
+
+        # Build entity member maps
+        entity_fields: dict[str, str] = {}
+        entity_field_spans: dict[str, Any] = {}
+        for s in entity.states:
+            entity_fields[s.name] = s.type_name
+            entity_field_spans[s.name] = s.span
+        for p in entity.primitives:
+            entity_fields[p.name] = p.type_spec
+            entity_field_spans[p.name] = p.span
+
+        entity_handlers: set[str] = set()
+        for h in entity.handlers:
+            clean = h.event.removeprefix("on_")
+            entity_handlers.add(h.event)
+            entity_handlers.add(clean)
+            entity_handlers.add(clean.capitalize())
+        for r in entity.rules:
+            entity_handlers.add(r.event)
+            entity_handlers.add(f"on_{r.event.lower()}")
+
+        # Check FNL-O301 and FNL-O302
+        for trait_name in entity.implements:
+            base_trait_name = trait_name.split(".")[-1]
+            trait_def = traits.get(trait_name) or traits.get(base_trait_name)
+            if not trait_def:
+                candidates = [t for name, t in traits.items() if name.endswith(f".{base_trait_name}")]
+                if candidates:
+                    trait_def = candidates[0]
+            if not trait_def:
+                continue
+
+            for member in trait_def.members:
+                if member.kind == "field":
+                    if member.name not in entity_fields:
+                        self.errors.append(
+                            TraitConformanceError(
+                                code="FNL-O301",
+                                message=f"Missing required Trait field '{member.name}: {member.type_name}' from trait '{trait_name}' in entity '{entity.name}'",
+                                span=entity.span,
+                                remediation=f"Declare field '{member.name}: {member.type_name};' in entity '{entity.name}'.",
+                            )
+                        )
+                    else:
+                        expected_dim = DimensionParser.parse(member.type_name or "Scalar")
+                        actual_dim = DimensionParser.parse(entity_fields[member.name])
+                        if not actual_dim.is_compatible_with(expected_dim):
+                            self.errors.append(
+                                TraitConformanceError(
+                                    code="FNL-O302",
+                                    message=f"Dimensional unit mismatch for field '{member.name}' in entity '{entity.name}': expected {expected_dim}, got {actual_dim}",
+                                    span=entity_field_spans.get(member.name, entity.span),
+                                    remediation=f"Change field '{member.name}' type to {expected_dim} to conform with trait '{trait_name}'.",
+                                )
+                            )
+
+                elif member.kind == "handler":
+                    clean_handler = member.name.removeprefix("on_")
+                    if clean_handler not in entity_handlers and member.name not in entity_handlers:
+                        self.errors.append(
+                            TraitConformanceError(
+                                code="FNL-O301",
+                                message=f"Missing required Trait lifecycle handler '{member.name}' from trait '{trait_name}' in entity '{entity.name}'",
+                                span=entity.span,
+                                remediation=f"Implement lifecycle handler '{member.name} -> {{ ... }}' in entity '{entity.name}'.",
+                            )
+                        )
+
+    def _check_entity_postings(self, entity: EntityDefinition) -> None:
+        for handler in entity.handlers:
+            for action in handler.actions:
+                if isinstance(action, PostStatementDefinition):
+                    debit_sum = 0
+                    credit_sum = 0
+                    has_literal = False
+                    symbolic_debits: list[str] = []
+                    symbolic_credits: list[str] = []
+
+                    for p in action.postings:
+                        if isinstance(p.amount_expr, LiteralExpression) and isinstance(p.amount_expr.value, (int, float)):
+                            has_literal = True
+                            if p.operation == "debit":
+                                debit_sum += p.amount_expr.value
+                            else:
+                                credit_sum += p.amount_expr.value
+                        elif isinstance(p.amount_expr, ReferenceExpression):
+                            if p.operation == "debit":
+                                symbolic_debits.append(p.amount_expr.name)
+                            else:
+                                symbolic_credits.append(p.amount_expr.name)
+                        elif isinstance(p.amount_expr, PayloadFieldExpression):
+                            if p.operation == "debit":
+                                symbolic_debits.append(f"payload.{p.amount_expr.name}")
+                            else:
+                                symbolic_credits.append(f"payload.{p.amount_expr.name}")
+
+                    if len(action.postings) < 2:
+                        self.errors.append(
+                            TraitConformanceError(
+                                code="FNL-O303",
+                                message=f"Unbalanced double-entry posting in handler '{handler.event}' of entity '{entity.name}': double-entry requires at least one debit and one credit",
+                                span=action.span or handler.span,
+                                remediation="Provide balanced debit(...) and credit(...) legs in the post statement.",
+                            )
+                        )
+                        continue
+
+                    if has_literal and debit_sum != credit_sum and not symbolic_debits and not symbolic_credits:
+                        self.errors.append(
+                            TraitConformanceError(
+                                code="FNL-O303",
+                                message=f"Unbalanced double-entry posting in handler '{handler.event}' of entity '{entity.name}': total debits ({debit_sum}) != total credits ({credit_sum})",
+                                span=action.span or handler.span,
+                                remediation=f"Ensure sum(debits) == sum(credits) in post statement (imbalance: {abs(debit_sum - credit_sum)}).",
+                            )
+                        )
+                    elif (
+                        symbolic_debits
+                        and symbolic_credits
+                        and sorted(symbolic_debits) != sorted(symbolic_credits)
+                        and has_literal
+                        and debit_sum != credit_sum
+                    ):
+                        self.errors.append(
+                                TraitConformanceError(
+                                    code="FNL-O303",
+                                    message=f"Unbalanced double-entry posting in handler '{handler.event}' of entity '{entity.name}': asymmetric debit/credit legs",
+                                    span=action.span or handler.span,
+                                    remediation="Ensure every debit leg has an equal and opposite credit leg.",
+                                )
+                            )

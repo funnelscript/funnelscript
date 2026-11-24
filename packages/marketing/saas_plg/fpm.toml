@@ -1,0 +1,94 @@
+[package]
+name = "marketing/saas_plg"
+version = "0.1.0"
+description = "Product-Led Growth (PLG) SaaS Funnel Package with Multi-Tier Subscriptions, Expansion, sBG Churn, Net Dollar Retention (NDR), and Cash Runway Invariants"
+author = "FunnelScript Core Team <core@funnelscript.org>"
+license = "MIT"
+funnelscript_version = ">=0.2.0"
+main = "index.fnls"
+
+[modules]
+index = "index.fnls"
+acquisition = "acquisition.fnls"
+activation = "activation.fnls"
+subscription = "subscription.fnls"
+treasury = "treasury.fnls"
+
+[dependencies]
+"core/commerce_traits" = ">=0.1.0"
+
+[parameters.monthly_ad_spend]
+type = "float"
+dimension = "Currency"
+unit = "USD"
+default = 10000.0
+min = 500.0
+max = 1000000.0
+description = "Monthly paid ad spend driving self-serve signup traffic"
+
+[parameters.trial_to_paid_rate]
+type = "float"
+dimension = "Ratio"
+default = 0.08
+min = 0.01
+max = 0.50
+description = "Product qualified lead (PQL) to paying subscriber conversion probability"
+
+[parameters.monthly_churn_rate]
+type = "float"
+dimension = "Ratio"
+default = 0.035
+min = 0.005
+max = 0.30
+description = "Baseline monthly customer logo churn probability"
+
+[parameters.starter_mrr]
+type = "float"
+dimension = "Currency"
+unit = "USD"
+default = 49.0
+min = 10.0
+max = 200.0
+description = "Monthly subscription price for Starter plan"
+
+[parameters.pro_mrr]
+type = "float"
+dimension = "Currency"
+unit = "USD"
+default = 199.0
+min = 50.0
+max = 1000.0
+description = "Monthly subscription price for Pro plan"
+
+[parameters.enterprise_mrr]
+type = "float"
+dimension = "Currency"
+unit = "USD"
+default = 999.0
+min = 500.0
+max = 10000.0
+description = "Monthly subscription price for Enterprise plan"
+
+[parameters.fixed_monthly_burn]
+type = "float"
+dimension = "Currency"
+unit = "USD"
+default = 25000.0
+min = 1000.0
+max = 500000.0
+description = "Fixed operational overhead (salaries, engineering, hosting)"
+
+[metrics.mrr]
+type = "float"
+dimension = "Currency"
+unit = "USD"
+description = "Total Monthly Recurring Revenue"
+
+[metrics.active_subscribers]
+type = "int"
+dimension = "Count"
+description = "Count of active paying subscription accounts"
+
+[metrics.cash_runway_breached]
+type = "bool"
+description = "Whether treasury cash balance dropped below minimum safety threshold"

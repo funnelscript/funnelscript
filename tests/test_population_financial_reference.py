@@ -16,7 +16,7 @@ from funnelscript.stdlib.marketing import (
     LedgerEntry, MarketingLedger, evaluate_trial,
 )
 
-SOURCE = Path(__file__).parent / "fixtures/population-reference/identity-rng.fnl"
+SOURCE = Path(__file__).parent / "fixtures/population-reference/identity-rng.fnls"
 D = Decimal
 
 

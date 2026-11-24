@@ -16,7 +16,7 @@ def test_resolve_package_import_via_fpm_map(tmp_path: Path):
     ext_pkg_dir = tmp_path / "installed_packages" / "ecommerce" / "d2c_scale"
     ext_pkg_dir.mkdir(parents=True)
 
-    pkg_entry = ext_pkg_dir / "index.fnl"
+    pkg_entry = ext_pkg_dir / "index.fnls"
     pkg_entry.write_text(
         'world d2c_scale {\n'
         '  entity Cart {\n'
@@ -26,7 +26,7 @@ def test_resolve_package_import_via_fpm_map(tmp_path: Path):
         encoding="utf-8",
     )
 
-    pkg_treasury = ext_pkg_dir / "treasury.fnl"
+    pkg_treasury = ext_pkg_dir / "treasury.fnls"
     pkg_treasury.write_text(
         'world treasury {\n'
         '  entity BankAccount {\n'
@@ -56,7 +56,7 @@ def test_resolve_package_import_via_fpm_map(tmp_path: Path):
     (fpm_dir / "resolution-map.json").write_text(json.dumps(res_map), encoding="utf-8")
 
     # Write consumer strategy source file importing the package with 'as' syntax
-    consumer_fnl = project_root / "main.fnl"
+    consumer_fnl = project_root / "main.fnls"
     consumer_fnl.write_text(
         'world ConsumerStrategy {\n'
         '  import "ecommerce/d2c_scale" as CartModule;\n'
@@ -84,7 +84,7 @@ def test_missing_package_in_resolution_map(tmp_path: Path):
         encoding="utf-8",
     )
 
-    source_fnl = project_root / "test.fnl"
+    source_fnl = project_root / "test.fnls"
     source_fnl.write_text(
         'world Test {\n'
         '  import "nonexistent/pkg" as NonExistent;\n'

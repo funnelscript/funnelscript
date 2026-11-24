@@ -48,7 +48,7 @@ from funnelscript.parser import Parser
 def test_world_semantic_errors_have_source_location(
     tmp_path: Path, source: str, line: int, column: int, message: str,
 ):
-    path = tmp_path / "world.fnl"
+    path = tmp_path / "world.fnls"
     path.write_text(source)
     with pytest.raises(WorldTypeError, match=message) as captured:
         Parser.from_file(path)
@@ -65,10 +65,10 @@ def test_world_semantic_errors_have_source_location(
 
 
 def test_imported_world_type_failure_is_reported_at_library_source(tmp_path: Path):
-    library = tmp_path / "lib.fnl"
+    library = tmp_path / "lib.fnls"
     library.write_text("world Lib {\n  entity E {\n    state n: int = true;\n  }\n}\n")
-    entry = tmp_path / "entry.fnl"
-    entry.write_text('world Entry {\n  import "lib.fnl" as Linked;\n}\n')
+    entry = tmp_path / "entry.fnls"
+    entry.write_text('world Entry {\n  import "lib.fnls" as Linked;\n}\n')
     with pytest.raises(WorldTypeError) as captured:
         Parser.from_file(entry)
     assert captured.value.span is not None
@@ -77,7 +77,7 @@ def test_imported_world_type_failure_is_reported_at_library_source(tmp_path: Pat
 
 
 def test_cli_displays_semantic_code_and_caret_without_traceback(tmp_path: Path, capsys):
-    path = tmp_path / "bad.fnl"
+    path = tmp_path / "bad.fnls"
     path.write_text("world W {\n  entity E {\n    state n: int = true;\n  }\n}\n")
     assert check_command(str(path)) == 1
     captured = capsys.readouterr()

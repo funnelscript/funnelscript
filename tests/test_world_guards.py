@@ -24,7 +24,7 @@ GUARDED_WORLD = """world BoundedFlow {
 
 
 def parse_world(tmp_path, source=GUARDED_WORLD):
-    path = tmp_path / "guarded.fnl"
+    path = tmp_path / "guarded.fnls"
     path.write_text(source, encoding="utf-8")
     return Parser.from_file(path)
 
@@ -135,7 +135,7 @@ def test_malformed_guards_are_rejected(tmp_path, guard):
 
 
 def test_cli_executes_guarded_world_from_source(tmp_path):
-    path = tmp_path / "guarded.fnl"
+    path = tmp_path / "guarded.fnls"
     path.write_text(GUARDED_WORLD, encoding="utf-8")
     completed = subprocess.run(
         [

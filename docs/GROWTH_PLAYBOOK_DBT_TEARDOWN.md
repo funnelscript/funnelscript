@@ -45,7 +45,7 @@
 |---|---|---|
 | **Acquisition** | Technical docs (`docs.getdbt.com`), Hacker News essays, open-source GitHub repo, Coalesce summit talks (`/dbt-summit` with 368 pages), and ecosystem partner listings (Snowflake, Databricks). | Technical tutorials on modeling ad fatigue ($\lambda$), Hacker News launches, GitHub release notes, and partnerships with data/marketing tools. |
 | **Activation** | `pip install dbt-core` ⟶ `dbt init` ⟶ write first `.sql` model ⟶ run `dbt test` in under 5 minutes. | `uvx --from "git+..." funnelscript init-world` ⟶ `funnelscript check` ⟶ run Monte Carlo simulation in under 3 minutes. |
-| **Retention** | dbt package dependencies (`packages.yml`), weekly community discussions, career identity tied to the "Analytics Engineer" role. | Strategy dependencies via `fpm` (`std:marketing/lead_response.fnl`), and career identity tied to the **Marketing Systems Engineer (MSE)** role. |
+| **Retention** | dbt package dependencies (`packages.yml`), weekly community discussions, career identity tied to the "Analytics Engineer" role. | Strategy dependencies via `fpm` (`std:marketing/lead_response.fnls`), and career identity tied to the **Marketing Systems Engineer (MSE)** role. |
 | **Referral** | "dbt certified" developer credentials (`/certifications`), company job postings requiring "Experience with dbt", and public dbt Hub packages. | "Verified FunnelScript Models", GitHub CI status badges (`FunnelScript: Invariants Passing`), and certified agency packages on `fpm`. |
 | **Revenue** | Free open-source CLI ⟶ Paid dbt Cloud (web IDE, job scheduler, role-based access, semantic layer, enterprise SSO). | Free open-source CLI (`funnelscript`) ⟶ Paid Cloud Grid (GPU/SIMD multi-agent cloud runs, live Meta/Google ad sync, team collaboration). |
 
@@ -64,9 +64,9 @@
 | Dimension | dbt Labs (Observed Standard) | FunnelScript (Current State) | Strategic Gap |
 |---|---|---|---|
 | **Persona & Identity** | Established "Analytics Engineer" across thousands of LinkedIn profiles and job descriptions. | Defined the "Marketing Systems Engineer (MSE)" in internal manifestos (`MARKETING_SYSTEMS_ENGINEERING.md`). | Need public advocacy campaign to formalize the MSE persona on LinkedIn, Substack, and job boards. |
-| **IDE & Developer Experience** | Dedicated official VS Code Extension with syntax highlighting, autocomplete, and live compile previews. | Core command-line parser and language specification; manual text editing. | Need immediate TextMate / VS Code extension release for `.fnl` syntax highlighting. |
+| **IDE & Developer Experience** | Dedicated official VS Code Extension with syntax highlighting, autocomplete, and live compile previews. | Core command-line parser and language specification; manual text editing. | Need immediate TextMate / VS Code extension release for `.fnls` syntax highlighting. |
 | **CI/CD Integration Wedge** | `dbt test` runs in every modern enterprise data CI pipeline, blocking broken pull requests. | `funnelscript check` exists locally with AST type checking and mass conservation invariants. | Need a zero-friction GitHub Action (`funnelscript-action`) that teams can drop into `.github/workflows/` with 3 lines of YAML. |
-| **Package Distribution Hub** | `hub.getdbt.com` indexes hundreds of community modules. | `fpm` package specification designed; ships initial `std:marketing/lead_response.fnl`. | Need a public registry index (like crates.io or npm) for community marketing models. |
+| **Package Distribution Hub** | `hub.getdbt.com` indexes hundreds of community modules. | `fpm` package specification designed; ships initial `std:marketing/lead_response.fnls`. | Need a public registry index (like crates.io or npm) for community marketing models. |
 | **Authority Asset** | Annual *State of Analytics Engineering* survey & report read by thousands of engineering leaders. | Rigorous academic and research foundation in `funnelscript-research`. | Need an annual *State of Marketing Systems Engineering & Budget Invariants* benchmark report. |
 
 ---
@@ -87,7 +87,7 @@
 - **Run it with:** `content-strategy`, `copywriting` · **Keep it going with:** `marketing-loops` (content-calendar refill loop)
 - **Effort:** 1 week · **First result:** 7 days post-publication · **Watch:** Hacker News front-page points, GitHub repo traffic, and Git clones · **Cost:** $0
 - **Paste-Ready Prompt:**
-  > Use the `content-strategy` and `copywriting` skills. dbt won over analysts by publishing rigorous technical breakdowns of why legacy data practices fail. Author a forensic technical article titled: *"Why Scaling E-Commerce at 4x ROAS Still Triggers Bankruptcy: Modeling Cash Settlement Latency in FunnelScript"*. Provide the exact `.fnl` campaign code, the mathematical proof of $P(\text{Insolvency})$, the Monte Carlo chart comparing naive linear expectations against reality, and terminal output from `funnelscript simulate`. Avoid conversational fluff and write with the technical authority of an engineering whitepaper.
+  > Use the `content-strategy` and `copywriting` skills. dbt won over analysts by publishing rigorous technical breakdowns of why legacy data practices fail. Author a forensic technical article titled: *"Why Scaling E-Commerce at 4x ROAS Still Triggers Bankruptcy: Modeling Cash Settlement Latency in FunnelScript"*. Provide the exact `.fnls` campaign code, the mathematical proof of $P(\text{Insolvency})$, the Monte Carlo chart comparing naive linear expectations against reality, and terminal output from `funnelscript simulate`. Avoid conversational fluff and write with the technical authority of an engineering whitepaper.
 
 ### Play 3: The Interactive In-Browser Playground (WASM Studio)
 - **Evidence:** Modern developer tools (TypeScript, Rust, dbt, SQLPad) achieve massive top-of-funnel conversion by giving developers a zero-install interactive browser sandbox.
@@ -95,7 +95,7 @@
 - **Run it with:** `free-tools`, `cro` · **Keep it going with:** `marketing-loops`
 - **Effort:** 2 weeks · **First result:** 30 days · **Watch:** Playground model executions and "Copy CLI Command" clicks · **Cost:** $0
 - **Paste-Ready Prompt:**
-  > Use the `free-tools` and `cro` skills. Developer tools achieve maximum conversion when users can test syntax instantly without local installation. Design the architecture and landing page for `play.funnelscript.org`: a lightweight WebAssembly/client-side sandbox with a side-by-side layout (left: interactive `.fnl` code editor with pre-loaded Black Friday and SaaS Lead Gen templates; right: real-time terminal output showing `funnelscript check` passes and stochastic cash trajectory graphs). Add an explicit "Export to CLI" and "Add to GitHub Actions" conversion banner.
+  > Use the `free-tools` and `cro` skills. Developer tools achieve maximum conversion when users can test syntax instantly without local installation. Design the architecture and landing page for `play.funnelscript.org`: a lightweight WebAssembly/client-side sandbox with a side-by-side layout (left: interactive `.fnls` code editor with pre-loaded Black Friday and SaaS Lead Gen templates; right: real-time terminal output showing `funnelscript check` passes and stochastic cash trajectory graphs). Add an explicit "Export to CLI" and "Add to GitHub Actions" conversion banner.
 
 ### Play 4: Launching the "State of Marketing Systems Engineering" Authority Survey
 - **Evidence:** dbt Labs' *State of Analytics Engineering* report (`/state-of-analytics-engineering-2026`) is cited by hundreds of industry publications and drives thousands of enterprise leads annually.
@@ -107,7 +107,7 @@
 
 ### Play 5: The `fpm` Package Hub & Certified Touchpoint Library
 - **Evidence:** dbt Hub (`hub.getdbt.com`) transformed dbt from an individual developer CLI into an ecosystem where every data vendor had to maintain a dbt package.
-- **Your Gap:** FunnelScript has `std:marketing/lead_response.fnl`, but needs a visible directory of verified channel touchpoints.
+- **Your Gap:** FunnelScript has `std:marketing/lead_response.fnls`, but needs a visible directory of verified channel touchpoints.
 - **Run it with:** `directory-submissions`, `co-marketing` · **Keep it going with:** `marketing-loops`
 - **Effort:** 2 weeks · **First result:** 45 days · **Watch:** Third-party package submissions and imports · **Cost:** $0
 - **Paste-Ready Prompt:**
@@ -126,7 +126,7 @@
 
 | Day | Action Item | Assigned Skill | Deliverable |
 |---|---|---|---|
-| **Day 1–3** | Author & publish the official TextMate & VS Code extension for `.fnl` syntax. | `developer-marketing` | VS Code Marketplace Extension |
+| **Day 1–3** | Author & publish the official TextMate & VS Code extension for `.fnls` syntax. | `developer-marketing` | VS Code Marketplace Extension |
 | **Day 4–6** | Build and test the `funnelscript/action-check` GitHub Action with automated test fixtures. | `developer-marketing` | Working GitHub Action in GitHub Marketplace |
 | **Day 7–9** | Write and publish the first forensic campaign teardown (*"Why 4x ROAS Causes Bankruptcy"*). | `content-strategy`, `copywriting` | 2,500-word technical whitepaper / blog post |
 | **Day 10–12** | Author the "Show HN: FunnelScript – Marketing-as-Code with Stochastic Simulation" launch post. | `launch` | Final Hacker News submission copy & thread prep |

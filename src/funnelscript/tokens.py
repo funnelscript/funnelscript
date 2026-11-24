@@ -55,6 +55,8 @@ class TokenType(Enum):
     LT = auto()
     EQ = auto()
     NEQ = auto()
+    ARROW = auto()       # ->
+    FAT_ARROW = auto()   # =>
 
     EOF = auto()
 
@@ -191,6 +193,16 @@ class Lexer:
                 line, col = self.line, self.col
                 self._advance(2)
                 self._emit(TokenType.EQ, "==", line, col)
+                continue
+            if char == "=" and self.pos + 1 < length and self.source[self.pos + 1] == ">":
+                line, col = self.line, self.col
+                self._advance(2)
+                self._emit(TokenType.FAT_ARROW, "=>", line, col)
+                continue
+            if char == "-" and self.pos + 1 < length and self.source[self.pos + 1] == ">":
+                line, col = self.line, self.col
+                self._advance(2)
+                self._emit(TokenType.ARROW, "->", line, col)
                 continue
             if char == "!" and self.pos + 1 < length and self.source[self.pos + 1] == "=":
                 line, col = self.line, self.col

@@ -1,0 +1,35 @@
+world SaasSubscriptionModule {
+  entity SubscriptionDesk {
+    state starter_count: int = 0;
+    state pro_count: int = 0;
+    state enterprise_count: int = 0;
+    state total_active: int = 0;
+    state total_churned: int = 0;
+    state current_mrr: float = 0.0;
+    state active: bool = true;
+
+    event ConvertToPaid(plan_mrr: float);
+    event UpgradeTier(old_mrr: float, new_mrr: float);
+    event DowngradeTier(old_mrr: float, new_mrr: float);
+    event CancelAccount(lost_mrr: float);
+
+    rule Subscribe on event ConvertToPaid when (active == true) {
+      transition total_active = total_active + 1;
+      transition current_mrr = current_mrr + payload.plan_mrr;
+    }
+
+    rule Upgrade on event UpgradeTier when (active == true) {
+      transition current_mrr = current_mrr + (payload.new_mrr - payload.old_mrr);
+    }
+
+    rule Downgrade on event DowngradeTier when (active == true) {
+      transition current_mrr = current_mrr - (payload.old_mrr - payload.new_mrr);
+    }
+
+    rule Churn on event CancelAccount when (active == true) {
+      transition total_active = total_active - 1;
+      transition total_churned = total_churned + 1;
+      transition current_mrr = current_mrr - payload.lost_mrr;
+    }
+  }
+}

@@ -17,7 +17,7 @@ CASE = json.loads((ROOT / "order-coupling.json").read_text(encoding="utf-8"))
 
 
 def test_existing_world_replays_pinned_first_order_golden():
-    executor = WorldExecutor(Parser.from_file(ROOT / "order-coupling.fnl"))
+    executor = WorldExecutor(Parser.from_file(ROOT / "order-coupling.fnls"))
     events = [Event(CASE["event_time"], name) for name in CASE["first"]]
     state = executor.run(events, seed=CASE["seed"]).state
     assert state == {
@@ -27,7 +27,7 @@ def test_existing_world_replays_pinned_first_order_golden():
 
 
 def test_existing_world_draws_are_tied_to_event_order_not_agent_identity():
-    executor = WorldExecutor(Parser.from_file(ROOT / "order-coupling.fnl"))
+    executor = WorldExecutor(Parser.from_file(ROOT / "order-coupling.fnls"))
     first = executor.run(
         [Event(CASE["event_time"], name) for name in CASE["first"]],
         seed=CASE["seed"],

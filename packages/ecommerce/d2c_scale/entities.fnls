@@ -1,0 +1,34 @@
+world D2CEntitiesModule {
+  import "core/commerce_traits" as std;
+
+  entity CODParcel implements std.FinancialBinding, std.TimeDelayed, std.Attributable, std.Ingestable {
+    currency: Currency<USD> = "USD";
+    ledger clearing_account: LedgerAccount<USD>;
+    transit_delay: Duration<day> = 4;
+    channel_id: string = "meta_paid";
+    touchpoint_id: string = "order_form";
+    mapping_schema: string = "ecommerce/d2c_scale";
+    idempotency_key: string = "parcel_001";
+    state parcel_id: int = 1;
+    state order_value: int = 150;
+    state delivered: bool = false;
+    state attributed: bool = false;
+    state ingested: bool = false;
+
+    on_settlement -> {
+      post debit(clearing_account, 150), credit(treasury_cash, 150);
+    }
+
+    on_delay_elapsed -> {
+      transition delivered = true;
+    }
+
+    on_touchpoint -> {
+      transition attributed = true;
+    }
+
+    on_ingest -> {
+      transition ingested = true;
+    }
+  }
+}

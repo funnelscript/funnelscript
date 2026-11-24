@@ -1,0 +1,15 @@
+world D2CSeasonalScaleStress {
+  import "ecommerce/d2c_scale" as D2C;
+
+  // 30-Day Seasonal Push doubling spend from $5,000/day to $10,000/day.
+  // Profile: MENA/Emerging Market D2C Brand
+  // - 65% Cash on Delivery (COD) share
+  // - 18% COD Return-to-Origin (RTO) rate
+  // - 7-day courier cash remittance cycle
+  // - 3-day online payment gateway settlement
+  // - 35% COGS and round-trip shipping drag
+  //
+  // Failure Mode:
+  // - Booked Paper ROAS remains strong (> 2.8x)
+  // - Working capital collapses into insolvency mid-month (Day 17-21)
+}

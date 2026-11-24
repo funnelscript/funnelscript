@@ -28,7 +28,7 @@ WORLD = """world Cascade {
 
 
 def parse_world(tmp_path, source=WORLD):
-    path = tmp_path / "cascade.fnl"
+    path = tmp_path / "cascade.fnls"
     path.write_text(source, encoding="utf-8")
     return Parser.from_file(path)
 
@@ -136,7 +136,7 @@ def test_invalid_emit_syntax_is_rejected(tmp_path, bad_emit):
 
 
 def test_cli_processes_emitted_events_from_real_file(tmp_path):
-    path = tmp_path / "cascade.fnl"
+    path = tmp_path / "cascade.fnls"
     path.write_text(WORLD, encoding="utf-8")
     completed = subprocess.run(
         [

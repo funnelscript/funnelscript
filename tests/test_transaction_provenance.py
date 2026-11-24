@@ -11,7 +11,7 @@ from funnelscript.parser import Parser
 from funnelscript.runtime.world_executor import PopulationAgent, PopulationExecutor, WorldExecutor
 from funnelscript.stdlib import marketing
 
-SOURCE = Path(__file__).parent / "fixtures/population-reference/identity-rng.fnl"
+SOURCE = Path(__file__).parent / "fixtures/population-reference/identity-rng.fnls"
 
 
 def trial(size=10, trial_id="trial-1", order=None, duplicate=False, until=None):
@@ -200,7 +200,7 @@ def test_opt_in_world_trace_is_observational_for_rng_and_event_calendar():
 
 
 def test_emitted_events_have_real_processing_occurrence_and_guard_witness():
-    fixture = SOURCE.parents[3] / "examples" / "guarded_world.fnl"
+    fixture = SOURCE.parents[3] / "examples" / "guarded_world.fnls"
     world = WorldExecutor(Parser.from_file(fixture))
     steps = []
     baseline = world.run((Event(0, "Counter.Tick"),), seed=5)
@@ -299,7 +299,7 @@ def test_conflicting_external_entries_and_invalid_money_rejected():
 
 
 def test_actual_false_guard_never_recognizes_a_sale():
-    source = SOURCE.parent / "guarded-provenance.fnl"
+    source = SOURCE.parent / "guarded-provenance.fnls"
     runner = PopulationExecutor(
         WorldExecutor(Parser.from_file(source)),
         [PopulationAgent("a-1", "c-1", "north")],

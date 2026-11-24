@@ -32,10 +32,10 @@ def test_multiline_string_span_covers_closing_quote():
 
 
 def test_parser_error_points_to_originating_import_file(tmp_path: Path):
-    source = tmp_path / "entry.fnl"
-    module = tmp_path / "module.fnl"
+    source = tmp_path / "entry.fnls"
+    module = tmp_path / "module.fnls"
     module.write_text("world M { entity E { state count: int = ; } }", encoding="utf-8")
-    source.write_text('world Main { import "module.fnl" as Alias; }', encoding="utf-8")
+    source.write_text('world Main { import "module.fnls" as Alias; }', encoding="utf-8")
     with pytest.raises(ParserError) as exc:
         Parser.from_file(source)
     assert exc.value.token is not None
@@ -44,7 +44,7 @@ def test_parser_error_points_to_originating_import_file(tmp_path: Path):
 
 
 def test_check_command_reports_code_snippet_and_caret(tmp_path: Path, capsys):
-    source = tmp_path / "invalid.fnl"
+    source = tmp_path / "invalid.fnls"
     source.write_text("world W {\n  entity E { state count: int = ; }\n}", encoding="utf-8")
     assert check_command(str(source)) == 1
     text = capsys.readouterr().out
@@ -56,7 +56,7 @@ def test_check_command_reports_code_snippet_and_caret(tmp_path: Path, capsys):
 
 
 def test_lexical_error_reports_source_with_caret_and_code(tmp_path: Path, capsys):
-    source = tmp_path / "illegal.fnl"
+    source = tmp_path / "illegal.fnls"
     source.write_text("world W {\n  entity E { ? }\n}", encoding="utf-8")
     assert check_command(str(source)) == 1
     text = capsys.readouterr().out

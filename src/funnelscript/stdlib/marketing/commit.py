@@ -6,15 +6,23 @@ authenticated financial authority or proof of stable-media persistence.
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
-from hashlib import sha256
 import json
 import os
+from dataclasses import asdict, dataclass
+from hashlib import sha256
 from pathlib import Path
 
 from funnelscript.runtime.world_executor import PopulationResult
-from .audit import (AUDIT_SCHEMA, _canonical, _keys, export_audit, read_audit_checkpoint,
-                    restore_audit, write_audit_checkpoint)
+
+from .audit import (
+    AUDIT_SCHEMA,
+    _canonical,
+    _keys,
+    export_audit,
+    read_audit_checkpoint,
+    restore_audit,
+    write_audit_checkpoint,
+)
 from .ledger import _cents
 from .provenance import DeclaredSalePolicy, ProvenancedTrial
 
@@ -95,7 +103,7 @@ def verify_financial_receipt(
 ) -> ProvenancedTrial:
     """Verify an externally retained receipt against current checkpoint evidence."""
     if not isinstance(receipt, FinancialCommitReceipt):
-        raise ValueError("invalid financial commit receipt type")
+        raise ValueError("invalid financial commit receipt type")  # noqa: TRY004
     return recover_financial_checkpoint(
         path, population, policy, expected_receipt=receipt,
     )[0]
@@ -113,17 +121,45 @@ def _synchronize_existing(path: Path) -> None:
 
 
 def commit_financial_checkpoint(
-    path: str | os.PathLike, population: PopulationResult, policy: DeclaredSalePolicy,
-    candidate: ProvenancedTrial, *, expected_receipt: FinancialCommitReceipt | None = None,
+    path: str | os.PathLike,
+    population: PopulationResult,
+    policy: DeclaredSalePolicy,
+    candidate: ProvenancedTrial,
+    *,
+    expected_receipt: FinancialCommitReceipt | None = None,
+    idempotency_key: str | None = None,
 ) -> FinancialCommitReceipt:
     """Commit a validated full audit; never acknowledge an ambiguous publication.
 
     The caller guarantees exclusive ownership of the path. For a changed
     checkpoint, supply the previously retained trusted receipt as an anchor.
+    Duplicate submissions with an identical idempotency_key are strict idempotent no-ops.
     """
+    destination = Path(path)
+    idempotency_path = destination.parent / f".{destination.name}.idempotency.json"
+
     data = export_audit(population, policy, candidate)
     proposed = _receipt(data, candidate)
-    destination = Path(path)
+
+    # Check idempotency registry
+    idempotency_map: dict[str, str] = {}
+    if idempotency_path.exists():
+        try:
+            idempotency_map = json.loads(idempotency_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            idempotency_map = {}
+
+    if idempotency_key is not None and idempotency_key in idempotency_map:
+        cached_commit_id = idempotency_map[idempotency_key]
+        if cached_commit_id == proposed.commit_id:
+            if destination.exists():
+                _previous, cached_receipt = recover_financial_checkpoint(destination, population, policy)
+                return cached_receipt
+            return proposed
+        raise ValueError(
+            f"Idempotency key '{idempotency_key}' conflict: candidate state differs from previously committed state"
+        )
+
     if destination.exists():
         previous, old_receipt = recover_financial_checkpoint(destination, population, policy)
         if expected_receipt is not None and old_receipt != expected_receipt:
@@ -136,17 +172,33 @@ def commit_financial_checkpoint(
                 raise CommitOutcomeUncertain(
                     "idempotent checkpoint synchronization uncertain; recover persisted evidence"
                 ) from error
+            if idempotency_key is not None:
+                idempotency_map[idempotency_key] = proposed.commit_id
+                try:
+                    idempotency_path.write_text(json.dumps(idempotency_map, sort_keys=True), encoding="utf-8")
+                except OSError:
+                    pass
             return old_receipt
         if expected_receipt is None:
             raise ValueError("changed financial checkpoint requires previous receipt")
         old_ledger, new_ledger = previous.ledger, candidate.ledger
-        if (old_ledger.trial_id, old_ledger.currency, old_ledger.cash_initial,
-                old_ledger.settlement_delay, old_ledger.horizon) != (
-                new_ledger.trial_id, new_ledger.currency, new_ledger.cash_initial,
-                new_ledger.settlement_delay, new_ledger.horizon):
+        if (
+            old_ledger.trial_id,
+            old_ledger.currency,
+            old_ledger.cash_initial,
+            old_ledger.settlement_delay,
+            old_ledger.horizon,
+        ) != (
+            new_ledger.trial_id,
+            new_ledger.currency,
+            new_ledger.cash_initial,
+            new_ledger.settlement_delay,
+            new_ledger.horizon,
+        ):
             raise ValueError("changed financial trial configuration")
-        if (previous.sales != candidate.sales or not set(previous.financial_actions).issubset(
-                set(candidate.financial_actions))):
+        if previous.sales != candidate.sales or not set(previous.financial_actions).issubset(
+            set(candidate.financial_actions)
+        ):
             raise ValueError("financial checkpoint cannot discard or rewrite committed actions")
     elif expected_receipt is not None:
         raise ValueError("expected previous checkpoint is absent")
@@ -154,6 +206,9 @@ def commit_financial_checkpoint(
     try:
         write_audit_checkpoint(destination, data)
         verify_financial_receipt(destination, population, policy, proposed)
+        if idempotency_key is not None:
+            idempotency_map[idempotency_key] = proposed.commit_id
+            idempotency_path.write_text(json.dumps(idempotency_map, sort_keys=True), encoding="utf-8")
     except (OSError, ValueError) as error:
         raise CommitOutcomeUncertain(
             "checkpoint publication or post-publication verification uncertain; recover persisted evidence"

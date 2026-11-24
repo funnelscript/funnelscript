@@ -28,7 +28,7 @@ from funnelscript.runtime.world_executor import (
 )
 
 SOURCE = Path(__file__).resolve().parents[1] / (
-    "tests/fixtures/population-reference/identity-rng.fnl"
+    "tests/fixtures/population-reference/identity-rng.fnls"
 )
 
 
@@ -90,7 +90,7 @@ def _result_sha256(result: PopulationResult) -> str:
 
 
 def run_scenario(events: int, agents: int, mode: str) -> dict[str, object]:
-    """Run a real .fnl population trial with or without mid-run restoration."""
+    """Run a real .fnls population trial with or without mid-run restoration."""
     enrolled, source_events = _inputs(agents, events)
     runner = PopulationExecutor(
         WorldExecutor(Parser.from_file(SOURCE)),

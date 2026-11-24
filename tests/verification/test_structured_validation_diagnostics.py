@@ -86,7 +86,7 @@ def test_json_type_failure_is_bounded_and_does_not_dump_values():
 
 def test_diagnostic_renderer_keeps_existing_semantic_and_syntax_messages():
     for error in [WorldTypeError("semantic failure"), ParserError("syntax failure")]:
-        assert render_compiler_error(error, "input.fnl") == str(error)
+        assert render_compiler_error(error, "input.fnls") == str(error)
 
 
 def test_simulate_reuses_validation_diagnostic_without_traceback(

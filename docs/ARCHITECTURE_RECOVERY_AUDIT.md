@@ -15,7 +15,7 @@ Policy: Pause feature delivery. This audit is evidence, not an autonomous author
 ## 2. Actual system map and ownership
 
 Source-defined World path:
-  .fnl text -> Lexer/Parser -> WorldAST/WorldTypeChecker -> WorldExecutor -> EventMachine
+  .fnls text -> Lexer/Parser -> WorldAST/WorldTypeChecker -> WorldExecutor -> EventMachine
   -> typed state and processed/pending events. PopulationExecutor runs isolated agent-local Worlds with keyed RNG substreams. Marketing ledger/metrics/provenance/commit modules are opt-in domain-level Python adapters, not universal World rules.
 
 Legacy strategy path:
@@ -140,7 +140,7 @@ R5 — Evidence and product trust (parallel scientific research, no unsupported 
 
 R6 — Developer interfaces after R1/R4 boundaries.
 - Structured compiler spans, stable package API for Python-to-FunnelScript, versioned playbooks and deterministic golden examples.
-- Completion: external consumer contract tests and no arbitrary Python callbacks exposed inside untrusted .fnl.
+- Completion: external consumer contract tests and no arbitrary Python callbacks exposed inside untrusted .fnls.
 
 ## 5. Recovery dependency graph
 

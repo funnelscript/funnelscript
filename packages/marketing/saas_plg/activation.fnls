@@ -1,0 +1,18 @@
+world SaasActivationModule {
+  entity ProductOnboarding {
+    state onboarding_completed: int = 0;
+    state pql_qualified: int = 0;
+    state active: bool = true;
+
+    event CompleteSetup();
+    event ReachAhaMoment();
+
+    rule OnSetup on event CompleteSetup when (active == true) {
+      transition onboarding_completed = onboarding_completed + 1;
+    }
+
+    rule QualifyPQL on event ReachAhaMoment when (active == true) {
+      transition pql_qualified = pql_qualified + 1;
+    }
+  }
+}

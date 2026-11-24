@@ -41,7 +41,7 @@ WORLD = """world Interactions {
 
 
 def parse_source(tmp_path, source=WORLD):
-    path = tmp_path / "rules.fnl"
+    path = tmp_path / "rules.fnls"
     path.write_text(source, encoding="utf-8")
     return Parser.from_file(path)
 
@@ -184,7 +184,7 @@ def test_world_runner_respects_event_processing_limit(tmp_path):
 
 
 def test_cli_runs_rules_from_fnl_file(tmp_path):
-    path = tmp_path / "counter.fnl"
+    path = tmp_path / "counter.fnls"
     path.write_text(WORLD, encoding="utf-8")
     result = subprocess.run(
         [
@@ -203,7 +203,7 @@ def test_legacy_strategy_remains_unsupported_for_world_runner():
     result = subprocess.run(
         [
             sys.executable, "-m", "funnelscript.cli", "run-world",
-            "examples/black_friday_2026.fnl", "--event", "Counter.Pulse@0",
+            "examples/black_friday_2026.fnls", "--event", "Counter.Pulse@0",
         ],
         capture_output=True, text=True,
     )
@@ -442,7 +442,7 @@ def test_arithmetic_expression_in_local_emitted_event_uses_pre_event_values(tmp_
 
 
 def test_cli_reports_dynamic_division_by_zero_as_world_error(tmp_path):
-    path = tmp_path / "arithmetic.fnl"
+    path = tmp_path / "arithmetic.fnls"
     path.write_text(arithmetic_world("n / d"), encoding="utf-8")
     path.write_text(arithmetic_world("n / d").replace("state d: int = 3;", "state d: int = 0;"), encoding="utf-8")
     result = subprocess.run(
