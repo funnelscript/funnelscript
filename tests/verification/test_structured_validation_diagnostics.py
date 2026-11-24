@@ -52,7 +52,7 @@ def test_json_syntax_error_has_real_line_column_caret(
     assert check_command(str(path)) == 1
     rendered = capsys.readouterr().out
     assert "FNL-E103" in rendered
-    assert "invalid.json" in rendered
+    assert "invalid.json" in rendered or "invalid.json" in "".join(rendered.split())
     assert "line 3, column 14" in rendered
     assert '"entities": BAD' in rendered
     assert "^" in rendered

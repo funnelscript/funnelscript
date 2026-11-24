@@ -45,7 +45,7 @@ from funnelscript.runtime.exporters import (
 from funnelscript.runtime.world_executor import WorldExecutor
 from funnelscript.tokens import LexerError
 
-console = Console()
+console = Console(width=1000)
 
 MAX_EVENT_JSON_BYTES = 64 * 1024
 MAX_PLAYBOOK_BYTES = 1024 * 1024

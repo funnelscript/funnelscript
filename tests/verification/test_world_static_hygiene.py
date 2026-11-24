@@ -225,7 +225,7 @@ def test_cli_world_check_reports_advisory_warnings_without_failure(
     output = capsys.readouterr().out
     for code in ("FNL-W301", "FNL-W302", "FNL-W303", "FNL-W304"):
         assert code in output
-    assert "hygiene.fnls" in output
+    assert "hygiene.fnls" in output or "hygiene.fnls" in "".join(output.split())
 
 
 def test_cli_world_check_quiet_stays_silent(tmp_path, capsys):

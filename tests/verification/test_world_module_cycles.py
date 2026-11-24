@@ -117,7 +117,7 @@ def test_cycle_cli_reports_originating_import_without_traceback(
     diagnostic = output.out + output.err
     assert "FNL-E102" in diagnostic
     assert "Cyclic World module import" in diagnostic
-    assert "b.fnls" in diagnostic
+    assert "b.fnls" in diagnostic or "b.fnls" in "".join(diagnostic.split())
     assert "column 10" in diagnostic
     assert "ParserError at line 2, col 10" in diagnostic
     assert "Traceback" not in diagnostic
