@@ -1,0 +1,182 @@
+(* ========================================== *)
+(*          FunnelScript Root Grammar         *)
+(* ========================================== *)
+
+ProgramFile           ::= StrategyFile | WorldFile ;
+
+(* --- Contextual world/entity/agent/state declarations --- *)
+(* New declaration words are soft keywords in the reference lexer. *)
+WorldFile             ::= "world" Identifier "{" WorldDeclaration* "}" ;
+WorldDeclaration      ::= WorldEntityDeclaration | WorldAgentDeclaration | WorldTraitDeclaration | WorldImport ;
+WorldImport           ::= "import" StringLiteral ("as" Identifier | "{" NamedImport ("," NamedImport)* "}") ";" ;
+NamedImport           ::= Identifier ("as" Identifier)? ;
+
+(* --- Trait & Meta-Ontology Declarations --- *)
+WorldTraitDeclaration ::= "trait" Identifier "{" TraitMember* "}" ;
+TraitMember           ::= TraitFieldSignature | TraitHandlerSignature ;
+TraitFieldSignature   ::= Identifier ":" TypeExpression ";" ;
+TraitHandlerSignature ::= "on_" Identifier "(" ParameterList? ")" ";" ;
+ParameterList         ::= Parameter ("," Parameter)* ;
+Parameter             ::= Identifier ":" TypeExpression ;
+
+WorldEntityDeclaration ::= "entity" Identifier ImplementsClause? "{" WorldMember* "}" ;
+ImplementsClause      ::= "implements" TraitRef ("," TraitRef)* ;
+TraitRef              ::= (Identifier ".")? Identifier ;
+
+WorldAgentDeclaration ::= "agent" Identifier "{" WorldMember* "}" ;
+WorldMember           ::= StateField 
+                        | PrimitiveField 
+                        | EventDeclaration 
+                        | RuleDeclaration 
+                        | LifecycleHandler ;
+
+StateField            ::= "state" Identifier ":" PrimitiveType "=" StateLiteral ";" ;
+
+(* 5 Kernel Primitives *)
+PrimitiveField        ::= PrimitiveKind Identifier ":" PrimitiveTypeSpec ("=" StateExpression)? ";" ;
+PrimitiveKind         ::= "state" | "flow" | "ledger" | "capacity" | "metric" ;
+PrimitiveTypeSpec     ::= "Pool" "<" TypeExpression ">"
+                        | "Flow" "<" TypeExpression ">"
+                        | "LedgerAccount" ("<" CurrencyCode ">")?
+                        | "CapacityGuard" ("(" Number ("," Duration)? ")")?
+                        | "Metric"
+                        | TypeExpression ;
+CurrencyCode          ::= Identifier ;
+
+EventDeclaration      ::= "event" Identifier "(" EventFieldList? ")" ";" ;
+EventFieldList        ::= EventField ("," EventField)* ;
+EventField            ::= Identifier ":" PrimitiveType ;
+RuleDeclaration       ::= "rule" Identifier "on" "event" Identifier GuardClause? "{" RuleStatement* "}" ;
+GuardClause           ::= "when" "(" Identifier GuardOp StateLiteral ")" ;
+GuardOp               ::= "==" | "!=" | "<" | "<=" | ">" | ">=" ;
+RuleStatement         ::= TransitionStatement | EmitStatement ;
+TransitionStatement   ::= "transition" Identifier "=" TransitionExpression ";" ;
+TransitionExpression  ::= StateExpression ;
+
+LifecycleHandler      ::= "on_" Identifier "->" "{" ActionStatement* "}" ;
+ActionStatement       ::= PostStatement 
+                        | DelayBranchStatement 
+                        | TransitionStatement 
+                        | EmitStatement ;
+
+PostStatement         ::= "post" LedgerPosting ("," LedgerPosting)* ";" ;
+LedgerPosting         ::= ("debit" | "credit") "(" (Identifier | "self" "." Identifier) "," StateExpression ")" ;
+DelayBranchStatement  ::= "delay" "(" StateExpression ")" "->" "branch" "(" StateExpression ")" "{" BranchArm* "}" ;
+BranchArm             ::= BooleanLiteral "=>" EmitStatement ;
+
+(* Lexer recognizes // comments before the single / division token. *)
+AdditiveOperator      ::= "+" | "-" ;
+MultiplicativeOperator ::= "*" | "/" ;
+SampleExpression      ::= "sample" ("bernoulli" "(" SampleArgument ")"
+                        | "uniform" "(" SampleArgument "," SampleArgument ")") ;
+SampleArgument        ::= SignedNumber | PayloadReference | Identifier ;
+EmitStatement         ::= "emit" Identifier ("(" EventArgList? ")")? ("after" (SignedNumber | StateExpression))? ";" ;
+EventArgList          ::= EventArgument ("," EventArgument)* ;
+EventArgument         ::= Identifier "=" StateExpression ;
+StateExpression       ::= AdditiveExpression ;
+AdditiveExpression    ::= MultiplicativeExpression (AdditiveOperator MultiplicativeExpression)* ;
+MultiplicativeExpression ::= PrimaryExpression (MultiplicativeOperator PrimaryExpression)* ;
+PrimaryExpression     ::= StateLiteral | PayloadReference | Identifier | "(" StateExpression ")" | SampleExpression ;
+PayloadReference      ::= "payload" "." Identifier ;
+
+TypeExpression        ::= PrimitiveType 
+                        | DimensionalType 
+                        | Identifier ("<" TypeExpression ("," TypeExpression)* ">")? ;
+DimensionalType       ::= "Currency" "<" CurrencyCode ">"
+                        | "Duration" ("<" Identifier ">")?
+                        | "Rate" "<" TypeExpression "/" TypeExpression ">"
+                        | "Prob"
+                        | "Scalar" ;
+
+PrimitiveType         ::= "int" | "float" | "bool" | "string" ;
+StateLiteral          ::= SignedNumber | StringLiteral | BooleanLiteral ;
+SignedNumber          ::= ( "-" )? Number ;
+BooleanLiteral        ::= "true" | "false" ;
+
+StrategyFile          ::= "strategy" Identifier "{" StrategyElement* "}" ;
+
+StrategyElement       ::= MetadataBlock
+                        | EnvironmentBlock
+                        | EntitiesBlock
+                        | FlowBlock
+                        | InvariantsBlock
+                        | SimulationBlock ;
+
+(* --- Metadata & Environment Blocks --- *)
+MetadataBlock         ::= "metadata" "{" KeyValueAssignment* "}" ;
+EnvironmentBlock      ::= "environment" "{" KeyValueAssignment* "}" ;
+KeyValueAssignment    ::= Identifier "=" ( StringLiteral | Number | Identifier ) ";" ;
+
+(* --- Entities: Budgets, Audiences, Touchpoints --- *)
+EntitiesBlock         ::= "entities" "{" EntityDeclaration* "}" ;
+EntityDeclaration     ::= BudgetDeclaration | AudienceDeclaration | TouchpointDeclaration ;
+
+BudgetDeclaration     ::= "budget" Identifier "{"
+                            "total" "=" Number ";"
+                            ( "max_cpc" "=" Number ";" )?
+                            ( "initial_cash" "=" Number ";" )?
+                            ( "settlement_delay" "=" Duration ";" )?
+                          "}" ;
+
+AudienceDeclaration   ::= "audience" Identifier "{"
+                            "type" "=" ( "cold" | "warm" | "retargeting" ) ";"
+                            "size" "=" Integer ";"
+                            ( "brand_affinity" "=" ValueRange ";" )?
+                            ( "price_sensitivity" "=" ValueRange ";" )?
+                            ( "fomo_index" "=" ValueRange ";" )?
+                          "}" ;
+
+TouchpointDeclaration ::= "touchpoint" Identifier "{"
+                            "type" "=" ( "paid_traffic" | "conversion_surface" | "retargeting_channel" ) ";"
+                            ( "platform" "=" StringLiteral ";" )?
+                            ( "medium" "=" StringLiteral ";" )?
+                            ( "base_cpc" "=" Number ";" )?
+                            ( "base_conversion_rate" "=" Percentage ";" )?
+                            ( "base_open_rate" "=" Percentage ";" )?
+                            ( "creative_score" "=" Number ";" )?
+                            ( "settlement_delay" "=" Duration ";" )?
+                          "}" ;
+
+(* --- Flow & Tactical Logic Blocks --- *)
+FlowBlock             ::= "flow" "{" Statement* "}" ;
+
+Statement             ::= TriggerStatement
+                        | ConditionalBranchStatement
+                        | ActionStatement ;
+
+TriggerStatement      ::= "trigger" Identifier "from" Identifier "via" Identifier "to" Identifier ";" ;
+
+ConditionalBranchStatement ::= "when" "(" PredicateExpression ")" "{" Statement* "}" 
+                               ( "else" "{" Statement* "}" )? ;
+
+PredicateExpression   ::= PredicateAtom ( ( "AND" | "OR" ) PredicateAtom )* ;
+PredicateAtom         ::= Identifier ComparisonOp ( StringLiteral | Number | Duration | Percentage ) ;
+ComparisonOp          ::= "==" | "!=" | ">=" | "<=" | ">" | "<" ;
+
+ActionStatement       ::= "retarget" Identifier "{" ActionPayload* "}" ";"
+                        | "do_nothing" ";" ;
+
+ActionPayload         ::= Identifier "=" ( StringLiteral | Number | Percentage ) ";" ;
+
+(* --- Invariants & Simulation --- *)
+InvariantsBlock       ::= "invariants" "{" InvariantRule* "}" ;
+InvariantRule         ::= ( "min_roas" | "max_cac" | "max_drawdown" | "min_liquidity" ) 
+                          ComparisonOp Number ";" ;
+
+SimulationBlock       ::= "simulate" "{"
+                            "engine" "=" ( "agent_based" | "monte_carlo" | "hybrid" ) ";"
+                            "agents" "=" Integer ";"
+                            "duration" "=" Duration ";"
+                            "trials" "=" Integer ";"
+                            "outputs" "=" "[" ( MetricIdentifier ( "," MetricIdentifier )* )? "]" ";"
+                          "}" ;
+
+(* --- Tokens, Terminals & Literals --- *)
+MetricIdentifier      ::= "roas_distribution" | "cac_curve" | "cash_runway" | "worst_case_drawdown" ;
+ValueRange            ::= Number | Number ".." Number ;
+Duration              ::= Integer ( "s" | "m" | "h" | "days" | "weeks" ) ;
+Percentage            ::= Number "%" ;
+Number                ::= [0-9]+ ( "." [0-9]+ )? ;
+Integer               ::= [0-9]+ ;
+StringLiteral         ::= '"' [^"]* '"' ;
+Identifier            ::= [a-zA-Z_][a-zA-Z0-9_]* ;

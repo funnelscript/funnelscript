@@ -1,0 +1,29 @@
+{
+  "name": "leadgen/sales_capacity",
+  "version": "0.1.0",
+  "description": "Flagship high-ticket lead generation and sales team capacity constraint strategy package",
+  "license": "MIT",
+  "author": "FunnelScript Core Team <core@funnelscript.org>",
+  "keywords": [
+    "leadgen",
+    "sales-capacity",
+    "speed-to-lead",
+    "b2b",
+    "high-ticket",
+    "queuing",
+    "payroll"
+  ],
+  "main": "index.fnls",
+  "dependencies": {},
+  "benchmarks": {
+    "default_reps": 4,
+    "default_max_leads_per_rep": 12,
+    "default_lead_decay_half_life_minutes": 45.0,
+    "default_sales_cycle_days": 14
+  },
+  "verification": {
+    "mass_conservation": true,
+    "bounded_budget_gas": true,
+    "double_entry_exact": true
+  }
+}

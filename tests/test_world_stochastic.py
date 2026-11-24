@@ -30,7 +30,7 @@ WORLD = """world Experiment {
 
 
 def runner(tmp_path, source=WORLD):
-    source_path = tmp_path / "stochastic.fnl"
+    source_path = tmp_path / "stochastic.fnls"
     source_path.write_text(source, encoding="utf-8")
     return WorldExecutor(Parser.from_file(source_path))
 
@@ -256,7 +256,7 @@ def test_packaged_cli_replays_seeded_stochastic_world():
     project_root = Path(__file__).resolve().parents[1]
     command = [
         sys.executable, "-m", "funnelscript.cli", "run-world",
-        str(project_root / "examples" / "stochastic_world.fnl"),
+        str(project_root / "examples" / "stochastic_world.fnls"),
         "--event",
         '{"name":"Shopper.Impression","time":0,"payload":{"conversion_probability":0.25}}',
         "--seed", "42",

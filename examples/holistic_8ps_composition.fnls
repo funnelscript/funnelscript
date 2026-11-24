@@ -1,0 +1,46 @@
+world HolisticEnterpriseStrategy {
+  import "core/commerce_traits" as std;
+  import "ecommerce/d2c_scale" as d2c;
+  import "leadgen/sales_capacity" as leadgen;
+
+  entity EnterpriseCustomerCohort implements std.FinancialBinding, std.Capacitated {
+    currency: Currency<USD> = "USD";
+    ledger clearing_account: LedgerAccount<USD>;
+    capacity capacity_limit: CapacityGuard(1000, 1d);
+    state active_customers: int = 250;
+    state retained_count: int = 200;
+
+    on_settlement -> {
+      post debit(clearing_account, 5000), credit(corporate_cash, 5000);
+    }
+
+    on_bottleneck -> {
+      transition active_customers = 250;
+    }
+  }
+
+  entity HolisticGrowthLoop implements std.Capacitated {
+    capacity capacity_limit: CapacityGuard(500, 1d);
+    state total_cross_channel_revenue: int = 0;
+    state total_orders_fulfilled: int = 0;
+    state total_leads_closed: int = 0;
+    state active: bool = true;
+
+    event DispatchUnifiedOrder(order_id: int, value: int);
+    event CloseEnterpriseContract(lead_id: int, deal_size: int);
+
+    rule FulfillD2COrder on event DispatchUnifiedOrder when (active == true) {
+      transition total_orders_fulfilled = (total_orders_fulfilled + 1);
+      transition total_cross_channel_revenue = (total_cross_channel_revenue + payload.value);
+    }
+
+    rule CloseB2BLead on event CloseEnterpriseContract when (active == true) {
+      transition total_leads_closed = (total_leads_closed + 1);
+      transition total_cross_channel_revenue = (total_cross_channel_revenue + payload.deal_size);
+    }
+
+    on_bottleneck -> {
+      transition active = false;
+    }
+  }
+}

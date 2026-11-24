@@ -1,0 +1,17 @@
+[package]
+name = "core/commerce_traits"
+version = "0.1.0"
+description = "Official Standard Trait Package defining universal behavioral traits and commerce protocols for FunnelScript"
+author = "FunnelScript Core Team <core@funnelscript.org>"
+license = "MIT"
+funnelscript_version = ">=0.4.0"
+main = "index.fnls"
+
+[modules]
+index = "index.fnls"
+
+[verification]
+zero_industry_logic = true
+interface_only = true
+dimensional_safe = true
+composition_over_inheritance = true

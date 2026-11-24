@@ -1,0 +1,10 @@
+world InvalidDimensionalMismatch {
+  entity AdChannel {
+    state spend: Currency<USD> = 5000;
+    state clicks: Count<Click> = 100;
+    event DailyTick();
+    rule OnTick on event DailyTick {
+      transition spend = spend + clicks;
+    }
+  }
+}

@@ -1,0 +1,15 @@
+world DimensionalMarketingWorld {
+  entity AdChannel {
+    state daily_budget: Currency<USD> = 1000;
+    state carryover: Currency<USD> = 0;
+    state orders: float = 0.0;
+    state active: bool = true;
+
+    event DailyTick();
+
+    rule OnTick on event DailyTick when (active == true) {
+      transition carryover = adstock(daily_budget, 0.7);
+      transition orders = hill(carryover, 500, 0.85, 150);
+    }
+  }
+}

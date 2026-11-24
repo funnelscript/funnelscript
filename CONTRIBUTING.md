@@ -12,13 +12,12 @@ FunnelScript is an experimental source language, not an empirically validated ma
 | [`src/funnelscript/runtime/world_executor.py`](src/funnelscript/runtime/world_executor.py) | Pure World rule execution and events |
 | [`src/funnelscript/runtime/simulator.py`](src/funnelscript/runtime/simulator.py) | Separate legacy marketing simulator |
 | [`src/funnelscript/cli.py`](src/funnelscript/cli.py) | `check`, `compile`, `run-world`, `simulate`, `init`, `init-world`, `schema`, `--version` |
-| [`src/funnelscript/stdlib/marketing/`](src/funnelscript/stdlib/marketing/lead_response.fnl) | First reusable Marketing Standard Library source module |
+| [`src/funnelscript/stdlib/marketing/`](src/funnelscript/stdlib/marketing/lead_response.fnls) | First reusable Marketing Standard Library source module |
 | [`tests/`](tests/test_preview_quickstart.py) | Python behavior, negative-path, and installed-CLI tests |
-| [`apps/web/`](apps/web/package.json) | Bun-based editor/frontend and tests |
 
 ## Development and verification
 
-Python 3.12+ and [uv](https://docs.astral.sh/uv/) are required. Bun is required to verify changes affecting the Web Studio.
+Python 3.12+ and [uv](https://docs.astral.sh/uv/) are required. Note: The Visual Web Studio has been decoupled into its own standalone repository ([`funnelscript-studio`](https://github.com/funnelscript/funnelscript-studio)).
 
 ```bash
 git clone https://github.com/funnelscript/funnelscript.git
@@ -26,10 +25,6 @@ cd funnelscript
 uv sync --locked --dev
 uv run pytest -v
 uv build
-cd apps/web
-bun install --frozen-lockfile
-bun test
-bun run build
 ```
 
 For a narrow change, first run its relevant test module (for example `uv run pytest tests/test_world_modules.py -v` or `uv run pytest tests/test_preview_quickstart.py -v`), then run the complete suite and affected build gates before submitting. The GitHub workflow [`preview-ci.yml`](.github/workflows/preview-ci.yml) runs the pinned Python/wheel and Bun paths on supported pushes and tags.
@@ -45,9 +40,9 @@ For a narrow change, first run its relevant test module (for example `uv run pyt
 ## Working on an experimental World
 
 ```bash
-uv run funnelscript init-world first.fnl
-uv run funnelscript check first.fnl
-uv run funnelscript run-world first.fnl --event '{"name":"Prospect.Impression","time":0,"payload":{"cpc":2.0,"conversion_probability":0.7,"order_value":100.0}}' --seed 1
+uv run funnelscript init-world first.fnls
+uv run funnelscript check first.fnls
+uv run funnelscript run-world first.fnls --event '{"name":"Prospect.Impression","time":0,"payload":{"cpc":2.0,"conversion_probability":0.7,"order_value":100.0}}' --seed 1
 ```
 
 The [Experimental Preview Guide](docs/EXPERIMENTAL_PREVIEW.md) explains the source module and user-assumed conversion probability. The installed `v0.2.0a1` Git-source preview is verified; no PyPI package, Live execution engine, or empirical PyMC/OmniTwin calibration is implied.

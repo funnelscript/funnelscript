@@ -21,7 +21,7 @@ WORLD = """world Warehouse {
 
 
 def parse_world(tmp_path, source=WORLD):
-    file_path = tmp_path / "world.fnl"
+    file_path = tmp_path / "world.fnls"
     file_path.write_text(source, encoding="utf-8")
     return Parser.from_file(file_path)
 
@@ -95,9 +95,9 @@ def test_rejects_malformed_or_unknown_world_syntax(tmp_path, source):
 
 
 def test_world_cli_check_accepts_valid_and_rejects_bad(tmp_path):
-    valid = tmp_path / "valid.fnl"
+    valid = tmp_path / "valid.fnls"
     valid.write_text(WORLD, encoding="utf-8")
-    bad = tmp_path / "bad.fnl"
+    bad = tmp_path / "bad.fnls"
     bad.write_text("world W { entity E { state n: bool = 8; } }", encoding="utf-8")
 
     assert check_command(str(valid), quiet=True) == 0
@@ -105,7 +105,7 @@ def test_world_cli_check_accepts_valid_and_rejects_bad(tmp_path):
 
 
 def test_legacy_simulator_rejects_world_instead_of_using_campaign_engine(tmp_path):
-    path = tmp_path / "world.fnl"
+    path = tmp_path / "world.fnls"
     path.write_text(WORLD, encoding="utf-8")
 
     assert simulate_command(str(path), trials=1, agents=10, as_json=True) == 1
@@ -128,7 +128,7 @@ def test_soft_keywords_remain_valid_in_strategy_metadata(tmp_path):
 
 
 def test_existing_strategy_parser_remains_compatible():
-    ast = Parser.from_file("examples/black_friday_2026.fnl")
+    ast = Parser.from_file("examples/black_friday_2026.fnls")
     assert ast.strategy_name
     assert len(ast.entities.touchpoints) >= 1
 

@@ -1,0 +1,29 @@
+world SaasTreasuryModule {
+  entity SaasTreasuryLedger {
+    state cash_balance: float = 100000.0;
+    state min_safety_floor: float = 20000.0;
+    state total_collected_revenue: float = 0.0;
+    state total_burn_expended: float = 0.0;
+    state runway_months_remaining: float = 12.0;
+    state cash_runway_breached: bool = false;
+    state active: bool = true;
+
+    event CollectBilling(amount: float, fee: float);
+    event DeductMonthlyBurn(salaries: float, hosting: float);
+    event AuditRunway();
+
+    rule ReceiveStripe on event CollectBilling when (active == true) {
+      transition cash_balance = cash_balance + (payload.amount - payload.fee);
+      transition total_collected_revenue = total_collected_revenue + payload.amount;
+    }
+
+    rule PayBurn on event DeductMonthlyBurn when (active == true) {
+      transition cash_balance = cash_balance - (payload.salaries + payload.hosting);
+      transition total_burn_expended = total_burn_expended + (payload.salaries + payload.hosting);
+    }
+
+    rule CheckRunway on event AuditRunway when (cash_balance < 20000.0) {
+      transition cash_runway_breached = true;
+    }
+  }
+}

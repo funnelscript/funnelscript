@@ -1,0 +1,33 @@
+world EcommerceCashflow {
+  agent Shopper {
+    state phase: string = "browser";
+    state visit_count: int = 0;
+    state converted: bool = false;
+    state cart_value: float = 0.0;
+    state refunded: bool = false;
+    state lifetime_spend: float = 0.0;
+
+    event AdClick(cpc: float, purchase_intent: float, basket_size: float);
+    event CompleteOrder(gross_amount: float);
+    event DisputeOrRefund(refund_ratio: float);
+
+    rule ReceiveClick on event AdClick when (converted == false) {
+      transition visit_count = visit_count + 1;
+      transition lifetime_spend = lifetime_spend + payload.cpc;
+      transition converted = sample bernoulli(payload.purchase_intent);
+      transition cart_value = payload.basket_size;
+      transition phase = "shopper";
+      emit CompleteOrder(gross_amount = payload.basket_size) after 1;
+    }
+
+    rule OrderSettled on event CompleteOrder when (converted == true) {
+      transition phase = "settled";
+      emit DisputeOrRefund(refund_ratio = 0.05) after 3;
+    }
+
+    rule ProcessRefund on event DisputeOrRefund when (converted == true) {
+      transition refunded = sample bernoulli(payload.refund_ratio);
+      transition phase = "terminal";
+    }
+  }
+}

@@ -1,0 +1,10 @@
+world InvalidTranscendentalArg {
+  entity Model {
+    state spend: Currency<USD> = 1000;
+    state response: float = 0.0;
+    event Eval();
+    rule OnEval on event Eval {
+      transition response = exp(spend);
+    }
+  }
+}

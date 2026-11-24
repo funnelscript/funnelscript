@@ -13,7 +13,7 @@ from funnelscript.runtime.world_executor import (
 )
 
 ROOT = Path(__file__).parent / "fixtures/population-reference"
-SOURCE = ROOT / "identity-rng.fnl"
+SOURCE = ROOT / "identity-rng.fnls"
 GOLDEN = json.loads((ROOT / "keyed-rng-golden.json").read_text(encoding="utf-8"))
 FIRST = {aid: item["draws"][0] for aid, item in GOLDEN["trial-1"].items()}
 SECOND = {aid: item["draws"][1] for aid, item in GOLDEN["trial-1"].items()}
@@ -221,7 +221,7 @@ def test_terminal_inactive_and_new_are_disjoint_and_exhaustive():
 
 
 def test_invalid_runtime_partition_value_is_not_silently_counted(tmp_path):
-    bad_source = tmp_path / "invalid-phase.fnl"
+    bad_source = tmp_path / "invalid-phase.fnls"
     bad_source.write_text(
         SOURCE.read_text(encoding="utf-8").replace(
             'transition phase = "terminal";', 'transition phase = "unregistered";'

@@ -11,7 +11,7 @@ from funnelscript.runtime.world_executor import PopulationAgent, PopulationExecu
 import funnelscript.stdlib.marketing as marketing
 
 
-SOURCE = Path(__file__).parent / "fixtures/population-reference/identity-rng.fnl"
+SOURCE = Path(__file__).parent / "fixtures/population-reference/identity-rng.fnls"
 D = Decimal
 
 

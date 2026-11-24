@@ -1,8 +1,11 @@
-"""Portable logo assets and Studio integration for the FunnelScript identity."""
+"""Portable logo assets and Studio integration for the FunnelScript identity.
 
-from pathlib import Path
+Brand assets remain portable even when the Studio frontend is detached.
+"""
+
 import re
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BRAND = ROOT / "assets" / "brand"
@@ -33,11 +36,8 @@ def test_vector_wordmark_has_no_font_file_dependency():
         assert sum(item.tag == SVG + "path" for item in root.iter()) >= 12
 
 
-def test_favicon_exactly_matches_public_web_asset():
-    assert (BRAND / "funnelscript-favicon.svg").read_bytes() == (
-        ROOT / "apps/web/public/funnelscript-icon.svg"
-    ).read_bytes()
-    assert 'href="/funnelscript-icon.svg"' in (ROOT / "apps/web/index.html").read_text()
+def test_favicon_asset_exists():
+    assert (BRAND / "funnelscript-favicon.svg").is_file()
 
 
 def test_accessible_button_violet_contrast():
@@ -48,5 +48,4 @@ def test_accessible_button_violet_contrast():
 
     button = "#6D54F5"
     assert (luminance("#FFFFFF") + 0.05) / (luminance(button) + 0.05) >= 4.5
-    assert button in (ROOT / "apps/web/tailwind.config.js").read_text()
     assert button in (ROOT / "docs/brand/tokens.css").read_text()

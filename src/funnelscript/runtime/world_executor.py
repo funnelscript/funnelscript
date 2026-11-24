@@ -16,6 +16,7 @@ from dataclasses import dataclass, field
 
 from funnelscript.compiler.world_ast import (
     BinaryExpression,
+    CallExpression,
     EventEmissionDefinition,
     EventRuleDefinition,
     GuardDefinition,
@@ -92,6 +93,8 @@ class WorldExecutor:
     ) -> object:
         if isinstance(expr, SampleExpression):
             return WorldExecutor._sample(expr, snapshot, payload, rng)
+        if isinstance(expr, CallExpression):
+            return WorldExecutor._call(expr, snapshot, payload, rng)
         if isinstance(expr, LiteralExpression):
             return expr.value
         if isinstance(expr, ReferenceExpression):
@@ -106,7 +109,8 @@ class WorldExecutor:
             if type(left) is float and (not math.isfinite(left) or not math.isfinite(right)):
                 raise WorldExecutionError("Non-finite arithmetic operand")
             if expr.operator == "/" and right == 0:
-                raise WorldExecutionError("Division by zero")
+                span_str = f" at line {expr.span.start_line}:{expr.span.start_col}" if getattr(expr, "span", None) else ""
+                raise WorldExecutionError(f"Division by zero{span_str}")
             try:
                 if expr.operator == "+":
                     result = left + right
@@ -122,6 +126,41 @@ class WorldExecutor:
                 raise WorldExecutionError("Non-finite arithmetic result")
             return result
         raise WorldExecutionError("Unknown expression type")
+
+    @staticmethod
+    def _call(
+        expr: CallExpression,
+        snapshot: dict[str, object],
+        payload: dict[str, object] | None = None,
+        rng: random.Random | None = None,
+    ) -> object:
+        fn = expr.function
+        args = [WorldExecutor._evaluate(a, snapshot, payload, rng) for a in expr.arguments]
+        if fn == "hill":
+            s = float(args[0])
+            k = float(args[1])
+            alpha = float(args[2])
+            v_max = float(args[3]) if len(args) > 3 else 1.0
+            if s <= 0.0:
+                return 0.0
+            s_alpha = s ** alpha
+            k_alpha = k ** alpha
+            return (v_max * s_alpha) / (k_alpha + s_alpha)
+        if fn == "adstock":
+            s = float(args[0])
+            return s
+        if fn == "exp":
+            return math.exp(float(args[0]))
+        if fn == "log":
+            return math.log(float(args[0]))
+        if fn == "sigmoid":
+            x = float(args[0])
+            return 1.0 / (1.0 + math.exp(-x))
+        if fn == "fx_convert":
+            amt = float(args[0])
+            rate = float(args[1])
+            return amt * rate
+        raise WorldExecutionError(f"Unknown function '{fn}' in execution")
 
     @staticmethod
     def _sample(
@@ -222,8 +261,18 @@ class WorldExecutor:
              for name, expr in emission.arguments.items()}
             if emission.arguments else None
         )
+        if isinstance(emission.delay, (int, float)):
+            delay_val = emission.delay
+        else:
+            evaluated = self._evaluate(emission.delay, snapshot, payload)
+            if not isinstance(evaluated, (int, float)) or not math.isfinite(evaluated) or evaluated < 0:
+                raise WorldExecutionError(
+                    f"Dynamic event emission delay must evaluate to a finite non-negative number, got {evaluated}"
+                )
+            delay_val = evaluated
+
         emitted = Event(
-            time=parent.time + emission.delay,
+            time=parent.time + delay_val,
             name=f"{owner}.{emission.event}",
             payload=record,
             priority=parent.priority,

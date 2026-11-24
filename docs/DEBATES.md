@@ -622,8 +622,8 @@ To serve both personas flawlessly without compromising architectural purity:
    * Package: `@funnelscript/cli` on npm.
    * Execution:
      ```bash
-     npx funnelscript simulate campaign.fnl --runs 100000
-     bunx funnelscript check campaign.fnl
+     npx funnelscript simulate campaign.fnls --runs 100000
+     bunx funnelscript check campaign.fnls
      ```
    * An ultra-lightweight Node/Bun binary wrapper that either delegates to a locally detected Python runtime or invokes a bundled WebAssembly/Pyodide distribution, enabling instantaneous zero-install execution in any terminal or Node-based CI pipeline.
 
@@ -681,9 +681,9 @@ The centerpiece of modern developer experience is the **Language Server Protocol
 ```
 1. Developer opens VS Code / Cursor
 2. Installs "FunnelScript" extension with one click
-3. Authors `black_friday.fnl` with real-time LSP autocomplete & error squiggles
+3. Authors `black_friday.fnls` with real-time LSP autocomplete & error squiggles
 4. Opens integrated terminal and executes:
-   $ funnelscript simulate black_friday.fnl
+   $ funnelscript simulate black_friday.fnls
 5. Terminal displays Rich statistical distributions (P10, P50, P90, VaR, CVaR)
 6. Optional: Launches local web canvas to visually inspect customer flowcharts
 ```
@@ -720,7 +720,7 @@ The official documentation portal must be partitioned into four distinct, self-c
 
 #### Pillar 1: The Getting Started Guide (Tutorials & Onboarding)
 * **Audience:** Net-new developers, marketing analysts, growth practitioners.
-* **Content:** Step-by-step installation guides (via `uv tool`, `pipx`, or zero-install `npx`), VS Code / Cursor IDE configuration, and writing the very first `hello_world_campaign.fnl`.
+* **Content:** Step-by-step installation guides (via `uv tool`, `pipx`, or zero-install `npx`), VS Code / Cursor IDE configuration, and writing the very first `hello_world_campaign.fnls`.
 
 #### Pillar 2: The Language Reference (Core Specifications)
 * **Audience:** Senior software engineers, marketing systems architects, compiler contributors.
@@ -863,7 +863,7 @@ A critical trap in ambitious software projects is delaying release until a massi
 | **18** | **FunnelScript Plan Engine** | Implement `funnelscript plan` DAG diff engine calculating estimated daily spend and resource mutations. | P2 | **Roadmap** |
 | **19** | **Smart-Contract Invariant Linter**| Author static analysis pass to verify all loops and triggers possess bounded spend ceilings ($C_{\text{max}}$). | P1 | **Next Phase** |
 | **20** | **NPM / NPX CLI Wrapper** | Author `@funnelscript/cli` wrapper on npm for zero-install `npx funnelscript` workflows. | P2 | **Roadmap** |
-| **21** | **TextMate Grammar (.tmLanguage)**| Author TextMate grammar syntax highlighter for `.fnl` in VS Code and Cursor. | P2 | **Roadmap** |
+| **21** | **TextMate Grammar (.tmLanguage)**| Author TextMate grammar syntax highlighter for `.fnls` in VS Code and Cursor. | P2 | **Roadmap** |
 | **22** | **Language Server Protocol (LSP)**| Implement `pygls`-based background language server exposing real-time AST lint diagnostics. | P2 | **Roadmap** |
 | **23** | **VS Code Extension (.vsix)** | Package official VS Code / Cursor extension integrating TextMate grammar, LSP, and snippets. | P2 | **Roadmap** |
 | **24** | **Documentation Portal (Docs as Code)**| Author Fumadocs/Mintlify portal structure covering Getting Started, Specs, Bayesian Guide, and Anti-Patterns. | P2 | **Roadmap** |
@@ -893,7 +893,7 @@ A critical trap in ambitious software projects is delaying release until a massi
 
 ## Implementation Debate: World Syntax and Backward Compatibility (2026-10-31)
 
-**Problem:** DEC-008 and DEC-010 require general `Entity`, `Agent`, and `State` abstractions, while the shipped `.fnl` parser currently recognizes marketing-specific `strategy` declarations.
+**Problem:** DEC-008 and DEC-010 require general `Entity`, `Agent`, and `State` abstractions, while the shipped `.fnls` parser currently recognizes marketing-specific `strategy` declarations.
 
 * **Option A:** Replace the legacy strategy grammar with new generic syntax immediately. This would risk breaking working campaign programs and 45 existing tests before the marketing standard-library migration exists.
 * **Option B (chosen):** Add a standalone `world` source form with context-sensitive declaration words and a nominal Agent-as-Entity AST relationship. Keep legacy parsing, linting, and simulation unchanged, with an explicit unsupported mode for world execution.
@@ -988,7 +988,7 @@ A critical trap in ambitious software projects is delaying release until a massi
 
 * **Option A, hardcoded marketing parser branches:** Easy to demo, but makes users' future market domains depend on one central schema. Rejected.
 * **Option B, executable Python helper library:** Compatible with a Python reference implementation, but privileges host-language constructors over source-level reusable abstractions and is not portable to alternative runtimes.
-* **Option C, source World module imports (accepted v0):** `import "std:marketing/lead_response.fnl" as Prospect;` compiles a normal agent under a new name and then executes unchanged World semantics. The syntax works for local community modules too.
+* **Option C, source World module imports (accepted v0):** `import "std:marketing/lead_response.fnls" as Prospect;` compiles a normal agent under a new name and then executes unchanged World semantics. The syntax works for local community modules too.
 * **Trade-offs:** One exported declaration per file avoids premature module signatures, import scoping and qualification. Restricted paths prevent traversal, but the system has no registry, version lockfile, package namespace ownership or distribution trust chain.
 * **Economic caveat:** Source-typed float values are not proof of nonnegative CPC or order value. The single-journey demonstration is research code, not a truthful ROAS forecaster or full agent economy.
 * **Falsification:** H-M1 to H-M4 cover alias-equivalent execution, wheel portability, import graph/path safety and deterministic single-journey events. No empirical market claims follow.

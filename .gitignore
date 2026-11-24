@@ -19,10 +19,8 @@ venv/
 ENV/
 env/
 
-# Web app and TypeScript artifacts
+# Node / JS artifacts
 node_modules/
-apps/web/dist/
-apps/web/node_modules/
 *.tsbuildinfo
 .npm/
 .bun/
@@ -75,3 +73,16 @@ scratch/
 # Worktrees and transient checkouts
 /worktrees/
 worktrees/
+
+# Anti-Slop & Environment Hygiene Guardrails
+agent-kernel/env-vault/
+*worktrees/
+*.wave.*
+coordinator.*/
+*.pyc
+
+# Large media, sandbox evaluations and local run dumps
+*.mp4
+assets/video/
+sandbox/
+*.rea.json

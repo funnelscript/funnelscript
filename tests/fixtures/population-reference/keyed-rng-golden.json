@@ -3,7 +3,7 @@
   "algorithm": "population-rng-v1/sha256-mt19937",
   "seed": 1,
   "stream_role": "world-transitions",
-  "source": "identity-rng.fnl",
+  "source": "identity-rng.fnls",
   "canonical_preimage": "[\"population-rng-v1\",1,\"trial-1\",\"agent-000\",\"world-transitions\"]",
   "trial-1": {
     "agent-000": {

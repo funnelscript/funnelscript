@@ -7,7 +7,7 @@ from funnelscript.parser import Parser
 import funnelscript.runtime.world_executor as world_runtime
 
 
-SOURCE = Path(__file__).parent / "fixtures/population-reference/identity-rng.fnl"
+SOURCE = Path(__file__).parent / "fixtures/population-reference/identity-rng.fnls"
 
 
 def test_ten_instances_have_exhaustive_identity_partition():

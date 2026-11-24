@@ -3,11 +3,79 @@
 from __future__ import annotations
 
 import json
+import linecache
 from pathlib import Path
 
 from pydantic import ValidationError
 
-from funnelscript.tokens import diagnostic_excerpt
+from funnelscript.tokens import SourceSpan, diagnostic_excerpt
+
+
+class TraitConformanceError(ValueError):
+    """Static Trait resolution, conformance, or dimensional invariant failure."""
+
+    def __init__(
+        self,
+        code: str,
+        message: str,
+        *,
+        span: SourceSpan | None = None,
+        remediation: str = "Verify Trait implementation signatures and dimensional contracts.",
+    ) -> None:
+        super().__init__(message)
+        self.code = code
+        self.span = span
+        self.remediation = remediation
+
+    def __str__(self) -> str:
+        msg = super().__str__()
+        if self.span is None:
+            return f"{self.code}: {msg}\nHint: {self.remediation}"
+        span = self.span
+        line = linecache.getline(span.file, span.start_line).rstrip("\r\n")
+        width = span.end_col - span.start_col if span.start_line == span.end_line else 1
+        excerpt = diagnostic_excerpt(line, span.start_col, width) if line else ""
+        return (
+            f"{self.code} {span.file}: line {span.start_line}, column {span.start_col}\n"
+            f"{excerpt}\nTraitConformanceError: {msg}\n"
+            f"Hint: {self.remediation}"
+        )
+
+
+class DimensionalTypeError(ValueError):
+    """Static compile-time dimensional algebra or unit verification failure."""
+
+    def __init__(
+        self,
+        code: str,
+        message: str,
+        *,
+        span: SourceSpan | None = None,
+        expected: str | None = None,
+        inferred: str | None = None,
+        remediation: str = "Verify dimensional units and physical consistency.",
+    ) -> None:
+        super().__init__(message)
+        self.code = code
+        self.span = span
+        self.expected = expected
+        self.inferred = inferred
+        self.remediation = remediation
+
+    def __str__(self) -> str:
+        msg = super().__str__()
+        extra = f"\n  Expected: {self.expected}\n  Inferred: {self.inferred}" if self.expected else ""
+        if self.span is None:
+            return f"{self.code}: {msg}{extra}\nHint: {self.remediation}"
+        span = self.span
+        line = linecache.getline(span.file, span.start_line).rstrip("\r\n")
+        width = span.end_col - span.start_col if span.start_line == span.end_line else 1
+        excerpt = diagnostic_excerpt(line, span.start_col, width) if line else ""
+        return (
+            f"{self.code} {span.file}: line {span.start_line}, column {span.start_col}\n"
+            f"{excerpt}\nDimensionalTypeError: {msg}{extra}\n"
+            f"Hint: {self.remediation}"
+        )
 
 MAX_VALIDATION_DIAGNOSTICS = 32
 
@@ -60,6 +128,8 @@ def render_compiler_error(
     error: Exception, source_path: str | Path,
 ) -> str:
     """Render known decoder/schema errors without inventing source positions."""
+    if isinstance(error, (TraitConformanceError, DimensionalTypeError)):
+        return str(error)
     if isinstance(error, json.JSONDecodeError):
         return _json_syntax_error(error, source_path)
     if isinstance(error, ValidationError):

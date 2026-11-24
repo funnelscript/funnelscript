@@ -1,0 +1,13 @@
+world SalesCapacityStressRun {
+  import "leadgen/sales_capacity" as SalesCap;
+
+  // 30-Day High-Ticket Growth Campaign (Real Estate / B2B Agency)
+  // Attempting to scale ad spend 2.5x (from $2,000/day to $5,000/day)
+  // Fixed Sales Desk: 4 reps, max 12 leads/rep/day (48 daily team capacity)
+  //
+  // Operational Failure Mode:
+  // - Inbound lead volume spikes to 65+ leads/day, exceeding team capacity.
+  // - Queue backlog builds up, pushing speed-to-lead from 15m to 6+ hours.
+  // - Contact and close rates collapse under decay; Effective CAC spikes,
+  //   turning Net Contribution Margin negative despite strong nominal CPL.
+}

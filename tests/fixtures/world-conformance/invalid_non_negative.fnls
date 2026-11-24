@@ -1,0 +1,5 @@
+world InvalidNonNegative {
+  entity AdChannel {
+    state budget_cap: Currency<USD> = -1500;
+  }
+}

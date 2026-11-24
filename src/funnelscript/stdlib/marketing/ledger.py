@@ -1,18 +1,34 @@
 """Opt-in marketing financial reference ledger, not World or legacy runtime policy.
 
 Research: funnelscript-research/spec/financial-ledger-metrics-v0.md (H-LEDGER1).
+Enforces exact fixed-point minor units with zero float drift, continuous trial balance,
+payment friction primitives (rolling reserves, refunds, chargebacks, fees), and dual-basis reporting.
 """
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from decimal import Decimal
-import re
 
+from funnelscript.ledger import allocate_remainder
 
 _ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:-]*", re.ASCII)
 _CURRENCY = re.compile(r"[A-Z]{3}", re.ASCII)
-_KINDS = frozenset({"sale", "settlement", "ad_spend", "other_cost", "writeoff"})
+_KINDS = frozenset({
+    "sale",
+    "settlement",
+    "ad_spend",
+    "other_cost",
+    "writeoff",
+    "refund",
+    "chargeback",
+    "fee",
+    "reserve_hold",
+    "reserve_release",
+    "credit_drawdown",
+    "credit_repayment",
+})
 _CENT = Decimal("0.01")
 
 
@@ -66,7 +82,7 @@ class LedgerEntry:
         _money(self.amount, "amount", positive=True)
         if type(self.currency) is not str or _CURRENCY.fullmatch(self.currency) is None:
             raise ValueError("currency must be a three-letter uppercase code")
-        if self.kind in ("settlement", "writeoff"):
+        if self.kind in ("settlement", "writeoff", "refund", "chargeback"):
             _identity(self.source_tx_id, "source_tx_id")
         elif self.source_tx_id is not None:
             raise ValueError("only settlement and writeoff may reference a sale")
@@ -89,6 +105,11 @@ class LedgerSnapshot:
     profit: Decimal
     open_receivables: tuple[tuple[str, Decimal], ...]
     checkpoints: tuple[tuple[int, str, Decimal], ...]
+    refunds: Decimal = Decimal("0.00")
+    chargebacks: Decimal = Decimal("0.00")
+    gateway_fees: Decimal = Decimal("0.00")
+    rolling_reserves: Decimal = Decimal("0.00")
+    credit_balance: Decimal = Decimal("0.00")
 
 
 @dataclass(frozen=True)
@@ -125,8 +146,10 @@ class MarketingLedger:
         cash = initial = _cents(self.cash_initial)
         minimum = cash
         revenue = settled = ads = costs = writeoffs = 0
+        refunds = chargebacks = fees = reserves = credit = 0
         previous_day = 0
         checkpoints = [(0, "initial", _decimal(cash))]
+
         for entry in self.entries:
             if entry.trial_id != self.trial_id or entry.currency != self.currency:
                 raise ValueError("ledger trial or currency mismatch")
@@ -138,7 +161,9 @@ class MarketingLedger:
             previous_day = entry.day
             if entry.day > cutoff:
                 continue
+
             cents = _cents(entry.amount)
+
             if entry.kind == "sale":
                 sales[entry.tx_id] = (entry.day, cents)
                 revenue += cents
@@ -154,24 +179,73 @@ class MarketingLedger:
                     cash += cents
                 else:
                     writeoffs += cents
+            elif entry.kind == "refund":
+                day, available = self._receivable(sales, entry)
+                if cents > available:
+                    raise ValueError("refund exceeds outstanding sale balance")
+                sales[entry.source_tx_id] = (day, available - cents)
+                refunds += cents
+                revenue -= cents
+                cash -= cents
+            elif entry.kind == "chargeback":
+                day, available = self._receivable(sales, entry)
+                if cents > available:
+                    raise ValueError("chargeback exceeds outstanding sale balance")
+                sales[entry.source_tx_id] = (day, available - cents)
+                chargebacks += cents
+                revenue -= cents
+                cash -= cents
+            elif entry.kind == "fee":
+                fees += cents
+                cash -= cents
+            elif entry.kind == "reserve_hold":
+                reserves += cents
+                cash -= cents
+            elif entry.kind == "reserve_release":
+                if cents > reserves:
+                    raise ValueError("reserve release exceeds locked rolling reserve balance")
+                reserves -= cents
+                cash += cents
+            elif entry.kind == "credit_drawdown":
+                credit += cents
+                ads += cents
+            elif entry.kind == "credit_repayment":
+                if cents > credit:
+                    raise ValueError("credit repayment exceeds outstanding credit balance")
+                credit -= cents
+                cash -= cents
             elif entry.kind == "ad_spend":
                 ads += cents
                 cash -= cents
             else:
                 costs += cents
                 cash -= cents
+
             minimum = min(minimum, cash)
             checkpoints.append((entry.day, entry.tx_id, _decimal(cash)))
+
         open_sales = tuple(sorted((key, _decimal(balance)) for key, (_, balance) in sales.items() if balance))
         return LedgerSnapshot(
-            trial_id=self.trial_id, currency=self.currency, horizon=cutoff,
-            cash_initial=_decimal(initial), cash=_decimal(cash), min_cash=_decimal(minimum),
+            trial_id=self.trial_id,
+            currency=self.currency,
+            horizon=cutoff,
+            cash_initial=_decimal(initial),
+            cash=_decimal(cash),
+            min_cash=_decimal(minimum),
             receivables=_decimal(sum(balance for _, balance in sales.values())),
-            recognized_revenue=_decimal(revenue), settled_receipts=_decimal(settled),
-            paid_ad_spend=_decimal(ads), paid_other_costs=_decimal(costs),
+            recognized_revenue=_decimal(revenue),
+            settled_receipts=_decimal(settled),
+            paid_ad_spend=_decimal(ads),
+            paid_other_costs=_decimal(costs),
             writeoffs=_decimal(writeoffs),
-            profit=_decimal(revenue - ads - costs - writeoffs),
-            open_receivables=open_sales, checkpoints=tuple(checkpoints),
+            profit=_decimal(revenue - ads - costs - writeoffs - fees),
+            open_receivables=open_sales,
+            checkpoints=tuple(checkpoints),
+            refunds=_decimal(refunds),
+            chargebacks=_decimal(chargebacks),
+            gateway_fees=_decimal(fees),
+            rolling_reserves=_decimal(reserves),
+            credit_balance=_decimal(credit),
         )
 
     @staticmethod
@@ -179,3 +253,11 @@ class MarketingLedger:
         if entry.source_tx_id not in sales:
             raise ValueError("settlement/writeoff must reference an existing sale")
         return sales[entry.source_tx_id]
+
+
+__all__ = [
+    "LedgerEntry",
+    "LedgerSnapshot",
+    "MarketingLedger",
+    "allocate_remainder",
+]

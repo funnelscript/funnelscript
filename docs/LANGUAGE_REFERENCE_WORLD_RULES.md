@@ -36,11 +36,11 @@ The complete lexical grammar lives in `funnelscript-research/spec/grammar.ebnf`.
 
 ## Execute a minimal World
 
-`examples/counter_world.fnl` contains `Counter.count`, `Counter.active`, and two rules. From the repository root:
+`examples/counter_world.fnls` contains `Counter.count`, `Counter.active`, and two rules. From the repository root:
 
 ```bash
-uv run main.py check examples/counter_world.fnl
-uv run main.py run-world examples/counter_world.fnl \
+uv run main.py check examples/counter_world.fnls
+uv run main.py run-world examples/counter_world.fnls \
   --event Counter.Pulse@0 --event Counter.Pulse@1 --seed 42
 ```
 
@@ -64,18 +64,18 @@ Expected JSON values: `world = "CounterDemo"`, `state.Counter.count = 2`, `state
 
 ## Source-generated causal chains
 
-A real source example is `examples/event_chain_world.fnl`:
+A real source example is `examples/event_chain_world.fnls`:
 
 ```bash
-uv run main.py check examples/event_chain_world.fnl
-uv run main.py run-world examples/event_chain_world.fnl --event Worker.Start@1
+uv run main.py check examples/event_chain_world.fnls
+uv run main.py run-world examples/event_chain_world.fnls --event Worker.Start@1
 ```
 
 It schedules `Worker.Step` at t=3 and `Worker.Stop` at t=6, returning `processed_events=3`, `progress=1`, and `active=false`. Each event is processed through the same stable event calendar; `run-world` still needs an initial externally supplied event. Emission is restricted to the same owner; typed payloads are supported under DEC-030 and stochastic transition expressions under DEC-031, but stochastic delays and cross-owner effects remain out of scope. A typed rule guard can conditionally suppress emission.
 
 ## Conditional World rules
 
-`examples/guarded_world.fnl` demonstrates a bounded self-emission chain:
+`examples/guarded_world.fnls` demonstrates a bounded self-emission chain:
 
 ```funnelscript
 rule Advance on event Tick when (value < 3) {
@@ -85,14 +85,14 @@ rule Advance on event Tick when (value < 3) {
 ```
 
 ```bash
-uv run main.py run-world examples/guarded_world.fnl --event Counter.Tick@0 --max-events 5
+uv run main.py run-world examples/guarded_world.fnls --event Counter.Tick@0 --max-events 5
 ```
 
 The first three events mutate `value` and schedule follow-ups; the fourth event finds the guard false and schedules nothing. The resulting value is 3 and there are no pending events. This does not mean recursion is generally terminating: an always-true self-emitting rule still requires an event limit.
 
 ## Typed event records
 
-`examples/payload_world.fnl` declares `Credit(amount: int)` and demonstrates external and internally generated typed messages:
+`examples/payload_world.fnls` declares `Credit(amount: int)` and demonstrates external and internally generated typed messages:
 
 ```funnelscript
 event Credit(amount: int);
@@ -106,8 +106,8 @@ rule Seed on event Start {
 ```
 
 ```bash
-uv run main.py run-world examples/payload_world.fnl --event Wallet.Start@3
-uv run main.py run-world examples/payload_world.fnl \
+uv run main.py run-world examples/payload_world.fnls --event Wallet.Start@3
+uv run main.py run-world examples/payload_world.fnls \
   --event '{"name":"Wallet.Credit","time":0,"payload":{"amount":8}}'
 ```
 
@@ -115,7 +115,7 @@ The first run processes a `Start` at t=3 and a `Credit` at t=5, with `balance=10
 
 ## Reproducible stochastic transitions (experimental)
 
-`examples/stochastic_world.fnl` demonstrates two source-level probability operators. They are only valid in transition assignment expressions:
+`examples/stochastic_world.fnls` demonstrates two source-level probability operators. They are only valid in transition assignment expressions:
 
 ```funnelscript
 rule Respond on event Impression {
@@ -125,8 +125,8 @@ rule Respond on event Impression {
 ```
 
 ```bash
-uv run main.py check examples/stochastic_world.fnl
-uv run main.py run-world examples/stochastic_world.fnl \
+uv run main.py check examples/stochastic_world.fnls
+uv run main.py run-world examples/stochastic_world.fnls \
   --event '{"name":"Shopper.Impression","time":0,"payload":{"conversion_probability":0.25}}' \
   --seed 42
 ```
@@ -143,22 +143,22 @@ World source may import a **single exported entity or agent** from another World
 
 ```funnelscript
 world HolidayExperiment {
-  import "std:marketing/lead_response.fnl" as Prospect;
+  import "std:marketing/lead_response.fnls" as Prospect;
 }
 ```
 
-This introduces `Prospect` as an ordinary agent, with `Prospect.Impression` as its external event. The imported rules still execute through the same neutral `WorldExecutor`; no marketing keyword or separate marketing runtime was added. The shipped module is `src/funnelscript/stdlib/marketing/lead_response.fnl`. The package wheel includes its source file.
+This introduces `Prospect` as an ordinary agent, with `Prospect.Impression` as its external event. The imported rules still execute through the same neutral `WorldExecutor`; no marketing keyword or separate marketing runtime was added. The shipped module is `src/funnelscript/stdlib/marketing/lead_response.fnls`. The package wheel includes its source file.
 
 ```bash
-uv run main.py check examples/marketing_lead_response.fnl
-uv run main.py run-world examples/marketing_lead_response.fnl \
+uv run main.py check examples/marketing_lead_response.fnls
+uv run main.py run-world examples/marketing_lead_response.fnls \
   --event '{"name":"Prospect.Impression","time":0,"payload":{"cpc":2.0,"conversion_probability":0.7,"order_value":100.0}}' \
   --seed 1
 ```
 
 The reference case produces `spend=2.0`, `converted=true`, `revenue=100.0`, two processed events and no pending events. Changing only `--seed` to `2` produces `converted=false`, `revenue=0.0`. The `Lead` library models **a single exposure/journey per run**: repeated Impressions are ignored; it is not yet a population or repeated-campaign accounting engine.
 
-Legacy one-export imports use `import "./custom.fnl" as Custom;` and still require exactly one exported declaration. Multi-declaration modules use explicit named selection such as `import "./bundle.fnl" { Counter as Balance, Visitor as Lead };`. Unselected module owners are not imported. Import resolution remains confined to the importing file's directory or the packaged `std:` namespace. Absolute paths, parent traversal, symlink escapes, cycles, unknown names and duplicate local bindings fail before execution. Direct parser calls without a file path cannot resolve imports.
+Legacy one-export imports use `import "./custom.fnls" as Custom;` and still require exactly one exported declaration. Multi-declaration modules use explicit named selection such as `import "./bundle.fnls" { Counter as Balance, Visitor as Lead };`. Unselected module owners are not imported. Import resolution remains confined to the importing file's directory or the packaged `std:` namespace. Absolute paths, parent traversal, symlink escapes, cycles, unknown names and duplicate local bindings fail before execution. Direct parser calls without a file path cannot resolve imports.
 
 `cpc` and `order_value` must be provided as finite floats, but **nonnegative monetary bounds are not yet enforced by the generic core**; they remain experiment assumptions. This demonstration is neither a calibrated conversion model nor a finance-valid forecast. See the [v0 Research Contract](https://github.com/funnelscript/funnelscript-research/blob/main/spec/marketing-stdlib-v0.md).
 
@@ -178,4 +178,4 @@ The tests exercise type rejection, state snapshot semantics, calendar order and 
 
 ## Reproducible event playbooks (Phase 007G)
 
-The CLI accepts `run-world example.fnl --events-file example.json --seed 42`, with strict UTF-8 JSON `{"schema":"funnelscript-event-playbook-v1","events":[{"name":"Owner.Event","time":0,"payload":{}}]}`. It reuses the existing validated inline-event schema, event priority ordering and exact primitive payload typing. Duplicate JSON keys, unknown fields, negative/non-finite timestamps, wrong priorities, oversized files (over 1 MiB) and more than 10,000 records are rejected. Mixed `--events-file` and `--event` is not supported in this version. The example `examples/phase007g_world.fnl` with `examples/phase007g_events.json` exercises composable numeric expressions, two named imports and two events.
+The CLI accepts `run-world example.fnls --events-file example.json --seed 42`, with strict UTF-8 JSON `{"schema":"funnelscript-event-playbook-v1","events":[{"name":"Owner.Event","time":0,"payload":{}}]}`. It reuses the existing validated inline-event schema, event priority ordering and exact primitive payload typing. Duplicate JSON keys, unknown fields, negative/non-finite timestamps, wrong priorities, oversized files (over 1 MiB) and more than 10,000 records are rejected. Mixed `--events-file` and `--event` is not supported in this version. The example `examples/phase007g_world.fnls` with `examples/phase007g_events.json` exercises composable numeric expressions, two named imports and two events.

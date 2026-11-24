@@ -1,0 +1,10 @@
+world InvalidCurrencyIsolation {
+  entity CrossBorder {
+    state usd_balance: Currency<USD> = 1000;
+    state eur_balance: Currency<EUR> = 500;
+    event Rebalance();
+    rule OnRebalance on event Rebalance {
+      transition usd_balance = usd_balance + eur_balance;
+    }
+  }
+}

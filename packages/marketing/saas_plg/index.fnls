@@ -1,0 +1,6 @@
+world SaasPLGWorld {
+  import "acquisition.fnls" as Acquisition;
+  import "activation.fnls" as Activation;
+  import "subscription.fnls" as Subscription;
+  import "treasury.fnls" as Treasury;
+}

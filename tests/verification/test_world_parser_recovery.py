@@ -19,7 +19,7 @@ from funnelscript.tokens import Lexer
 
 
 def _parse(tmp_path: Path, source: str):
-    path = tmp_path / "recovery.fnl"
+    path = tmp_path / "recovery.fnls"
     path.write_text(source, encoding="utf-8")
     return Parser.from_file(path)
 
@@ -38,7 +38,7 @@ def test_collects_independent_state_errors_without_losing_following_members(tmp_
     errors = caught.value.errors
     assert len(errors) == 3
     assert [err.token.line for err in errors] == [3, 5, 6]
-    assert all(str(tmp_path / "recovery.fnl") in str(err) for err in errors)
+    assert all(str(tmp_path / "recovery.fnls") in str(err) for err in errors)
     assert str(caught.value).count("FNL-E102") == 3
 
 
@@ -84,7 +84,7 @@ def test_truncated_block_adds_unclosed_diagnostic_to_prior_error(tmp_path):
 
 
 def test_cli_reports_multiple_diagnostics_without_traceback(tmp_path, capsys):
-    path = tmp_path / "bad.fnl"
+    path = tmp_path / "bad.fnls"
     path.write_text(
         "world X { entity E { state a: int = ; state b: bool = ; } }",
         encoding="utf-8",

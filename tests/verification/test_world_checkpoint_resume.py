@@ -1,4 +1,4 @@
-"""World-level checkpoint replay using real parsed .fnl and identity-derived RNG.
+"""World-level checkpoint replay using real parsed .fnls and identity-derived RNG.
 
 Anchor: DEVS replay equivalence and deterministic agent-local random streams.
 H: world state, ordered events and stochastic draws survive checkpoint/restore.
@@ -24,9 +24,9 @@ from funnelscript.runtime.world_executor import (
 )
 
 ROOT = Path(__file__).resolve().parents[2]
-STOCHASTIC = ROOT / "tests/fixtures/world-conformance/stochastic.fnl"
-ORDERING = ROOT / "tests/fixtures/world-conformance/ordering.fnl"
-POPULATION = ROOT / "tests/fixtures/population-reference/identity-rng.fnl"
+STOCHASTIC = ROOT / "tests/fixtures/world-conformance/stochastic.fnls"
+ORDERING = ROOT / "tests/fixtures/world-conformance/ordering.fnls"
+POPULATION = ROOT / "tests/fixtures/population-reference/identity-rng.fnls"
 
 
 def _world(path: Path) -> WorldExecutor:
@@ -171,8 +171,8 @@ def test_thousand_world_events_use_same_calendar_after_three_checkpoints(count):
 
 
 def test_checkpoint_from_another_world_is_rejected_before_execution(tmp_path):
-    first = tmp_path / "first.fnl"
-    other = tmp_path / "other.fnl"
+    first = tmp_path / "first.fnls"
+    other = tmp_path / "other.fnls"
     first.write_text(
         "world Same { entity E { state n: int = 0; "
         "rule R on event Tick { transition n = n + 1; } } }",
@@ -192,8 +192,8 @@ def test_checkpoint_from_another_world_is_rejected_before_execution(tmp_path):
 
 
 def test_identical_world_content_at_different_source_path_can_resume(tmp_path):
-    one = tmp_path / "one.fnl"
-    two = tmp_path / "two.fnl"
+    one = tmp_path / "one.fnls"
+    two = tmp_path / "two.fnls"
     source = (
         "world W { entity E { state n: int = 0; "
         "rule R on event Tick { transition n = n + 1; } } }"

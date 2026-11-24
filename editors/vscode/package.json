@@ -1,0 +1,60 @@
+{
+  "name": "funnelscript-lang",
+  "displayName": "FunnelScript",
+  "description": "FunnelScript language support, official brand icons, and syntax highlighting for .fnls files",
+  "version": "0.1.0",
+  "publisher": "funnelscript",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Themes"
+  ],
+  "keywords": [
+    "funnelscript",
+    "fnls",
+    "dsl",
+    "world-models"
+  ],
+  "icon": "icons/funnelscript-color.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/funnelscript/funnelscript.git"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "funnelscript",
+        "aliases": [
+          "FunnelScript",
+          "funnelscript",
+          "fnls"
+        ],
+        "extensions": [
+          ".fnls"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/funnelscript-light.svg",
+          "dark": "./icons/funnelscript-dark.svg"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "funnelscript",
+        "scopeName": "source.funnelscript",
+        "path": "./syntaxes/funnelscript.tmLanguage.json"
+      }
+    ],
+    "iconThemes": [
+      {
+        "id": "funnelscript-icons",
+        "label": "FunnelScript Icons",
+        "path": "./icons/funnelscript-icon-theme.json"
+      }
+    ]
+  }
+}

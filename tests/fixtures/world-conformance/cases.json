@@ -3,7 +3,7 @@
   "cases": [
     {
       "id": "C-SNAPSHOT",
-      "source": "snapshot.fnl",
+      "source": "snapshot.fnls",
       "events": [
         {
           "time": 0,
@@ -34,7 +34,7 @@
     },
     {
       "id": "C-ORDER",
-      "source": "ordering.fnl",
+      "source": "ordering.fnls",
       "events": [
         {
           "time": 1,
@@ -120,7 +120,7 @@
     },
     {
       "id": "C-RNG-SEED-1",
-      "source": "stochastic.fnl",
+      "source": "stochastic.fnls",
       "events": [
         {
           "time": 0,
@@ -165,7 +165,7 @@
     },
     {
       "id": "C-RNG-SEED-2",
-      "source": "stochastic.fnl",
+      "source": "stochastic.fnls",
       "events": [
         {
           "time": 0,
@@ -210,7 +210,7 @@
     },
     {
       "id": "C-RNG-NO-SKIP",
-      "source": "stochastic.fnl",
+      "source": "stochastic.fnls",
       "events": [
         {
           "time": 1,
@@ -243,7 +243,7 @@
     },
     {
       "id": "C-TYPED",
-      "source": "typed.fnl",
+      "source": "typed.fnls",
       "events": [
         {
           "time": 0,
@@ -285,7 +285,7 @@
     },
     {
       "id": "C-PENDING",
-      "source": "typed.fnl",
+      "source": "typed.fnls",
       "events": [
         {
           "time": 0,
@@ -329,7 +329,7 @@
     },
     {
       "id": "C-IMPORT",
-      "source": "imported.fnl",
+      "source": "imported.fnls",
       "events": [
         {
           "time": 0,
@@ -371,7 +371,7 @@
     },
     {
       "id": "C-ARITH",
-      "source": "arithmetic.fnl",
+      "source": "arithmetic.fnls",
       "events": [
         {
           "time": 0,
@@ -406,7 +406,7 @@
     },
     {
       "id": "R-EOF",
-      "source": "invalid_eof.fnl",
+      "source": "invalid_eof.fnls",
       "events": [],
       "seed": 0,
       "reject": {
@@ -417,7 +417,7 @@
     },
     {
       "id": "R-REF",
-      "source": "invalid_ref.fnl",
+      "source": "invalid_ref.fnls",
       "events": [],
       "seed": 0,
       "reject": {
@@ -428,7 +428,7 @@
     },
     {
       "id": "R-MIXED-TYPES",
-      "source": "invalid_type.fnl",
+      "source": "invalid_type.fnls",
       "events": [],
       "seed": 0,
       "reject": {
@@ -439,7 +439,7 @@
     },
     {
       "id": "R-LITERAL-ZERO",
-      "source": "invalid_literal_zero.fnl",
+      "source": "invalid_literal_zero.fnls",
       "events": [],
       "seed": 0,
       "reject": {
@@ -450,7 +450,7 @@
     },
     {
       "id": "R-IMPORT-PATH",
-      "source": "invalid_import.fnl",
+      "source": "invalid_import.fnls",
       "events": [],
       "seed": 0,
       "reject": {
@@ -461,7 +461,7 @@
     },
     {
       "id": "R-DYNAMIC-ZERO",
-      "source": "dynamic_zero.fnl",
+      "source": "dynamic_zero.fnls",
       "events": [
         {
           "time": 0,
@@ -479,7 +479,7 @@
     },
     {
       "id": "R-PAYLOAD-MISSING",
-      "source": "typed.fnl",
+      "source": "typed.fnls",
       "events": [
         {
           "time": 0,
@@ -497,7 +497,7 @@
     },
     {
       "id": "R-PAYLOAD-BOOL",
-      "source": "typed.fnl",
+      "source": "typed.fnls",
       "events": [
         {
           "time": 0,
@@ -517,7 +517,7 @@
     },
     {
       "id": "R-PAYLOAD-EXTRA",
-      "source": "typed.fnl",
+      "source": "typed.fnls",
       "events": [
         {
           "time": 0,
@@ -538,7 +538,7 @@
     },
     {
       "id": "R-GUARDED-PAYLOAD",
-      "source": "stochastic.fnl",
+      "source": "stochastic.fnls",
       "events": [
         {
           "time": 0,
@@ -558,7 +558,7 @@
     },
     {
       "id": "R-LIMIT",
-      "source": "recursive.fnl",
+      "source": "recursive.fnls",
       "events": [
         {
           "time": 0,
@@ -577,7 +577,7 @@
     },
     {
       "id": "R-UNKNOWN-EVENT",
-      "source": "typed.fnl",
+      "source": "typed.fnls",
       "events": [
         {
           "time": 0,

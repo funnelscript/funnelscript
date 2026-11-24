@@ -1,0 +1,22 @@
+world SaasAcquisitionModule {
+  entity AcquisitionEngine {
+    state visitors: int = 0;
+    state total_impressions: int = 0;
+    state free_trials_started: int = 0;
+    state total_ad_spend: float = 0.0;
+    state active: bool = true;
+
+    event TrackCampaignSpend(spend: float, impressions: int, clicks: int);
+    event StartTrial();
+
+    rule RecordSpend on event TrackCampaignSpend when (active == true) {
+      transition total_ad_spend = total_ad_spend + payload.spend;
+      transition total_impressions = total_impressions + payload.impressions;
+      transition visitors = visitors + payload.clicks;
+    }
+
+    rule NewTrial on event StartTrial when (active == true) {
+      transition free_trials_started = free_trials_started + 1;
+    }
+  }
+}

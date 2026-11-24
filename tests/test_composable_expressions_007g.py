@@ -6,7 +6,7 @@ from funnelscript.runtime.world_executor import WorldExecutor, WorldExecutionErr
 
 
 def world(tmp_path, expression):
-    path = tmp_path / 'expr.fnl'
+    path = tmp_path / 'expr.fnls'
     path.write_text('''world W { entity Calc {
       state a: int = 20; state b: int = 6; state c: int = 2;
       state result: int = 0;
@@ -36,7 +36,7 @@ def test_invalid_expressions_fail_static_type_check(tmp_path, expression, messag
 
 
 def test_runtime_zero_divisor_fails_without_mutating_prior_world_snapshot(tmp_path):
-    source = tmp_path / 'runtime.fnl'
+    source = tmp_path / 'runtime.fnls'
     source.write_text('''world W { entity Calc {
       state numerator: int = 12; state denominator: int = 0;
       state ratio: float = 1.0; state other: int = 5;
@@ -60,7 +60,7 @@ def test_too_deep_expression_is_rejected_before_runtime(tmp_path):
 
 
 def test_state_and_payload_expression_and_source_round_trip(tmp_path):
-    source = tmp_path / 'payload.fnl'
+    source = tmp_path / 'payload.fnls'
     source.write_text('''world W { agent Calc {
       state base: float = 2.0; state multiplier: float = 3.0;
       state adjusted: float = 0.0;
@@ -80,7 +80,7 @@ def test_state_and_payload_expression_and_source_round_trip(tmp_path):
 
 
 def test_snapshot_atomic_composable_transition(tmp_path):
-    source = tmp_path / 'snapshot.fnl'
+    source = tmp_path / 'snapshot.fnls'
     source.write_text('''world W { entity E {
       state a: int = 2; state b: int = 3;
       rule Swap on event Tick {
@@ -95,7 +95,7 @@ def test_snapshot_atomic_composable_transition(tmp_path):
 
 
 def test_composable_emitted_payload_reuses_snapshot_and_event_calendar(tmp_path):
-    source = tmp_path / 'emission.fnl'
+    source = tmp_path / 'emission.fnls'
     source.write_text('''world W { entity E {
       state n: int = 2; state total: int = 0;
       event Finish(amount: int);

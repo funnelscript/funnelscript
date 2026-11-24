@@ -1,0 +1,204 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "FunnelScript",
+  "scopeName": "source.funnelscript",
+  "fileTypes": ["fnls"],
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#declarations" },
+    { "include": "#keywords" },
+    { "include": "#types" },
+    { "include": "#constants" },
+    { "include": "#operators" },
+    { "include": "#punctuation" },
+    { "include": "#identifiers" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.funnelscript",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.line.number-sign.funnelscript",
+          "match": "#.*$"
+        },
+        {
+          "name": "comment.block.funnelscript",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.funnelscript",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.funnelscript",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.funnelscript",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.funnelscript",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "declarations": {
+      "patterns": [
+        {
+          "match": "\\b(world|entity|agent|trait)\\s+([a-zA-Z_][a-zA-Z0-9_]*)",
+          "captures": {
+            "1": { "name": "storage.type.funnelscript" },
+            "2": { "name": "entity.name.type.class.funnelscript" }
+          }
+        },
+        {
+          "match": "\\b(rule)\\s+([a-zA-Z_][a-zA-Z0-9_]*)",
+          "captures": {
+            "1": { "name": "keyword.control.funnelscript" },
+            "2": { "name": "entity.name.function.rule.funnelscript" }
+          }
+        },
+        {
+          "match": "\\b(event)\\s+([a-zA-Z_][a-zA-Z0-9_]*)",
+          "captures": {
+            "1": { "name": "keyword.control.funnelscript" },
+            "2": { "name": "entity.name.type.event.funnelscript" }
+          }
+        },
+        {
+          "match": "\\b(state|flow|ledger|capacity|metric)\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s*:",
+          "captures": {
+            "1": { "name": "storage.type.funnelscript" },
+            "2": { "name": "variable.other.member.funnelscript" }
+          }
+        },
+        {
+          "match": "\\b(on_[a-zA-Z0-9_]+)\\s*(?:->|\\()",
+          "captures": {
+            "1": { "name": "entity.name.function.lifecycle.funnelscript" }
+          }
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "storage.type.funnelscript",
+          "match": "\\b(world|entity|agent|trait|implements|strategy|metadata|environment|entities)\\b"
+        },
+        {
+          "name": "keyword.control.funnelscript",
+          "match": "\\b(rule|on|event|transition|emit|after|sample|bernoulli|uniform|import|as|when|else|trigger|from|via|to|invariants|simulate|budget|audience|touchpoint|flow|ledger|capacity|metric|post|debit|credit|delay)\\b"
+        },
+        {
+          "name": "variable.language.funnelscript",
+          "match": "\\b(payload|self)\\b"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "support.type.primitive.funnelscript",
+          "match": "\\b(int|float|bool|string)\\b"
+        },
+        {
+          "name": "entity.name.type.funnelscript",
+          "match": "\\b(Currency|LedgerAccount|CapacityGuard|Pool|Flow|Rate|Duration)\\b"
+        },
+        {
+          "name": "constant.language.currency.funnelscript",
+          "match": "\\b(USD|EUR|GBP|JPY|CAD|AUD|CHF|CNY|SEK|NZD)\\b"
+        }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        {
+          "name": "constant.language.boolean.funnelscript",
+          "match": "\\b(true|false)\\b"
+        },
+        {
+          "name": "constant.language.null.funnelscript",
+          "match": "\\b(null|none)\\b"
+        },
+        {
+          "name": "constant.numeric.percentage.funnelscript",
+          "match": "\\b[0-9]+(?:\\.[0-9]+)?%"
+        },
+        {
+          "name": "constant.numeric.duration.funnelscript",
+          "match": "\\b[0-9]+(?:h|hours|d|days|w|weeks|m|months)\\b"
+        },
+        {
+          "name": "constant.numeric.float.funnelscript",
+          "match": "(?<!\\w)[+-]?[0-9]+\\.[0-9]+\\b"
+        },
+        {
+          "name": "constant.numeric.integer.funnelscript",
+          "match": "(?<!\\w)[+-]?[0-9]+\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.arrow.funnelscript",
+          "match": "(?:->|=>|\\.\\.)"
+        },
+        {
+          "name": "keyword.operator.comparison.funnelscript",
+          "match": "(?:==|!=|<=|>=|<|>)"
+        },
+        {
+          "name": "keyword.operator.assignment.funnelscript",
+          "match": "="
+        },
+        {
+          "name": "keyword.operator.arithmetic.funnelscript",
+          "match": "[+\\-*/]"
+        }
+      ]
+    },
+    "punctuation": {
+      "patterns": [
+        {
+          "name": "punctuation.separator.funnelscript",
+          "match": "[;,:]"
+        },
+        {
+          "name": "punctuation.accessor.dot.funnelscript",
+          "match": "\\."
+        },
+        {
+          "name": "punctuation.section.bracket.funnelscript",
+          "match": "[{}\\[\\]()]"
+        }
+      ]
+    },
+    "identifiers": {
+      "patterns": [
+        {
+          "name": "variable.other.funnelscript",
+          "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+        }
+      ]
+    }
+  }
+}

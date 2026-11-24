@@ -31,7 +31,7 @@ WORLD = """world Ledger {
 
 
 def parse_world(tmp_path, source=WORLD):
-    source_file = tmp_path / "payload.fnl"
+    source_file = tmp_path / "payload.fnls"
     source_file.write_text(source, encoding="utf-8")
     return Parser.from_file(source_file)
 
@@ -211,7 +211,7 @@ def test_emission_order_and_payload_replay(tmp_path):
 
 
 def test_cli_reads_typed_event_json_without_executing_code(tmp_path):
-    source_file = tmp_path / "payload.fnl"
+    source_file = tmp_path / "payload.fnls"
     source_file.write_text(WORLD, encoding="utf-8")
     event = {"name": "Wallet.Credit", "time": 0, "payload": {"amount": 8}}
     command = [
@@ -247,7 +247,7 @@ def test_cli_rejects_nonfinite_json_payload(tmp_path):
       event Deposit(amount: float);
       rule R on event Deposit { transition balance = payload.amount; }
     } }"""
-    source_file = tmp_path / "float.fnl"
+    source_file = tmp_path / "float.fnls"
     source_file.write_text(source, encoding="utf-8")
     payload = json.dumps({
         "name": "E.Deposit", "time": 0, "payload": {"amount": math.nan}
@@ -283,7 +283,7 @@ def test_outbound_payload_is_checked_before_entering_pending_calendar(tmp_path):
 
 
 def test_cli_malformed_event_does_not_echo_input_contents(tmp_path):
-    source_file = tmp_path / "payload.fnl"
+    source_file = tmp_path / "payload.fnls"
     source_file.write_text(WORLD, encoding="utf-8")
     marker = "PRIVATE_EVENT_VALUE_DO_NOT_LOG"
     result = subprocess.run(
@@ -297,7 +297,7 @@ def test_cli_malformed_event_does_not_echo_input_contents(tmp_path):
 
 
 def test_cli_rejects_duplicate_json_event_fields(tmp_path):
-    source_file = tmp_path / "payload.fnl"
+    source_file = tmp_path / "payload.fnls"
     source_file.write_text(WORLD, encoding="utf-8")
     raw = '{"name":"Wallet.Credit","time":0,"payload":{"amount":1,"amount":9}}'
     result = subprocess.run(

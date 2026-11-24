@@ -3,7 +3,7 @@
 Anchor: content-addressed model identity and deterministic event sourcing.
 H: restoring the same checkpoint under independently seeded Python hash maps
 preserves every event, ordering decision, source state and pending calendar.
-Invariant: sha256(canonical_run_result) is unchanged for equal .fnl model and
+Invariant: sha256(canonical_run_result) is unchanged for equal .fnls model and
 inputs across two OS processes; a changed World definition is rejected.
 """
 
@@ -19,7 +19,7 @@ from pathlib import Path
 import pytest
 
 SOURCE = Path(__file__).resolve().parents[2] / (
-    "tests/fixtures/world-conformance/ordering.fnl"
+    "tests/fixtures/world-conformance/ordering.fnls"
 )
 SCRIPT = """
 import base64

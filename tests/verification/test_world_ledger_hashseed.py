@@ -1,4 +1,4 @@
-"""Cross-process reproducibility of .fnl World execution and linked finance.
+"""Cross-process reproducibility of .fnls World execution and linked finance.
 
 Research: deterministic DEVS ordering, keyed per-agent PRNG, canonical SHA-256 audit.
 Hypothesis: PYTHONHASHSEED changes neither causal World evidence nor finance.
@@ -28,7 +28,7 @@ from funnelscript.runtime.world_executor import (
 )
 from funnelscript.stdlib import marketing
 
-source = Path("tests/fixtures/population-reference/identity-rng.fnl")
+source = Path("tests/fixtures/population-reference/identity-rng.fnls")
 agents = {
     f"agent-{i:04d}": PopulationAgent(
         f"agent-{i:04d}", f"cohort-{i // 10:03d}",

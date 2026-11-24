@@ -396,7 +396,7 @@ The previous grammar permitted only `entity` and `agent` in a World body. The le
 
 ### Intervention
 
-Added contextual import parsing, a bounded path resolver, an alias-based one-export compiler expansion, a packaged `.fnl` marketing module and package-data metadata. The parser still emits standard World AST declarations, preserving the existing runtime.
+Added contextual import parsing, a bounded path resolver, an alias-based one-export compiler expansion, a packaged `.fnls` marketing module and package-data metadata. The parser still emits standard World AST declarations, preserving the existing runtime.
 
 ### Verification and lessons
 
@@ -416,7 +416,7 @@ Resolved as a deliberately test-first feature gap. No unrelated tests were weake
 
 **Hypotheses:** (A) The command-specific invalid-target checks executed and passed; (B) they short-circuited at the missing CLI command. The stderr `invalid choice: init-world` falsified A.
 
-**Correction:** Required `.fnl` or `directory` diagnostics in negative tests before modifying production code. The second RED run produced six deterministic missing-command failures; after minimal CLI implementation, all six passed.
+**Correction:** Required `.fnls` or `directory` diagnostics in negative tests before modifying production code. The second RED run produced six deterministic missing-command failures; after minimal CLI implementation, all six passed.
 
 **Invariant learned:** Negative tests must assert an error originating at the intended trust boundary, not merely a nonzero exit code. Keep an explicit failure signature so an upstream parser/dispatcher rejection cannot masquerade as successful validation.
 

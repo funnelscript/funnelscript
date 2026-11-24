@@ -34,13 +34,13 @@ SOURCE = """world ResourceDemo {
 
 RNG_REFERENCE = (
     Path(__file__).resolve().parents[1]
-    / "fixtures/population-reference/identity-rng.fnl"
+    / "fixtures/population-reference/identity-rng.fnls"
 )
 
 
 @pytest.fixture
 def executor(tmp_path):
-    path = tmp_path / "resource-demo.fnl"
+    path = tmp_path / "resource-demo.fnls"
     path.write_text(SOURCE, encoding="utf-8")
     return WorldExecutor(Parser.from_file(path))
 
@@ -230,7 +230,7 @@ def test_world_emitted_fanout_hits_queue_budget_at_second_child(tmp_path):
         "rule BeginRule on event Begin { emit Loop after 0; }",
         "rule BeginRule on event Begin { emit Tick after 1; emit Tick after 1; }",
     )
-    path = tmp_path / "fanout.fnl"
+    path = tmp_path / "fanout.fnls"
     path.write_text(source, encoding="utf-8")
     world = WorldExecutor(Parser.from_file(path))
 

@@ -89,7 +89,7 @@ def test_corpus_schema_and_stable_ids():
     assert CORPUS["schema"] == "world-conformance/v0"
     ids = [item["id"] for item in CORPUS["cases"]]
     assert len(ids) == len(set(ids))
-    assert all(item["source"].endswith(".fnl") for item in CORPUS["cases"])
+    assert all(item["source"].endswith(".fnls") for item in CORPUS["cases"])
     assert all(("expected" in item) != ("reject" in item) for item in CORPUS["cases"])
 
 
@@ -178,7 +178,7 @@ def test_invalid_timestamp_rejected_on_event_construction(time):
     ({"max_events": True}, "max_events"),
 ])
 def test_calendar_run_configuration_rejected_before_processing(configuration, fragment):
-    subject = WorldExecutor(Parser.from_file(ROOT / "snapshot.fnl"))
+    subject = WorldExecutor(Parser.from_file(ROOT / "snapshot.fnls"))
     with pytest.raises(ValueError, match=fragment):
         subject.run([Event(0, "Pair.Go")], **configuration)
 
@@ -191,7 +191,7 @@ def test_parser_exhaustion_is_a_deliberate_diagnostic():
 
 
 def test_non_finite_arithmetic_rejects_before_caller_state_mutation():
-    arithmetic = WorldExecutor(Parser.from_file(ROOT / "arithmetic.fnl"))
+    arithmetic = WorldExecutor(Parser.from_file(ROOT / "arithmetic.fnls"))
     state = arithmetic.initial_state()
     state["Values"]["fraction"] = float("nan")
     before = dict(state["Values"])
@@ -199,7 +199,7 @@ def test_non_finite_arithmetic_rejects_before_caller_state_mutation():
         arithmetic.advance(state, Event(0, "Values.Calc"))
     assert state["Values"] == before
 
-    overflow = WorldExecutor(Parser.from_file(ROOT / "overflow.fnl"))
+    overflow = WorldExecutor(Parser.from_file(ROOT / "overflow.fnls"))
     state = overflow.initial_state()
     state["A"]["left"] = 1e308
     state["A"]["right"] = 1e308
@@ -219,8 +219,8 @@ def test_canonical_serialization_is_sorted_and_rejects_non_finite_numbers():
 
 
 @pytest.mark.parametrize("example", [
-    "counter_world.fnl", "guarded_world.fnl", "payload_world.fnl",
-    "stochastic_world.fnl", "event_chain_world.fnl", "warehouse_world.fnl",
+    "counter_world.fnls", "guarded_world.fnls", "payload_world.fnls",
+    "stochastic_world.fnls", "event_chain_world.fnls", "warehouse_world.fnls",
 ])
 def test_existing_valid_world_example_still_compiles(example):
     example_path = ROOT.parents[2] / "examples" / example

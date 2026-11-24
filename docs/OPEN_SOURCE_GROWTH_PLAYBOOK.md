@@ -45,7 +45,7 @@ A project attracts top-tier open-source engineers when its engineering hygiene a
 ### Pillar 2: Mutual Commercial Incentives via `fpm`
 Open-source ecosystems compound when third parties benefit financially from building on the platform:
 * **Agency Distribution:** Performance marketing agencies package proprietary strategies into versioned `fpm` libraries (`@agency/b2b-pipeline-engine`), using public packages to demonstrate mathematical rigor and win enterprise retainers.
-* **Provider Ecosystem:** Ad platforms, CRM vendors, and martech companies (TikTok, Klaviyo, HubSpot) author official connectors to ensure marketing budgets specified in `.fnl` flow directly into their APIs.
+* **Provider Ecosystem:** Ad platforms, CRM vendors, and martech companies (TikTok, Klaviyo, HubSpot) author official connectors to ensure marketing budgets specified in `.fnls` flow directly into their APIs.
 * **Connector Bounty Program:** Strategic developer grants and bounties awarded to community members who author certified platform providers that pass the FunnelScript provider conformance test suite.
 
 ### Pillar 3: Targeting the "Marketing Systems Engineer" Persona

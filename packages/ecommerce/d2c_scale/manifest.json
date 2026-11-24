@@ -1,0 +1,29 @@
+{
+  "name": "ecommerce/d2c_scale",
+  "version": "0.1.0",
+  "description": "Production-grade D2C scale package with dual Prepaid & COD payment mechanics and liquidity stress testing",
+  "license": "MIT",
+  "author": "FunnelScript Core Team <core@funnelscript.org>",
+  "keywords": [
+    "ecommerce",
+    "d2c",
+    "cod",
+    "liquidity",
+    "working-capital",
+    "cash-flow",
+    "rto"
+  ],
+  "main": "index.fnls",
+  "dependencies": {},
+  "benchmarks": {
+    "default_cod_share": 0.65,
+    "default_rto_rate": 0.18,
+    "default_cod_remittance_days": 7,
+    "default_gateway_settle_days": 3
+  },
+  "verification": {
+    "mass_conservation": true,
+    "bounded_budget_gas": true,
+    "double_entry_exact": true
+  }
+}

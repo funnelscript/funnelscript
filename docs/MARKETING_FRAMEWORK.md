@@ -57,7 +57,7 @@ It treats marketing strategies as formal, executable discrete-event state machin
 - **The Tactic:** Do not force marketers to replace their existing ad stack immediately. Introduce `funnelscript check` as a lightweight, zero-dependency linter for marketing campaigns.
 - **Distribution Vehicle:**
   - **Pre-commit Hook:** Validates budget caps and audience conservation before committing campaign plans.
-  - **GitHub Action (`funnelscript-action`):** Runs static checks on `.fnl` files in CI/CD, preventing PR merges that violate budget ceilings or contain circular attribution paths.
+  - **GitHub Action (`funnelscript-action`):** Runs static checks on `.fnls` files in CI/CD, preventing PR merges that violate budget ceilings or contain circular attribution paths.
 
 ### Stage 2: Technical Evangelism ("Show Me The Ruin")
 - **The Tactic:** Publish forensic post-mortems of famous e-commerce and SaaS marketing collapses modeled in FunnelScript.
@@ -68,15 +68,15 @@ It treats marketing strategies as formal, executable discrete-event state machin
 - **Launch Channel:** Hacker News "Show HN", Substack, technical PyData meetups, and GrowthHackers forums.
 
 ### Stage 3: The `fpm` Package Ecosystem & Community Flywheel
-- **The Tactic:** Enable performance marketing agencies and growth teams to author, publish, and import versioned `.fnl` strategy modules.
-- **Incentive:** Performance agencies package proprietary strategy templates (e.g. `@agency/b2b-pipeline-engine`, `std:marketing/lead_response.fnl`) to demonstrate quantitative authority and win enterprise retainers.
+- **The Tactic:** Enable performance marketing agencies and growth teams to author, publish, and import versioned `.fnls` strategy modules.
+- **Incentive:** Performance agencies package proprietary strategy templates (e.g. `@agency/b2b-pipeline-engine`, `std:marketing/lead_response.fnls`) to demonstrate quantitative authority and win enterprise retainers.
 - **Network Effect:** As more pre-calibrated touchpoints (TikTok, Meta Reels, Google PMax) are open-sourced in `fpm`, the cost of assembling a new strategy drops to minutes.
 
 ### Stage 4: Enterprise GTM & Cloud Grid
 - **The Tactic:** Monetize high-volume stochastic simulation and continuous state synchronisation.
 - **Commercial Offerings:**
   - **FunnelScript Cloud Grid:** Distributed GPU/SIMD simulation executing millions of virtual consumer agents across complex Bayesian priors in seconds.
-  - **Live Platform Connectors:** Automated bidirectional compilation from `.fnl` definitions into live Meta Marketing API, Google Ads API, and TikTok Ads Manager campaigns.
+  - **Live Platform Connectors:** Automated bidirectional compilation from `.fnls` definitions into live Meta Marketing API, Google Ads API, and TikTok Ads Manager campaigns.
 
 ---
 
@@ -88,7 +88,7 @@ It treats marketing strategies as formal, executable discrete-event state machin
 3. **The Open-Source Philosophy:** Championing open science, reproducible marketing benchmarks, and open-source specifications over proprietary black boxes.
 
 ### High-Impact Lead Assets
-- **WebAssembly (WASM) Interactive Playground:** A browser-based IDE at `play.funnelscript.org` allowing developers to edit `.fnl` models, run 1,000 Monte Carlo runs in-browser, and visualize cash-flow trajectory charts in real time with zero installation.
+- **WebAssembly (WASM) Interactive Playground:** A browser-based IDE at `play.funnelscript.org` allowing developers to edit `.fnls` models, run 1,000 Monte Carlo runs in-browser, and visualize cash-flow trajectory charts in real time with zero installation.
 - **The Marketing Systems Engineering Curriculum:** A free, open-source 5-part guide teaching software engineers and data analysts how to apply discrete-event simulation to marketing systems.
 
 ---
@@ -102,7 +102,7 @@ It treats marketing strategies as formal, executable discrete-event state machin
                └───────────────┬───────────────┘
                                │
                ┌───────────────▼───────────────┐
-               │ L2: Channel & Provider Author │  Touchpoint benchmarks (.fnl),
+               │ L2: Channel & Provider Author │  Touchpoint benchmarks (.fnls),
                │     (Community Modules)       │  ad-platform connector shims
                └───────────────┬───────────────┘
                                │
@@ -125,7 +125,7 @@ It treats marketing strategies as formal, executable discrete-event state machin
 |---|---|---|
 | **Awareness** | GitHub Stars & Hacker News Frontpage Reach | 2,500+ Stars; #1 Show HN |
 | **Activation** | CLI `funnelscript check` executions | 15,000+ local runs |
-| **Adoption** | Active `.fnl` files checked in CI/CD | 500+ repositories |
+| **Adoption** | Active `.fnls` files checked in CI/CD | 500+ repositories |
 | **Ecosystem** | Community packages published to `fpm` | 25+ verified modules |
 | **Enterprise** | Pilot deployments with performance agencies / DTC brands | 5 paying enterprise pilots |
 
@@ -135,7 +135,7 @@ It treats marketing strategies as formal, executable discrete-event state machin
 
 - **Week 1 (Packaging & Polish):**
   - Finalize `v0.2.0a1` installation via `uvx` straight from Git.
-  - Package TextMate / VS Code syntax extension for `.fnl` syntax highlighting.
+  - Package TextMate / VS Code syntax extension for `.fnls` syntax highlighting.
 - **Week 2 (The Interactive Playground):**
   - Ship browser-based WASM demonstration running single-lead journeys and Monte Carlo simulation.
 - **Week 3 (The Launch Wave):**

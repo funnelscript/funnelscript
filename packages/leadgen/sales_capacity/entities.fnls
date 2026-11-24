@@ -1,0 +1,39 @@
+world SalesCapacityEntitiesModule {
+  import "core/commerce_traits" as std;
+
+  entity SalesLead implements std.FinancialBinding, std.Attributable, std.Ingestable {
+    currency: Currency<USD> = "USD";
+    ledger clearing_account: LedgerAccount<USD>;
+    channel_id: string = "linkedin_ads";
+    touchpoint_id: string = "demo_request";
+    mapping_schema: string = "leadgen/sales_capacity";
+    idempotency_key: string = "lead_001";
+    state lead_id: int = 1;
+    state deal_value: int = 4500;
+    state qualified: bool = false;
+    state ingested: bool = false;
+
+    on_settlement -> {
+      post debit(clearing_account, 4500), credit(arr_revenue, 4500);
+    }
+
+    on_touchpoint -> {
+      transition qualified = true;
+    }
+
+    on_ingest -> {
+      transition ingested = true;
+    }
+  }
+
+  entity SalesRepDesk implements std.Capacitated {
+    capacity capacity_limit: CapacityGuard(12, 1d);
+    state rep_id: int = 1;
+    state active_leads: int = 0;
+    state overflow_alert: bool = false;
+
+    on_bottleneck -> {
+      transition overflow_alert = true;
+    }
+  }
+}

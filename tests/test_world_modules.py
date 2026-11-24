@@ -15,11 +15,11 @@ from funnelscript.runtime.world_executor import WorldExecutor
 
 
 IMPORT_SOURCE = """world LaunchExperiment {
-  import "std:marketing/lead_response.fnl" as Prospect;
+  import "std:marketing/lead_response.fnls" as Prospect;
 }"""
 
 
-def write_world(tmp_path, source=IMPORT_SOURCE, filename="entry.fnl"):
+def write_world(tmp_path, source=IMPORT_SOURCE, filename="entry.fnls"):
     path = tmp_path / filename
     path.write_text(source, encoding="utf-8")
     return path
@@ -73,14 +73,14 @@ def test_duplicate_impression_is_ignored_without_extra_checkouts_or_draws(tmp_pa
 
 def test_imported_module_equals_inlined_source(tmp_path):
     module_path = resources.files("funnelscript").joinpath(
-        "stdlib", "marketing", "lead_response.fnl"
+        "stdlib", "marketing", "lead_response.fnls"
     )
     module_text = module_path.read_text(encoding="utf-8")
     inline = module_text.replace("world LeadResponseLibrary", "world LaunchExperiment").replace(
         "agent Lead {", "agent Prospect {"
     )
     imported = WorldExecutor(Parser.from_file(write_world(tmp_path)))
-    inlined = WorldExecutor(Parser.from_file(write_world(tmp_path, inline, "inline.fnl")))
+    inlined = WorldExecutor(Parser.from_file(write_world(tmp_path, inline, "inline.fnls")))
     events = [impression()]
     assert imported.run(events, seed=13) == inlined.run(events, seed=13)
 
@@ -92,10 +92,10 @@ def test_local_community_module_import_uses_only_file_directory(tmp_path):
             state n: int = 0;
             rule Count on event Tick { transition n = n + 1; }
           }
-        }""", filename="local.fnl",
+        }""", filename="local.fnls",
     )
     world = Parser.from_file(write_world(
-        tmp_path, 'world Own { import "./local.fnl" as CustomLedger; }'
+        tmp_path, 'world Own { import "./local.fnls" as CustomLedger; }'
     ))
     result = WorldExecutor(world).run([Event(0, "CustomLedger.Tick")])
     assert result.state["CustomLedger"]["n"] == 1
@@ -104,11 +104,11 @@ def test_local_community_module_import_uses_only_file_directory(tmp_path):
 @pytest.mark.parametrize(
     "reference",
     [
-        "../outside.fnl",
-        "/tmp/secret.fnl",
-        "./missing.fnl",
-        "std:../../secrets.fnl",
-        "std:marketing/no_such_file.fnl",
+        "../outside.fnls",
+        "/tmp/secret.fnls",
+        "./missing.fnls",
+        "std:../../secrets.fnls",
+        "std:marketing/no_such_file.fnls",
         "local.json",
     ],
 )
@@ -119,16 +119,16 @@ def test_unsafe_or_missing_modules_fail_before_execution(tmp_path, reference):
 
 
 def test_symlink_escape_is_rejected(tmp_path):
-    outside = tmp_path.parent / "external.fnl"
+    outside = tmp_path.parent / "external.fnls"
     outside.write_text("world External { entity E {} }", encoding="utf-8")
-    link = tmp_path / "escape.fnl"
+    link = tmp_path / "escape.fnls"
     try:
         link.symlink_to(outside)
     except OSError:
         pytest.skip("Symlink creation is unavailable on this filesystem")
     with pytest.raises(ParserError, match="(path|Path|module|Module)"):
         Parser.from_file(write_world(
-            tmp_path, 'world W { import "escape.fnl" as E; }'
+            tmp_path, 'world W { import "escape.fnls" as E; }'
         ))
 
 
@@ -140,36 +140,36 @@ def test_symlink_escape_is_rejected(tmp_path):
     ],
 )
 def test_module_must_export_exactly_one_declaration(tmp_path, module_source):
-    write_world(tmp_path, module_source, "module.fnl")
+    write_world(tmp_path, module_source, "module.fnls")
     with pytest.raises(ParserError, match="exactly one"):
         Parser.from_file(write_world(
-            tmp_path, 'world W { import "module.fnl" as X; }'
+            tmp_path, 'world W { import "module.fnls" as X; }'
         ))
 
 
 def test_import_alias_cannot_collide_with_local_owner(tmp_path):
     source = """world W {
       entity Prospect {}
-      import "std:marketing/lead_response.fnl" as Prospect;
+      import "std:marketing/lead_response.fnls" as Prospect;
     }"""
     with pytest.raises(WorldTypeError, match="Duplicate declaration"):
         Parser.from_file(write_world(tmp_path, source))
 
 
 def test_module_import_cycle_fails_cleanly(tmp_path):
-    write_world(tmp_path, 'world A { import "b.fnl" as B; }', "a.fnl")
-    write_world(tmp_path, 'world B { import "a.fnl" as A; }', "b.fnl")
+    write_world(tmp_path, 'world A { import "b.fnls" as B; }', "a.fnls")
+    write_world(tmp_path, 'world B { import "a.fnls" as A; }', "b.fnls")
     with pytest.raises(ParserError, match="(Cyclic|cycle)"):
-        Parser.from_file(tmp_path / "a.fnl")
+        Parser.from_file(tmp_path / "a.fnls")
 
 
 def test_invalid_library_source_fails_existing_world_type_checker(tmp_path):
     write_world(
-        tmp_path, 'world Bad { agent A { state n: int = true; } }', "bad.fnl"
+        tmp_path, 'world Bad { agent A { state n: int = true; } }', "bad.fnls"
     )
     with pytest.raises(WorldTypeError, match="Type mismatch"):
         Parser.from_file(write_world(
-            tmp_path, 'world W { import "bad.fnl" as X; }'
+            tmp_path, 'world W { import "bad.fnls" as X; }'
         ))
 
 
@@ -184,7 +184,7 @@ def test_module_import_requires_a_real_source_path():
 def test_imported_owners_preserve_legacy_source_compatibility(tmp_path):
     local = write_world(tmp_path, "world W { entity E {} }")
     assert Parser.from_file(local).declarations[0].name == "E"
-    strategy = Parser.from_file("examples/black_friday_2026.fnl")
+    strategy = Parser.from_file("examples/black_friday_2026.fnls")
     assert strategy.strategy_name == "ECommerce_Black_Friday_2026"
 
 
@@ -212,8 +212,8 @@ def test_cli_runs_imported_marketing_library_from_elsewhere(tmp_path):
 
 def test_two_aliases_are_separate_world_owners(tmp_path):
     source = """world W {
-      import "std:marketing/lead_response.fnl" as North;
-      import "std:marketing/lead_response.fnl" as South;
+      import "std:marketing/lead_response.fnls" as North;
+      import "std:marketing/lead_response.fnls" as South;
     }"""
     model = WorldExecutor(Parser.from_file(write_world(tmp_path, source)))
     events = [
@@ -235,11 +235,11 @@ def test_two_aliases_are_separate_world_owners(tmp_path):
 
 
 def test_strategy_file_cannot_masquerade_as_world_module(tmp_path):
-    module = tmp_path / "legacy.fnl"
+    module = tmp_path / "legacy.fnls"
     module.write_text(
         'strategy Legacy { metadata { version = "one"; } }', encoding="utf-8"
     )
     with pytest.raises(ParserError, match="world declaration"):
         Parser.from_file(write_world(
-            tmp_path, 'world W { import "legacy.fnl" as NotAllowed; }'
+            tmp_path, 'world W { import "legacy.fnls" as NotAllowed; }'
         ))

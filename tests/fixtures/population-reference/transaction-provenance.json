@@ -1,6 +1,6 @@
 {
   "id": "P-PROV-1",
-  "source": "tests/fixtures/population-reference/identity-rng.fnl",
+  "source": "tests/fixtures/population-reference/identity-rng.fnls",
   "trial_id": "trial-1",
   "seed": 11,
   "time_unit": "day",

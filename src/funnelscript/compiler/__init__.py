@@ -10,14 +10,14 @@ from funnelscript.compiler.world_ast import (
 )
 
 __all__ = [
+    "AgentDefinition",
+    "EntityDefinition",
     "FunnelLinter",
     "LintFinding",
     "LintSeverity",
-    "export_json_schema",
-    "AgentDefinition",
-    "EntityDefinition",
     "StateDefinition",
     "WorldAST",
     "WorldTypeChecker",
     "WorldTypeError",
+    "export_json_schema",
 ]

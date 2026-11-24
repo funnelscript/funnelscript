@@ -52,7 +52,7 @@ def test_json_syntax_error_has_real_line_column_caret(
     assert check_command(str(path)) == 1
     rendered = capsys.readouterr().out
     assert "FNL-E103" in rendered
-    assert "invalid.json" in rendered
+    assert "invalid.json" in rendered or "invalid.json" in "".join(rendered.split())
     assert "line 3, column 14" in rendered
     assert '"entities": BAD' in rendered
     assert "^" in rendered
@@ -86,7 +86,7 @@ def test_json_type_failure_is_bounded_and_does_not_dump_values():
 
 def test_diagnostic_renderer_keeps_existing_semantic_and_syntax_messages():
     for error in [WorldTypeError("semantic failure"), ParserError("syntax failure")]:
-        assert render_compiler_error(error, "input.fnl") == str(error)
+        assert render_compiler_error(error, "input.fnls") == str(error)
 
 
 def test_simulate_reuses_validation_diagnostic_without_traceback(

@@ -1,0 +1,79 @@
+world CommerceTraitsWorld {
+  // =========================================================================
+  // Tier 2: Universal Behavioral Traits
+  // =========================================================================
+
+  // 1. FinancialBinding: Declares double-entry financial posting contracts
+  trait FinancialBinding {
+    currency: Currency;
+    clearing_account: LedgerAccount;
+    on_settlement(amount: Currency);
+  }
+
+  // 2. Capacitated: Exposes resource consumption and capacity guard contracts
+  trait Capacitated {
+    capacity_limit: CapacityGuard;
+    on_bottleneck();
+  }
+
+  // 3. TimeDelayed: Declares deterministic or stochastic latency distributions
+  trait TimeDelayed {
+    transit_delay: Duration;
+    on_delay_elapsed();
+  }
+
+  // 4. Attributable: Exposes marketing attribution and touchpoint provenance
+  trait Attributable {
+    channel_id: string;
+    touchpoint_id: string;
+    on_touchpoint();
+  }
+
+  // 5. Ingestable: Declares data ingestion bindings and provenance tracking
+  trait Ingestable {
+    mapping_schema: string;
+    idempotency_key: string;
+    on_ingest();
+  }
+
+  // =========================================================================
+  // Minimal Commerce Contracts (Interface-Only Protocols)
+  // =========================================================================
+
+  // Shared contract for commercial offers and pricing
+  entity Offer {
+    state price: float = 0.0;
+    state margin: float = 1.0;
+    metric active_orders: Metric;
+  }
+
+  // Shared contract for customer cohorts and audience pools
+  entity CustomerCohort {
+    state population: Pool = 0;
+    state churn_rate: float = 0.0;
+    metric active_members: Metric;
+  }
+
+  // Shared contract for marketing and distribution channels
+  entity Channel {
+    state daily_budget: float = 0.0;
+    metric total_spend: Metric;
+    metric conversions: Metric;
+  }
+
+  // Shared contract for commercial transaction orders
+  entity Order {
+    state gross_amount: float = 0.0;
+    state net_amount: float = 0.0;
+    state tax_amount: float = 0.0;
+    state discount_amount: float = 0.0;
+    metric order_count: Metric;
+  }
+
+  // Shared contract for financial settlement cycles
+  entity Settlement {
+    state settled_amount: float = 0.0;
+    state pending_amount: float = 0.0;
+    metric settlements_processed: Metric;
+  }
+}

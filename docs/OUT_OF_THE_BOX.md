@@ -230,7 +230,7 @@ When developers edit code in VS Code or Cursor, they see syntax errors and type 
 * Compile the vectorized simulation kernel to **WebAssembly (WASM)** via Pyodide or Rust/C++ compilation.
 * Embed the lightweight WASM runner directly inside the FunnelScript Language Server.
 * As the user tweaks budget or targeting numbers, the LSP runs a micro-batch of $1,000$ synthetic agents in $< 20\text{ms}$ in the background.
-* Renders rich CodeLens annotations and interactive hover cards directly above `.fnl` strategy blocks:
+* Renders rich CodeLens annotations and interactive hover cards directly above `.fnls` strategy blocks:
   ```text
   ▶ 1,000 Agent Preview: Expected ROAS 3.2x [2.1x - 4.4x] | Conv Rate: 8.4% | Insolvency Risk: 0.0%
   ```
@@ -241,7 +241,7 @@ When developers edit code in VS Code or Cursor, they see syntax errors and type 
 ## 16. Headless CI/CD GitHub Action & PR Risk Bot (FunnelScript Diff Guardian) (OOTB-016)
 
 ### The Concept
-Marketing strategy documents are typically modified in spreadsheets without code review. FunnelScript strategies live in Git. Every pull request altering a `.fnl` file should automatically undergo automated economic risk review before merging.
+Marketing strategy documents are typically modified in spreadsheets without code review. FunnelScript strategies live in Git. Every pull request altering a `.fnls` file should automatically undergo automated economic risk review before merging.
 
 ### Proposed Mechanism
 * Build an official GitHub Action: `funnelscript/diff-guardian-action`.
@@ -279,7 +279,7 @@ Static documentation websites show code snippets that readers must manually copy
 
 ### Proposed Mechanism
 * Embed client-side WebAssembly (WASM) simulation runners directly inside Fumadocs/Mintlify MDX documentation pages.
-* When a reader reads about "Saturating Ad Margins and Ad Fatigue", the documentation embeds an interactive `.fnl` code block alongside live slider controls (Budget, Creative Quality, Adstock Half-Life $\lambda$).
+* When a reader reads about "Saturating Ad Margins and Ad Fatigue", the documentation embeds an interactive `.fnls` code block alongside live slider controls (Budget, Creative Quality, Adstock Half-Life $\lambda$).
 * The browser runs $10,000$ synthetic agents in real time via WebAssembly in $< 30\text{ms}$, dynamically plotting live conversion curves, ROAS distributions, and cash survival graphs directly within the documentation page.
 * **Future Hypothesis ($H_{\text{doclab}}$):** *Executable documentation laboratories increase developer comprehension of complex stochastic marketing phenomena by $> 60\%$ compared to static code examples.*
 * **2026-10-31 boundary:** Still speculative. The documentation conformance tests introduced under DEC-034 check local link targets only. No in-doc WASM runtime, 30ms benchmark, or 60% comprehension result has been demonstrated.
@@ -306,7 +306,7 @@ Marketing science has historically been divided between empirical econometrics (
 
 ### Proposed Mechanism
 * Found an academic working group with econometrics, computational social science, and marketing faculties.
-* Host an annual "FunnelScript Simulation Benchmark Challenge" where research teams submit algorithmic strategies written in `.fnl` to compete in unknown synthetic macroeconomic shock scenarios (liquidity crunches, privacy signal loss, algorithmic auction inflation).
+* Host an annual "FunnelScript Simulation Benchmark Challenge" where research teams submit algorithmic strategies written in `.fnls` to compete in unknown synthetic macroeconomic shock scenarios (liquidity crunches, privacy signal loss, algorithmic auction inflation).
 * Submissions evaluated blindly on risk-adjusted ROAS, downside insolvency avoidance ($P(\text{Insolvency}) = 0$), and adaptive learning efficiency.
 * **Future Hypothesis ($H_{\text{academic}}$):** *Academic competition benchmark standards solidify FunnelScript as the de facto scientific standard for algorithmic marketing strategy research.*
 

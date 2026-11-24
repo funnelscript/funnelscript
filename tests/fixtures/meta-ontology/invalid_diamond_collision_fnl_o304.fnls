@@ -1,0 +1,14 @@
+world InvalidDiamondCollisionWorld {
+  trait TraitA {
+    status: string;
+  }
+
+  trait TraitB {
+    status: int;
+  }
+
+  // TraitA.status (string) vs TraitB.status (int) diamond collision
+  entity ConflictedEntity implements TraitA, TraitB {
+    status: int = 1;
+  }
+}

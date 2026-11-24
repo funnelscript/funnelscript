@@ -29,7 +29,7 @@ from funnelscript.runtime.world_executor import (
 )
 
 ROOT = Path(__file__).resolve().parents[2]
-SOURCE = ROOT / "tests/fixtures/population-reference/identity-rng.fnl"
+SOURCE = ROOT / "tests/fixtures/population-reference/identity-rng.fnls"
 STATES = ("new", "terminal", "inactive")
 
 
@@ -257,7 +257,7 @@ def test_agent_enrollment_order_can_change_without_changing_identity_streams():
 def test_mismatch_world_ast_is_rejected_before_executing_any_agent(tmp_path):
     original = agents(3)
     checkpoint = population(enrollment=original).start({}).snapshot()
-    source = tmp_path / "altered.fnl"
+    source = tmp_path / "altered.fnls"
     source.write_text(
         SOURCE.read_text(encoding="utf-8").replace(
             'transition phase = "terminal";',
